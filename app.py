@@ -1,0 +1,291 @@
+import os
+import re
+import random
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
+
+from database import db
+from models import User
+
+app = Flask(__name__, template_folder='templates', static_folder='templates')
+app.secret_key = 'calseva_super_secret_session_encryption_key'
+
+# Configure PostgreSQL Database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:parthpostgress89##@localhost:5432/calsevav2'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+
+# Helper function to send email via SMTP
+def send_otp_email(to_email, otp_code):
+    sender = "supportcalsevatec@gmail.com"
+    app_password = "wvib cbaq dsza sexe"
+    
+    subject = "Your One-Time Password (OTP) - CalSEVA"
+    
+    body = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; text-align: center; color: #333333; padding: 20px; background-color: #f4f6f4;">
+        <div style="max-width: 500px; margin: auto; border: 1px solid #dddddd; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); background-color: #ffffff;">
+          <div style="text-align: center; margin: 0 auto 20px auto;">
+            <img src="cid:logo" alt="CalSEVA Logo" style="width: 80px; height: 80px; object-fit: contain;">
+          </div>
+          <h2 style="color: #3A606E; margin-bottom: 5px; font-size: 20px; font-weight: bold;">Calseva Tec Solutions PVT.LTD</h2>
+          <hr style="border: 0; border-top: 1.5px solid #eeeeee; margin: 20px 0;">
+          <p style="font-size: 15px; line-height: 1.5; color: #555555; text-align: left;">Dear Customer,</p>
+          <p style="font-size: 15px; line-height: 1.5; color: #555555; text-align: left;">You requested a One-Time Password (OTP) to login your account.</p>
+          <p style="font-size: 15px; line-height: 1.5; color: #555555; text-align: left;">Your OTP is:</p>
+          <div style="background-color: #f7f9f7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h1 style="font-size: 38px; color: #3A606E; letter-spacing: 6px; margin: 0; font-weight: bold;">{otp_code}</h1>
+          </div>
+          <p style="font-size: 13px; color: #E35E5E; text-align: left;"><strong>Important:</strong> This code is valid for the next 5 minutes and can only be used once.</p>
+          <hr style="border: 0; border-top: 1.5px solid #eeeeee; margin: 20px 0;">
+          <p style="font-size: 11px; color: #888888; line-height: 1.5; text-align: left;">
+            If you did not request this code, please ignore this email or secure your account immediately. Never share your OTP with anyone.
+          </p>
+          <p style="font-size: 13px; color: #666666; margin-top: 25px; text-align: left; line-height: 1.4;">
+            Best regards,<br>
+            <strong>Calseva Support Team</strong>
+          </p>
+        </div>
+      </body>
+    </html>
+    """
+    
+    msg = MIMEMultipart()
+    msg['From'] = f"Calseva Support <{sender}>"
+    msg['To'] = to_email
+    msg['Subject'] = subject
+    
+    msg.attach(MIMEText(body, 'html'))
+    
+    # Attach Logo as inline CID image
+    logo_path = "templates/caliprofile-pages/Calsevalogo.png"
+    if os.path.exists(logo_path):
+        try:
+            with open(logo_path, 'rb') as f:
+                img_data = f.read()
+            msg_image = MIMEImage(img_data)
+            msg_image.add_header('Content-ID', '<logo>')
+            msg_image.add_header('Content-Disposition', 'inline', filename="Calsevalogo.png")
+            msg.attach(msg_image)
+        except Exception as attach_err:
+            print(f"Error attaching logo: {attach_err}")
+    else:
+        print(f"Logo file not found at: {logo_path}")
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(sender, app_password)
+        server.sendmail(sender, to_email, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
+
+# Validation helper for password complexity (8+ chars, alphanumeric + special character)
+def is_valid_password(password):
+    if len(password) < 8:
+        return False
+    # Must contain letter, number, and special character
+    has_letter = re.search(r"[A-Za-z]", password)
+    has_digit = re.search(r"\d", password)
+    has_special = re.search(r"[@$!%*#?&_#@!%^&*()-+=]", password)
+    return bool(has_letter and has_digit and has_special)
+
+# Root route - Redirect to Login
+@app.route('/')
+def index():
+    return redirect(url_for('serve_page_or_static', filepath='cal-login/cal-login.html'))
+
+# Google Auth Fallback Handler
+@app.route('/google-auth-fallback', methods=['POST'])
+def google_auth_fallback():
+    flash("Temporary unable to Proceed")
+    # Redirect back to the referrer or login
+    referrer = request.referrer or url_for('serve_page_or_static', filepath='cal-login/cal-login.html')
+    return redirect(referrer)
+
+# Login Page handler (intercepts GET and POST)
+@app.route('/cal-login/cal-login.html', methods=['GET', 'POST'])
+def login_route():
+    if request.method == 'POST':
+        employee_id = request.form.get('employeeId', '').strip()
+        password = request.form.get('password', '').strip()
+
+        # 1. Invalid Credentials check (empty fields)
+        if not employee_id or not password:
+            flash("Invalid Credentials")
+            return redirect(url_for('login_route'))
+
+        # 2. Employee ID format check (must be exactly 5 digits)
+        if not re.match(r"^\d{5}$", employee_id):
+            flash("Invalid Username Please Signup")
+            return redirect(url_for('login_route'))
+
+        # 3. Password Complexity validation
+        if not is_valid_password(password):
+            flash("Invalid Password Please Signup")
+            return redirect(url_for('login_route'))
+
+        # 4. User lookup in database
+        try:
+            user = User.query.filter_by(employee_id=employee_id).first()
+            if not user:
+                flash("Invalid Username Please Signup")
+                return redirect(url_for('login_route'))
+            
+            # Check password hash match
+            if not user.check_password(password):
+                flash("Invalid Password Please Signup")
+                return redirect(url_for('login_route'))
+
+            # Successful Authentication -> Send OTP via email
+            otp_code = str(random.randint(100000, 999999))
+            session['otp_code'] = otp_code
+            session['temp_employee_id'] = employee_id
+
+            email_sent = send_otp_email(user.email, otp_code)
+            if not email_sent:
+                # Network or SMTP delivery issue fallback
+                flash("Please try again later")
+                return redirect(url_for('login_route'))
+
+            # Redirect to verification code entries page
+            return redirect(url_for('serve_page_or_static', filepath='caliverify/caliverify.html'))
+
+        except Exception as db_err:
+            print(f"Database error during login: {db_err}")
+            # Server error fallback
+            flash("Please try again later")
+            return redirect(url_for('login_route'))
+
+    return render_template('cal-login/cal-login.html')
+
+# Signup Page handler (intercepts GET and POST)
+@app.route('/cal-signup/cal-signup.html', methods=['GET', 'POST'])
+def signup_route():
+    if request.method == 'POST':
+        employee_id = request.form.get('employeeId', '').strip()
+        email = request.form.get('email', '').strip()
+        phone = request.form.get('phone', '').strip()
+        password = request.form.get('password', '').strip()
+
+        # 1. Invalid Credentials check (empty fields)
+        if not employee_id or not email or not phone or not password:
+            flash("Invalid Credentials")
+            return redirect(url_for('signup_route'))
+
+        # 2. Employee ID check (exactly 5 digits)
+        if not re.match(r"^\d{5}$", employee_id):
+            flash("Employee ID must be exactly 5 digits")
+            return redirect(url_for('signup_route'))
+
+        # 3. Phone number check (exactly 10 digits)
+        if not re.match(r"^\d{10}$", phone):
+            flash("Phone no must be written in 10 digits")
+            return redirect(url_for('signup_route'))
+
+        # 4. Email check (must be a valid gmail format ending with @gmail.com)
+        if not email.lower().endswith('@gmail.com'):
+            flash("Email must be email format mostly as @gmail.com")
+            return redirect(url_for('signup_route'))
+
+        # 5. Password Complexity check
+        if not is_valid_password(password):
+            flash("Password must contain at least 8 alphanumeric characters and special symbols")
+            return redirect(url_for('signup_route'))
+
+        try:
+            # Check if user already exists
+            existing_user = User.query.filter_by(employee_id=employee_id).first()
+            if existing_user:
+                flash("Employee ID already registered please Login")
+                return redirect(url_for('signup_route'))
+
+            # Register user
+            new_user = User(
+                employee_id=employee_id,
+                email=email,
+                phone=phone
+            )
+            new_user.set_password(password)
+            db.session.add(new_user)
+            db.session.commit()
+
+            # Redirect directly to login on success
+            return redirect(url_for('login_route'))
+
+        except Exception as db_err:
+            print(f"Database error during signup: {db_err}")
+            flash("Please try again later")
+            return redirect(url_for('signup_route'))
+
+    return render_template('cal-signup/cal-signup.html')
+
+# Verification code route handler
+@app.route('/caliverify/caliverify.html', methods=['GET', 'POST'])
+def verify_route():
+    if request.method == 'POST':
+        # Retrieve digits
+        digit1 = request.form.get('digit1', '').strip()
+        digit2 = request.form.get('digit2', '').strip()
+        digit3 = request.form.get('digit3', '').strip()
+        digit4 = request.form.get('digit4', '').strip()
+        digit5 = request.form.get('digit5', '').strip()
+        digit6 = request.form.get('digit6', '').strip()
+
+        submitted_otp = f"{digit1}{digit2}{digit3}{digit4}{digit5}{digit6}"
+
+        session_otp = session.get('otp_code')
+        temp_emp_id = session.get('temp_employee_id')
+
+        if not session_otp or not temp_emp_id:
+            flash("Invalid Credentials")
+            return redirect(url_for('login_route'))
+
+        if submitted_otp == session_otp:
+            # Successful validation -> Authenticate user session
+            session['user_id'] = temp_emp_id
+            session.pop('otp_code', None)
+            session.pop('temp_employee_id', None)
+            
+            # Redirect to Home dashboard
+            return redirect(url_for('serve_page_or_static', filepath='home/home.html'))
+        else:
+            flash("Invalid OTP Code")
+            return redirect(url_for('verify_route'))
+
+    return render_template('caliverify/caliverify.html')
+
+# Log out route
+@app.route('/cal-login/cal-logout')
+def logout_route():
+    session.clear()
+    return redirect(url_for('login_route'))
+
+# Dynamic template and static file catch-all router
+@app.route('/<path:filepath>', methods=['GET'])
+def serve_page_or_static(filepath):
+    # Render HTML pages dynamically
+    if filepath.endswith('.html'):
+        # Check authentication for protected sub-pages
+        protected_folders = ['home/', 'caliprofile/', 'cali-report/', 'cali-reports-data/', 'schedule-work/', 'caliprofile-pages/', 'tutorial/']
+        is_protected = any(filepath.startswith(folder) for folder in protected_folders)
+        
+        if is_protected and 'user_id' not in session:
+            flash("Invalid Credentials")
+            return redirect(url_for('login_route'))
+            
+        return render_template(filepath)
+    
+    # Otherwise serve assets directly from templates subfolders
+    return send_from_directory('templates', filepath)
+
+if __name__ == '__main__':
+    # Run the server on port 5000
+    app.run(host='127.0.0.1', port=5000, debug=True)

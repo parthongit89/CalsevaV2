@@ -398,6 +398,90 @@ def delete_schedule(schedule_id):
         db.session.rollback()
         return jsonify({'success': False, 'error': str(delete_err)}), 500
 
+# Get all schedules route (GET only)
+@app.route('/get-schedules', methods=['GET'])
+def get_schedules():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+    user_id = session['user_id']
+    try:
+        # Check and initialize tables if they don't exist
+        db.session.execute(text(f"""
+            CREATE TABLE IF NOT EXISTS schedules_{user_id} (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(200) NOT NULL,
+                due_time TIMESTAMP NOT NULL,
+                is_completed BOOLEAN DEFAULT FALSE
+            )
+        """))
+        db.session.commit()
+        
+        rows = db.session.execute(text(f"SELECT id, title, due_time FROM schedules_{user_id} ORDER BY due_time ASC")).fetchall()
+        
+        schedules = []
+        now = datetime.datetime.now()
+        for r in rows:
+            due_time = r[2]
+            time_diff = due_time - now
+            if time_diff.total_seconds() < 0:
+                color_class = "overdue-red"
+            elif time_diff.total_seconds() <= 3600:
+                color_class = "approaching-yellow"
+            else:
+                color_class = "normal-green"
+                
+            schedules.append({
+                'id': r[0],
+                'title': r[1],
+                'date': due_time.strftime('%Y-%m-%d'),
+                'color_class': color_class
+            })
+        return jsonify({'success': True, 'schedules': schedules})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Create schedule route (POST only)
+@app.route('/create-schedule', methods=['POST'])
+def create_schedule():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+    user_id = session['user_id']
+    data = request.get_json()
+    if not data or 'title' not in data or 'date' not in data or 'time' not in data:
+        return jsonify({'success': False, 'error': 'Missing fields'}), 400
+        
+    title = data['title'].strip()
+    date_str = data['date'].strip()
+    time_str = data['time'].strip() # e.g. "08:30 PM" or "10:00 AM"
+    
+    if not title or not date_str or not time_str:
+        return jsonify({'success': False, 'error': 'Empty fields'}), 400
+        
+    try:
+        # Parse date and 12-hour AM/PM time
+        due_time_str = f"{date_str} {time_str}"
+        due_time = datetime.datetime.strptime(due_time_str, '%Y-%m-%d %I:%M %p')
+        
+        # Ensure table exists
+        db.session.execute(text(f"""
+            CREATE TABLE IF NOT EXISTS schedules_{user_id} (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(200) NOT NULL,
+                due_time TIMESTAMP NOT NULL,
+                is_completed BOOLEAN DEFAULT FALSE
+            )
+        """))
+        
+        db.session.execute(text(f"""
+            INSERT INTO schedules_{user_id} (title, due_time) 
+            VALUES (:title, :due_time)
+        """), {'title': title, 'due_time': due_time})
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # Notifications route
 @app.route('/notifications/notifications.html', methods=['GET'])
 def notifications_route():

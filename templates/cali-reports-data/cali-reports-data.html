@@ -234,6 +234,25 @@
 
 
 
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
     /* CSS Variables matching the Calseva "Mystic Forest" color palette */
     :root {
       --color-primary: #3A606E;       /* Dark slate / teal */
@@ -1503,10 +1522,49 @@
         return;
       }
 
-      // Create a temporary hidden container
+      // Create a temporary visible backdrop covering the whole viewport on top of everything
       const tempDiv = document.createElement('div');
       tempDiv.id = 'pdf-render-temp-target';
-      tempDiv.style.display = 'none';
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.left = '0';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '100vw';
+      tempDiv.style.height = '100vh';
+      tempDiv.style.background = 'rgba(30, 46, 53, 0.96)'; // Matches Calseva theme color
+      tempDiv.style.zIndex = '2147483647';
+      tempDiv.style.display = 'flex';
+      tempDiv.style.flexDirection = 'column';
+      tempDiv.style.alignItems = 'center';
+      tempDiv.style.justifyContent = 'flex-start';
+      tempDiv.style.overflowY = 'auto';
+      tempDiv.style.boxSizing = 'border-box';
+      tempDiv.style.padding = '40px 10px 10px 10px';
+
+      // Status text
+      const statusText = document.createElement('div');
+      statusText.style.color = '#FFFFFF';
+      statusText.style.fontFamily = "'Montserrat', sans-serif";
+      statusText.style.fontSize = '13px';
+      statusText.style.fontWeight = 'bold';
+      statusText.style.marginBottom = '20px';
+      statusText.style.textAlign = 'center';
+      statusText.innerText = 'Generating Calibration Certificates... Please wait.';
+      tempDiv.appendChild(statusText);
+
+      // Inner container to hold the A4 printable sheets
+      const innerDiv = document.createElement('div');
+      innerDiv.style.width = '210mm';
+      innerDiv.style.background = '#FFFFFF';
+      innerDiv.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+      innerDiv.style.borderRadius = '4px';
+      innerDiv.style.transformOrigin = 'top center';
+      
+      // Auto-scale the preview to fit the screen width on mobile viewports
+      const screenWidth = window.innerWidth;
+      if (screenWidth < 820) {
+        const scaleFactor = (screenWidth - 20) / 794; // 794px is roughly 210mm
+        innerDiv.style.transform = `scale(${scaleFactor})`;
+      }
 
       checkboxes.forEach((cb, idx) => {
         const reportId = parseInt(cb.getAttribute('data-id'));
@@ -1520,13 +1578,14 @@
               pageEl.style.pageBreakAfter = 'always';
             }
           }
-          tempDiv.appendChild(pageDiv);
+          innerDiv.appendChild(pageDiv);
         }
       });
 
+      tempDiv.appendChild(innerDiv);
       document.body.appendChild(tempDiv);
 
-      // Wait 500ms for images to render and resolve in layout before compiling
+      // Wait 600ms for images to render and resolve in layout before compiling
       setTimeout(() => {
         const opt = {
           margin:       0,
@@ -1536,21 +1595,13 @@
             scale: 2, 
             useCORS: true, 
             scrollY: 0, 
-            scrollX: 0,
-            onclone: function(clonedDoc) {
-              const target = clonedDoc.getElementById('pdf-render-temp-target');
-              if (target) {
-                target.style.display = 'block';
-                target.style.position = 'relative';
-                target.style.width = '210mm';
-                target.style.background = '#FFFFFF';
-              }
-            }
+            scrollX: 0
           },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        html2pdf().from(tempDiv).set(opt).save().then(() => {
+        // Render PDF directly from the A4 innerDiv node (not the backdrop tempDiv!)
+        html2pdf().from(innerDiv).set(opt).save().then(() => {
           document.body.removeChild(tempDiv);
           closePrintModal();
         }).catch(err => {
@@ -1558,7 +1609,7 @@
           alert("Error generating PDF: " + err);
           document.body.removeChild(tempDiv);
         });
-      }, 500);
+      }, 600);
     }
   
     // Page load fade-out transition

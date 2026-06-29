@@ -139,6 +139,25 @@
 
 
 
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
     /* CSS Variables matching the Calseva "Mystic Forest" color palette */
     :root {
       --color-primary: #3A606E;       /* Dark slate / teal */
@@ -1408,9 +1427,14 @@
         return;
       }
 
-      const compileContainer = document.getElementById('pdfCompileContainer');
-      compileContainer.innerHTML = '';
-      compileContainer.style.display = 'block';
+      // Create a temporary visible offscreen layout container to force correct rendering
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '210mm';
+      tempDiv.style.background = '#FFFFFF';
+      tempDiv.style.zIndex = '-1000';
 
       checkboxes.forEach((cb, idx) => {
         const reportId = parseInt(cb.getAttribute('data-id'));
@@ -1419,29 +1443,36 @@
           const pageDiv = document.createElement('div');
           pageDiv.innerHTML = generateReportHTML(report);
           if (idx < checkboxes.length - 1) {
-            pageDiv.querySelector('.pdf-page').style.pageBreakAfter = 'always';
+            const pageEl = pageDiv.querySelector('.pdf-page');
+            if (pageEl) {
+              pageEl.style.pageBreakAfter = 'always';
+            }
           }
-          compileContainer.appendChild(pageDiv);
+          tempDiv.appendChild(pageDiv);
         }
       });
 
-      const opt = {
-        margin:       0,
-        filename:     'Calibration_Reports.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+      document.body.appendChild(tempDiv);
 
-      html2pdf().from(compileContainer).set(opt).save().then(() => {
-        compileContainer.style.display = 'none';
-        compileContainer.innerHTML = '';
-        closePrintModal();
-      }).catch(err => {
-        console.error(err);
-        alert("Error generating PDF: " + err);
-        compileContainer.style.display = 'none';
-      });
+      // Wait 500ms for images to render and resolve in layout before compiling
+      setTimeout(() => {
+        const opt = {
+          margin:       0,
+          filename:     'Calibration_Reports.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().from(tempDiv).set(opt).save().then(() => {
+          document.body.removeChild(tempDiv);
+          closePrintModal();
+        }).catch(err => {
+          console.error(err);
+          alert("Error generating PDF: " + err);
+          document.body.removeChild(tempDiv);
+        });
+      }, 500);
     }
   
     // Page load fade-out transition

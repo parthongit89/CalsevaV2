@@ -281,6 +281,22 @@ def home_route():
     
     # Check and initialize tables if they don't exist
     try:
+        # Check if table exists and has old schema
+        reports_need_recreate = False
+        try:
+            db.session.execute(text(f"SELECT cert FROM reports_{user_id} LIMIT 1"))
+        except Exception:
+            db.session.rollback()
+            try:
+                db.session.execute(text(f"SELECT id FROM reports_{user_id} LIMIT 1"))
+                reports_need_recreate = True
+            except Exception:
+                db.session.rollback()
+
+        if reports_need_recreate:
+            db.session.execute(text(f"DROP TABLE IF EXISTS reports_{user_id}"))
+            db.session.commit()
+
         db.session.execute(text(f"""
             CREATE TABLE IF NOT EXISTS schedules_{user_id} (
                 id SERIAL PRIMARY KEY,
@@ -291,9 +307,12 @@ def home_route():
         """))
         db.session.execute(text(f"""
             CREATE TABLE IF NOT EXISTS reports_{user_id} (
-                id SERIAL PRIMARY KEY,
-                title VARCHAR(200) NOT NULL,
-                status VARCHAR(50) DEFAULT 'pending'
+                id BIGINT PRIMARY KEY,
+                cert VARCHAR(200) NOT NULL,
+                desc_text VARCHAR(200) NOT NULL,
+                date_cal VARCHAR(100) NOT NULL,
+                payload TEXT NOT NULL,
+                status VARCHAR(50) DEFAULT 'completed'
             )
         """))
         db.session.commit()
@@ -319,12 +338,15 @@ def home_route():
                     'future_time': now + datetime.timedelta(days=2)
                 })
                 
-                # Seed a pending report
+                # Seed mock reports matching the new columns
                 db.session.execute(text(f"""
-                    INSERT INTO reports_{user_id} (title, status) VALUES
-                    ('Pressure Gauge Calibration Report', 'pending'),
-                    ('Temperature Chamber Test Report', 'completed')
-                """))
+                    INSERT INTO reports_{user_id} (id, cert, desc_text, date_cal, payload, status) VALUES
+                    (1, 'CALS/2026/001', 'Pressure Gauge', '2026-06-29', :payload1, 'pending'),
+                    (2, 'CALS/2026/002', 'Pressure Gauge', '2026-06-29', :payload2, 'completed')
+                """), {
+                    'payload1': '{"inwardNumber":"INW/2026/102","descriptionSelect":"Pressure Gauge"}',
+                    'payload2': '{"inwardNumber":"INW/2026/103","descriptionSelect":"Pressure Gauge"}'
+                })
                 db.session.commit()
         except Exception as seed_err:
             print(f"Error seeding user 12345: {seed_err}")
@@ -481,7 +503,141 @@ def create_schedule():
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+# Get reports route (GET)
+@app.route('/get-reports', methods=['GET'])
+def get_reports():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+    user_id = session['user_id']
+    try:
+        # Check if table exists and has old schema
+        reports_need_recreate = False
+        try:
+            db.session.execute(text(f"SELECT cert FROM reports_{user_id} LIMIT 1"))
+        except Exception:
+            db.session.rollback()
+            try:
+                db.session.execute(text(f"SELECT id FROM reports_{user_id} LIMIT 1"))
+                reports_need_recreate = True
+            except Exception:
+                db.session.rollback()
 
+        if reports_need_recreate:
+            db.session.execute(text(f"DROP TABLE IF EXISTS reports_{user_id}"))
+            db.session.commit()
+
+        # Ensure table exists
+        db.session.execute(text(f"""
+            CREATE TABLE IF NOT EXISTS reports_{user_id} (
+                id BIGINT PRIMARY KEY,
+                cert VARCHAR(200) NOT NULL,
+                desc_text VARCHAR(200) NOT NULL,
+                date_cal VARCHAR(100) NOT NULL,
+                payload TEXT NOT NULL,
+                status VARCHAR(50) DEFAULT 'completed'
+            )
+        """))
+        db.session.commit()
+        
+        rows = db.session.execute(text(f"SELECT id, cert, desc_text, date_cal, payload, status FROM reports_{user_id} ORDER BY id DESC")).fetchall()
+        reports = []
+        for r in rows:
+            reports.append({
+                'id': int(r[0]),
+                'cert': r[1],
+                'desc': r[2],
+                'date': r[3],
+                'payload': r[4],
+                'status': r[5]
+            })
+        return jsonify({'success': True, 'reports': reports})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Create report route (POST)
+@app.route('/create-report', methods=['POST'])
+def create_report():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+    user_id = session['user_id']
+    data = request.get_json()
+    if not data or 'id' not in data or 'cert' not in data or 'desc' not in data or 'date' not in data or 'payload' not in data:
+        return jsonify({'success': False, 'error': 'Missing fields'}), 400
+        
+    report_id = data['id']
+    cert = data['cert'].strip()
+    desc = data['desc'].strip()
+    date = data['date'].strip()
+    payload = data['payload']
+    status = data.get('status', 'completed').strip()
+    
+    try:
+        # Check if table exists and has old schema
+        reports_need_recreate = False
+        try:
+            db.session.execute(text(f"SELECT cert FROM reports_{user_id} LIMIT 1"))
+        except Exception:
+            db.session.rollback()
+            try:
+                db.session.execute(text(f"SELECT id FROM reports_{user_id} LIMIT 1"))
+                reports_need_recreate = True
+            except Exception:
+                db.session.rollback()
+
+        if reports_need_recreate:
+            db.session.execute(text(f"DROP TABLE IF EXISTS reports_{user_id}"))
+            db.session.commit()
+
+        # Ensure table exists
+        db.session.execute(text(f"""
+            CREATE TABLE IF NOT EXISTS reports_{user_id} (
+                id BIGINT PRIMARY KEY,
+                cert VARCHAR(200) NOT NULL,
+                desc_text VARCHAR(200) NOT NULL,
+                date_cal VARCHAR(100) NOT NULL,
+                payload TEXT NOT NULL,
+                status VARCHAR(50) DEFAULT 'completed'
+            )
+        """))
+        
+        # Insert or update
+        db.session.execute(text(f"""
+            INSERT INTO reports_{user_id} (id, cert, desc_text, date_cal, payload, status)
+            VALUES (:id, :cert, :desc_text, :date, :payload, :status)
+            ON CONFLICT (id) DO UPDATE SET
+                cert = EXCLUDED.cert,
+                desc_text = EXCLUDED.desc_text,
+                date_cal = EXCLUDED.date_cal,
+                payload = EXCLUDED.payload,
+                status = EXCLUDED.status
+        """), {
+            'id': report_id,
+            'cert': cert,
+            'desc_text': desc,
+            'date': date,
+            'payload': payload,
+            'status': status
+        })
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Delete report route (POST)
+@app.route('/delete-report/<int:report_id>', methods=['POST'])
+def delete_report(report_id):
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+    user_id = session['user_id']
+    try:
+        db.session.execute(text(f"DELETE FROM reports_{user_id} WHERE id = :id"), {'id': report_id})
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 # Profile Page dynamic route
 @app.route('/caliprofile/caliprofile.html', methods=['GET'])
 def profile_route():

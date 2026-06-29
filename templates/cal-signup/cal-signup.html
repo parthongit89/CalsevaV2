@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
 
   <!-- Material Symbols Outlined for visibility icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=visibility,visibility_off" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
   <style>
     /* CSS Variables matching the "Mystic Forest" color palette */
@@ -94,8 +94,8 @@
     /* Header Section */
     .header-section {
       text-align: center;
-      margin-top: 30px;
-      margin-bottom: 35px;
+      margin-top: 50px;
+      margin-bottom: 45px;
     }
 
     .app-title {
@@ -117,7 +117,7 @@
     .login-form {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
       width: 100%;
     }
 
@@ -128,7 +128,7 @@
 
     .form-input {
       width: 100%;
-      padding: 15px 18px;
+      padding: 16px 18px;
       font-size: 14px;
       background-color: var(--input-bg);
       border: 1.5px solid var(--input-border);
@@ -149,16 +149,9 @@
       padding-right: 50px;
     }
 
-    .form-input:focus {
-      border-color: var(--input-focus);
-      background-color: #FFFFFF;
-      box-shadow: 0 0 0 4px rgba(58, 96, 110, 0.12);
-    }
-
-    /* Toggle Visibility Button */
     .password-toggle-btn {
       position: absolute;
-      right: 16px;
+      right: 18px;
       top: 50%;
       transform: translateY(-50%);
       background: none;
@@ -389,6 +382,35 @@
       }
     }
 
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .flash-message {
+      background-color: #607B7D;
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      margin: -10px auto 25px auto;
+      width: fit-content;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      animation: fadeInDown 0.3s ease-out;
+      z-index: 10;
+    }
+
   </style>
 </head>
 <body>
@@ -403,6 +425,18 @@
   <main class="app-wrapper">
     <div class="device-container">
       
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="flash-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">info</span>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
       <!-- Header Area -->
       <header class="header-section">
         <h1 class="app-title">Signup</h1>
@@ -410,15 +444,15 @@
       </header>
 
       <!-- Signup Form -->
-      <form class="login-form" id="signupForm" onsubmit="handleSignup(event)">
+      <form class="login-form" id="signupForm" method="POST" action="/cal-signup/cal-signup.html">
         <!-- Employee ID Input -->
         <div class="input-wrapper">
           <input 
             type="text" 
             id="employeeId" 
+            name="employeeId"
             class="form-input" 
             placeholder="Enter Your Employee ID" 
-            required 
             autocomplete="username"
           >
         </div>
@@ -428,9 +462,9 @@
           <input 
             type="email" 
             id="email" 
+            name="email"
             class="form-input" 
             placeholder="Enter Your Email" 
-            required 
             autocomplete="email"
           >
         </div>
@@ -440,9 +474,9 @@
           <input 
             type="tel" 
             id="phone" 
+            name="phone"
             class="form-input" 
             placeholder="Enter Your Phone Number" 
-            required 
             autocomplete="tel"
           >
         </div>
@@ -452,9 +486,9 @@
           <input 
             type="password" 
             id="password" 
+            name="password"
             class="form-input" 
             placeholder="Enter Your Password" 
-            required 
             autocomplete="new-password"
           >
           <button 
@@ -484,10 +518,12 @@
       </div>
 
       <!-- Third Party Auth (Google) -->
-      <button type="button" class="btn-google" onclick="handleGoogleLogin()">
-        <img src="Googlelogologin.png" alt="Google logo">
-        <span>Login with Google</span>
-      </button>
+      <form action="/google-auth-fallback" method="POST" style="width: 100%;">
+        <button type="submit" class="btn-google">
+          <img src="Googlelogologin.png" alt="Google logo">
+          <span>Login with Google</span>
+        </button>
+      </form>
 
       <!-- Calseva Branding Bottom -->
       <footer class="branding-footer">
@@ -513,79 +549,19 @@
       }
     }
 
-    // Signup Form Validation / Interaction Mock
-    function handleSignup(event) {
-      event.preventDefault();
-      
-      const empInput = document.getElementById('employeeId');
-      const emailInput = document.getElementById('email');
-      const phoneInput = document.getElementById('phone');
-      const passInput = document.getElementById('password');
-      const container = document.querySelector('.device-container');
-      
-      let hasError = false;
-
-      // Mock validation logic
-      if (!empInput.value.trim()) {
-        empInput.classList.add('input-error');
-        hasError = true;
-      } else {
-        empInput.classList.remove('input-error');
+    // Automatic shake animation if flash message exists on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const flash = document.querySelector('.flash-message');
+      if (flash) {
+        const container = document.querySelector('.device-container');
+        if (container) {
+          container.classList.add('error-shake');
+          setTimeout(() => {
+            container.classList.remove('error-shake');
+          }, 400);
+        }
       }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailInput.value.trim() || !emailRegex.test(emailInput.value)) {
-        emailInput.classList.add('input-error');
-        hasError = true;
-      } else {
-        emailInput.classList.remove('input-error');
-      }
-
-      const phoneRegex = /^\+?[0-9\s\-()]{7,15}$/;
-      if (!phoneInput.value.trim() || !phoneRegex.test(phoneInput.value)) {
-        phoneInput.classList.add('input-error');
-        hasError = true;
-      } else {
-        phoneInput.classList.remove('input-error');
-      }
-
-      if (!passInput.value.trim() || passInput.value.length < 6) {
-        passInput.classList.add('input-error');
-        hasError = true;
-      } else {
-        passInput.classList.remove('input-error');
-      }
-
-      if (hasError) {
-        // Trigger shaking animation
-        container.classList.add('error-shake');
-        setTimeout(() => {
-          container.classList.remove('error-shake');
-        }, 400);
-        return;
-      }
-
-      // Successful simulated signup interaction
-      const signupBtn = document.querySelector('.btn-login');
-      const originalText = signupBtn.textContent;
-      signupBtn.disabled = true;
-      signupBtn.style.backgroundColor = '#607B7D';
-      signupBtn.textContent = 'Creating account...';
-
-      setTimeout(() => {
-        alert(`Successfully registered account for Employee: ${empInput.value}`);
-        signupBtn.disabled = false;
-        signupBtn.style.backgroundColor = '';
-        signupBtn.textContent = originalText;
-        // Redirect to Login Page
-        navigateToPage('../cal-login/cal-login.html');
-      }, 1500);
-    }
-
-    // Google Sign-In interaction mockup
-    function handleGoogleLogin() {
-      alert("Redirecting to Google authentication...");
-    }
+    });
   
     // Page load fade-out transition
     window.addEventListener('DOMContentLoaded', () => {

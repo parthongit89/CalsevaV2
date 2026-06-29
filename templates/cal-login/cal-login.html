@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
 
   <!-- Material Symbols Outlined for visibility icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=visibility,visibility_off" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
   <style>
     /* CSS Variables matching the "Mystic Forest" color palette */
@@ -149,130 +149,91 @@
       padding-right: 50px;
     }
 
+    .password-toggle-btn {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
+
     .form-input:focus {
       border-color: var(--input-focus);
       background-color: #FFFFFF;
       box-shadow: 0 0 0 4px rgba(58, 96, 110, 0.12);
     }
 
-    /* Toggle Visibility Button */
-    .password-toggle-btn {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--color-muted);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px;
-      border-radius: 50%;
-      transition: all 0.2s ease;
-    }
-
-    .password-toggle-btn:hover {
-      color: var(--color-primary);
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .material-symbols-outlined {
-      font-variation-settings:
-      'FILL' 0,
-      'wght' 400,
-      'GRAD' 0,
-      'opsz' 24;
-      font-size: 22px;
-    }
-
-    /* Buttons */
+    /* Sign In Button with custom interactions */
     .btn-login {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
       background-color: var(--color-primary);
       color: #FFFFFF;
       border: none;
-      padding: 16px;
       border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
       cursor: pointer;
-      width: 100%;
+      transition: all 0.3s ease;
       margin-top: 10px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 12px rgba(58, 96, 110, 0.25);
+      box-shadow: 0 4px 15px rgba(58, 96, 110, 0.25);
     }
 
     .btn-login:hover {
-      background-color: #2D4C57;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(58, 96, 110, 0.35);
+      background-color: var(--color-secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(58, 96, 110, 0.35);
     }
 
     .btn-login:active {
-      transform: translateY(1px);
+      transform: translateY(0);
     }
 
-    /* Signup link */
-    .signup-text {
-      text-align: center;
-      font-size: 13.5px;
-      color: var(--color-secondary);
-      margin-top: 25px;
-      margin-bottom: 25px;
-      font-weight: 500;
-    }
-
-    .signup-link {
-      color: #1A5478; /* Deep slate blue for high visual hierarchy */
-      text-decoration: none;
-      font-weight: 600;
-      margin-left: 5px;
-      transition: color 0.2s ease;
-    }
-
-    .signup-link:hover {
-      color: var(--color-primary);
-      text-decoration: underline;
-    }
-
-    /* Divider */
+    /* Divider layout styles */
     .divider-container {
       display: flex;
       align-items: center;
-      text-align: center;
-      margin-bottom: 28px;
+      justify-content: center;
+      margin: 30px 0;
+      gap: 15px;
     }
 
     .divider-line {
       flex: 1;
       height: 1px;
-      background-color: rgba(58, 96, 110, 0.25);
+      background-color: #D2D8D2;
     }
 
     .divider-text {
-      padding: 0 15px;
       font-size: 13px;
-      color: var(--color-secondary);
+      color: var(--color-muted);
       font-weight: 500;
     }
 
-    /* Google Button */
+    /* Third party sign in */
     .btn-google {
-      background-color: transparent;
-      color: var(--color-primary);
-      border: 1px solid var(--color-primary);
-      padding: 14px;
+      width: 100%;
+      padding: 15px;
       border-radius: 12px;
-      font-size: 14.5px;
-      font-weight: 600;
-      cursor: pointer;
+      border: 1.5px solid var(--input-border);
+      background-color: transparent;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
-      width: 100%;
+      cursor: pointer;
       transition: all 0.3s ease;
+    }
+
+    .btn-google:hover {
+      background-color: rgba(0, 0, 0, 0.03);
     }
 
     .btn-google img {
@@ -282,80 +243,88 @@
       display: block;
     }
 
-    .btn-google:hover {
-      background-color: rgba(255, 255, 255, 0.4);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    .btn-google span {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-primary);
     }
 
-    /* Branding Footer */
+    /* Signup link styles */
+    .signup-text {
+      text-align: center;
+      font-size: 14px;
+      color: var(--color-secondary);
+      margin-top: 30px;
+    }
+
+    .signup-link {
+      color: #1b4b5a;
+      text-decoration: none;
+      font-weight: 700;
+      margin-left: 6px;
+      transition: color 0.2s ease;
+    }
+
+    .signup-link:hover {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    /* Footer Branding elements */
     .branding-footer {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      margin-top: 45px;
-      gap: 12px;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 40px;
     }
 
     .brand-logo {
-      width: 76px;
-      height: 76px;
-      object-fit: contain;
-      border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      transition: transform 0.4s ease;
-    }
-
-    .branding-footer:hover .brand-logo {
-      transform: rotate(360deg);
+      width: 18px;
+      height: 18px;
     }
 
     .brand-text {
-      font-size: 14px;
+      font-size: 12px;
+      color: var(--color-muted);
       font-weight: 500;
-      color: var(--color-secondary);
-      letter-spacing: 0.2px;
+      letter-spacing: 0.5px;
     }
 
-    /* Validation Feedback Animations */
+    /* Shaking animation for validation feedback */
     .input-error {
       border-color: #E35E5E !important;
       background-color: #FFF5F5 !important;
     }
 
     .error-shake {
-      animation: shake 0.4s ease-in-out;
+      animation: shake 0.4s ease;
     }
 
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-6px); }
-      40%, 80% { transform: translateX(6px); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
     }
 
-    /* Mobile Responsive Customizations */
+    /* Responsive adjustments */
     @media (max-width: 480px) {
       body {
         padding: 0;
-        background-color: var(--color-bg-card);
       }
       .app-wrapper {
         max-width: 100%;
         height: 100vh;
       }
       .device-container {
+        height: 100%;
         border-radius: 0;
         border: none;
-        box-shadow: none;
-        height: 100%;
         padding: 60px 24px 40px 24px;
         justify-content: center;
       }
       .header-section {
         margin-top: 0;
-        margin-bottom: 35px;
-      }
-      .branding-footer {
-        margin-top: auto;
       }
     }
   
@@ -389,6 +358,44 @@
       }
     }
 
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .flash-message {
+      background-color: #607B7D;
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      margin: -10px auto 25px auto;
+      width: fit-content;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      animation: fadeInDown 0.3s ease-out;
+      z-index: 10;
+    }
+
+
+
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      font-size: 22px;
+      display: inline-block;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
@@ -403,6 +410,18 @@
   <main class="app-wrapper">
     <div class="device-container">
       
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="flash-message">
+              <span class="material-symbols-outlined" style="font-size: 16px;">info</span>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
       <!-- Header Area -->
       <header class="header-section">
         <h1 class="app-title">Login</h1>
@@ -410,15 +429,15 @@
       </header>
 
       <!-- Login Form -->
-      <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+      <form class="login-form" id="loginForm" method="POST" action="/cal-login/cal-login.html">
         <!-- Employee ID Input -->
         <div class="input-wrapper">
           <input 
             type="text" 
             id="employeeId" 
+            name="employeeId"
             class="form-input" 
             placeholder="Enter Your Employee ID" 
-            required 
             autocomplete="username"
           >
         </div>
@@ -428,9 +447,9 @@
           <input 
             type="password" 
             id="password" 
+            name="password"
             class="form-input" 
             placeholder="Enter Your Password" 
-            required 
             autocomplete="current-password"
           >
           <button 
@@ -460,10 +479,12 @@
       </div>
 
       <!-- Third Party Auth (Google) -->
-      <button type="button" class="btn-google" onclick="handleGoogleLogin()">
-        <img src="Googlelogologin.png" alt="Google logo">
-        <span>Login with Google</span>
-      </button>
+      <form action="/google-auth-fallback" method="POST" style="width: 100%;">
+        <button type="submit" class="btn-google">
+          <img src="Googlelogologin.png" alt="Google logo">
+          <span>Login with Google</span>
+        </button>
+      </form>
 
       <!-- Calseva Branding Bottom -->
       <footer class="branding-footer">
@@ -489,60 +510,19 @@
       }
     }
 
-    // Login Form Validation / Interaction Mock
-    function handleLogin(event) {
-      event.preventDefault();
-      
-      const empInput = document.getElementById('employeeId');
-      const passInput = document.getElementById('password');
-      const container = document.querySelector('.device-container');
-      
-      let hasError = false;
-
-      // Mock validation logic
-      if (!empInput.value.trim()) {
-        empInput.classList.add('input-error');
-        hasError = true;
-      } else {
-        empInput.classList.remove('input-error');
+    // Automatic shake animation if flash message exists on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const flash = document.querySelector('.flash-message');
+      if (flash) {
+        const container = document.querySelector('.device-container');
+        if (container) {
+          container.classList.add('error-shake');
+          setTimeout(() => {
+            container.classList.remove('error-shake');
+          }, 400);
+        }
       }
-
-      if (!passInput.value.trim() || passInput.value.length < 4) {
-        passInput.classList.add('input-error');
-        hasError = true;
-      } else {
-        passInput.classList.remove('input-error');
-      }
-
-      if (hasError) {
-        // Trigger shaking animation
-        container.classList.add('error-shake');
-        setTimeout(() => {
-          container.classList.remove('error-shake');
-        }, 400);
-        return;
-      }
-
-      // Successful simulated login interaction
-      const loginBtn = document.querySelector('.btn-login');
-      const originalText = loginBtn.textContent;
-      loginBtn.disabled = true;
-      loginBtn.style.backgroundColor = '#607B7D';
-      loginBtn.textContent = 'Signing in...';
-
-      setTimeout(() => {
-        loginBtn.disabled = false;
-        loginBtn.style.backgroundColor = '';
-        loginBtn.textContent = originalText;
-        // Redirect to OTP verification page
-        navigateToPage('../caliverify/caliverify.html');
-      }, 1200);
-    }
-
-    // Google Sign-In interaction mockup
-    function handleGoogleLogin() {
-      alert("Redirecting to Google authentication...");
-    }
+    });
   
     // Page load fade-out transition
     window.addEventListener('DOMContentLoaded', () => {

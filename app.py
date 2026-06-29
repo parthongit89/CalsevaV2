@@ -268,6 +268,13 @@ def logout_route():
     session.clear()
     return redirect(url_for('login_route'))
 
+# Route to serve the Material Symbols Outlined font file with correct MIME type
+@app.route('/material-symbols-outlined.woff2')
+@app.route('/templates/material-symbols-outlined.woff2')
+@app.route('/<folder>/material-symbols-outlined.woff2')
+def serve_font(folder=None):
+    return send_from_directory('templates', 'material-symbols-outlined.woff2', mimetype='font/woff2')
+
 # Dynamic template and static file catch-all router
 @app.route('/<path:filepath>', methods=['GET'])
 def serve_page_or_static(filepath):

@@ -2,10 +2,12 @@ import os
 import re
 import random
 import smtplib
+import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
-from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory, jsonify
+from sqlalchemy import text
 
 from database import db
 from models import User
@@ -255,7 +257,7 @@ def verify_route():
             session.pop('temp_employee_id', None)
             
             # Redirect to Home dashboard
-            return redirect(url_for('serve_page_or_static', filepath='home/home.html'))
+            return redirect(url_for('home_route'))
         else:
             flash("Invalid OTP Code")
             return redirect(url_for('verify_route'))
@@ -267,6 +269,142 @@ def verify_route():
 def logout_route():
     session.clear()
     return redirect(url_for('login_route'))
+
+# Home Page dynamic dashboard route
+@app.route('/home/home.html', methods=['GET'])
+def home_route():
+    if 'user_id' not in session:
+        flash("Invalid Credentials")
+        return redirect(url_for('login_route'))
+        
+    user_id = session['user_id']
+    
+    # Check and initialize tables if they don't exist
+    try:
+        db.session.execute(text(f"""
+            CREATE TABLE IF NOT EXISTS schedules_{user_id} (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(200) NOT NULL,
+                due_time TIMESTAMP NOT NULL,
+                is_completed BOOLEAN DEFAULT FALSE
+            )
+        """))
+        db.session.execute(text(f"""
+            CREATE TABLE IF NOT EXISTS reports_{user_id} (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(200) NOT NULL,
+                status VARCHAR(50) DEFAULT 'pending'
+            )
+        """))
+        db.session.commit()
+    except Exception as init_err:
+        print(f"Error initializing user tables: {init_err}")
+        db.session.rollback()
+
+    # Pre-seed test user 12345 tables if they are empty
+    if user_id == '12345':
+        try:
+            s_count = db.session.execute(text(f"SELECT COUNT(*) FROM schedules_{user_id}")).scalar() or 0
+            if s_count == 0:
+                # Seed test schedules
+                now = datetime.datetime.now()
+                db.session.execute(text(f"""
+                    INSERT INTO schedules_{user_id} (title, due_time) VALUES
+                    ('Calibration of Pressure gauge', :overdue_time),
+                    ('Temperature chamber test run', :approaching_time),
+                    ('Multimeter verification check', :future_time)
+                """), {
+                    'overdue_time': now - datetime.timedelta(hours=1, minutes=30),
+                    'approaching_time': now + datetime.timedelta(minutes=30),
+                    'future_time': now + datetime.timedelta(days=2)
+                })
+                
+                # Seed a pending report
+                db.session.execute(text(f"""
+                    INSERT INTO reports_{user_id} (title, status) VALUES
+                    ('Pressure Gauge Calibration Report', 'pending'),
+                    ('Temperature Chamber Test Report', 'completed')
+                """))
+                db.session.commit()
+        except Exception as seed_err:
+            print(f"Error seeding user 12345: {seed_err}")
+            db.session.rollback()
+
+    # Fetch stats and schedules from unique tables
+    try:
+        schedules_count = db.session.execute(text(f"SELECT COUNT(*) FROM schedules_{user_id}")).scalar() or 0
+        reports_count = db.session.execute(text(f"SELECT COUNT(*) FROM reports_{user_id}")).scalar() or 0
+        
+        # Get all active schedules ordered by due_time
+        schedules_rows = db.session.execute(text(f"SELECT id, title, due_time FROM schedules_{user_id} ORDER BY due_time ASC")).fetchall()
+        
+        # Check if there are any reports with a status of 'pending'
+        pending_count = db.session.execute(text(f"SELECT COUNT(*) FROM reports_{user_id} WHERE status = 'pending'")).scalar() or 0
+        has_pending_reports = pending_count > 0
+    except Exception as query_err:
+        print(f"Error querying statistics: {query_err}")
+        schedules_count = 0
+        reports_count = 0
+        schedules_rows = []
+        has_pending_reports = False
+
+    schedules = []
+    now = datetime.datetime.now()
+    for row in schedules_rows:
+        due_time = row[2]
+        time_diff = due_time - now
+        
+        # Color coding:
+        # - Overdue (due_time has passed) -> overdue-red
+        # - Approaching (due_time in <= 1 hour) -> approaching-yellow
+        # - Normal -> normal-green
+        if time_diff.total_seconds() < 0:
+            color_class = "overdue-red"
+        elif time_diff.total_seconds() <= 3600:
+            color_class = "approaching-yellow"
+        else:
+            color_class = "normal-green"
+            
+        schedules.append({
+            'id': row[0],
+            'title': row[1],
+            'due_time': due_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'color_class': color_class
+        })
+
+    return render_template('home/home.html', 
+                           username=user_id, 
+                           schedules_count=schedules_count, 
+                           reports_count=reports_count,
+                           schedules=schedules,
+                           has_pending_reports=has_pending_reports)
+
+# Delete schedule route (POST only)
+@app.route('/delete-schedule/<int:schedule_id>', methods=['POST'])
+def delete_schedule(schedule_id):
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        
+    user_id = session['user_id']
+    try:
+        db.session.execute(text(f"DELETE FROM schedules_{user_id} WHERE id = :id"), {'id': schedule_id})
+        db.session.commit()
+        
+        # Fetch new schedules count
+        new_count = db.session.execute(text(f"SELECT COUNT(*) FROM schedules_{user_id}")).scalar() or 0
+        return jsonify({'success': True, 'new_count': new_count})
+    except Exception as delete_err:
+        print(f"Error deleting schedule: {delete_err}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(delete_err)}), 500
+
+# Notifications route
+@app.route('/notifications/notifications.html', methods=['GET'])
+def notifications_route():
+    if 'user_id' not in session:
+        flash("Invalid Credentials")
+        return redirect(url_for('login_route'))
+    return render_template('notifications/notifications.html')
 
 # Route to serve the Material Symbols Outlined font file with correct MIME type
 @app.route('/material-symbols-outlined.woff2')

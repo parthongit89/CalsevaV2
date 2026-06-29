@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&family=Commissioner:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+
+  <style>
+    @font-face {
+      font-family: 'Material Symbols Outlined';
+      font-style: normal;
+      src: url('../material-symbols-outlined.woff2') format('woff2');
+      font-display: block; /* Hides raw text fallback until icon font is loaded */
+    }
+
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* CSS Variables matching the "Mystic Forest" color palette */
+    :root {
+      --color-primary: #3A606E;       /* Dark slate / teal */
+      --color-secondary: #607B7D;     /* Medium slate */
+      --color-muted: #828E82;         /* Muted grey/green */
+      --color-sage: #AAAE8E;          /* Sage accent */
+      --color-bg-card: #E0E0E0;       /* Base grey background from palette */
+      --color-bg-body: #1E2E35;       /* Premium dark ambient background */
+      
+      --font-main: 'Elms Sans', 'Commissioner', 'Montserrat', 'SN Pro', sans-serif;
+      --font-alt: 'Google Sans Flex', sans-serif;
+    }
+
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, h1, h2, h3, p, .brand-text, .section-title {
+      font-family: var(--font-main);
+    }
+
+    button, a {
+      font-family: var(--font-alt);
+    }
+
+    body {
+      background-color: var(--color-bg-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Desktop Background Styling */
+    .app-wrapper {
+      width: 100%;
+      max-width: 430px;
+      position: relative;
+    }
+
+    /* Device Mockup Shell */
+    .device-container {
+      background-color: var(--color-bg-card);
+      width: 100%;
+      height: 860px;
+      max-height: 95vh;
+      border-radius: 40px;
+      border: 6px solid #C5CBC5;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Header Section (Fixed at Top) */
+    .notifications-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 35px 32px 10px 32px;
+      z-index: 10;
+      background-color: var(--color-bg-card);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background-color: rgba(58, 96, 110, 0.08);
+    }
+
+    .header-title-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--color-primary);
+      letter-spacing: -0.3px;
+    }
+
+    .header-title-line {
+      width: 28px;
+      height: 3px;
+      background-color: var(--color-sage);
+      border-radius: 2px;
+      margin-top: 1px;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: rgba(58, 96, 110, 0.08);
+      color: #B23B3B;
+    }
+
+    /* Scrollable Content Container */
+    .notifications-scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 24px 80px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: none;
+    }
+
+    .notifications-scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Notification Cards */
+    .notification-card {
+      background-color: #E6EAE6;
+      border: 1.5px solid #D2D8D2;
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
+    }
+
+    .notification-card:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-1px);
+    }
+
+    .icon-wrapper {
+      background-color: rgba(58, 96, 110, 0.1);
+      color: var(--color-primary);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-wrapper .material-symbols-outlined {
+      font-size: 22px;
+    }
+
+    .notification-body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .notification-text {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--color-primary);
+      line-height: 1.4;
+    }
+
+    .notification-time {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-muted);
+    }
+
+    /* Mobile overrides */
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+        background-color: var(--color-bg-card);
+      }
+      .app-wrapper {
+        max-width: 100%;
+        height: 100vh;
+      }
+      .device-container {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        height: 100vh;
+        max-height: 100vh;
+      }
+      .notifications-header {
+        padding-top: 50px;
+      }
+    }
+  
+    /* Premium Video Loader Overlay */
+    .loader-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--color-bg-card, #E0E0E0);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9;
+      transition: opacity 0.4s ease;
+      pointer-events: auto;
+    }
+
+    .loader-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 34px;
+    }
+
+    @media (max-width: 480px) {
+      .loader-video {
+        border-radius: 0;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <main class="app-wrapper">
+    <div class="device-container" id="deviceContainer">
+      <!-- Video Loader Overlay -->
+      <div class="loader-overlay" id="loaderOverlay">
+        <video class="loader-video" id="loaderVideo" autoplay loop muted playsinline>
+          <source src="../_cal-loder.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <!-- Header -->
+      <header class="notifications-header">
+        <div class="header-left">
+          <button class="back-btn" onclick="handleBackAction()" aria-label="Go back">
+            <span class="material-symbols-outlined">arrow_back</span>
+          </button>
+          <div class="header-title-container">
+            <h1 class="header-title">Notifications</h1>
+            <span class="header-title-line"></span>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="handleLogout()" aria-label="Log out">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </header>
+
+      <!-- Scrollable Content -->
+      <div class="notifications-scroll-content">
+        
+        <!-- The default login notification -->
+        <div class="notification-card">
+          <div class="icon-wrapper">
+            <span class="material-symbols-outlined">check_circle</span>
+          </div>
+          <div class="notification-body">
+            <p class="notification-text">Welcome to CalSEVA login successfully</p>
+            <span class="notification-time">Just now</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Dark Mode theme check
+      const isDarkMode = localStorage.getItem('calseva_dark_mode') === 'true';
+      applyDarkTheme(isDarkMode);
+    });
+
+    function applyDarkTheme(enable) {
+      const container = document.getElementById('deviceContainer');
+      if (enable) {
+        container.classList.add('dark-theme');
+      } else {
+        container.classList.remove('dark-theme');
+      }
+    }
+
+    function handleBackAction() {
+      navigateToPage('../home/home.html');
+    }
+
+    function handleLogout() {
+      if (confirm("Are you sure you want to log out?")) {
+        navigateToPage('/cal-login/cal-logout');
+      }
+    }
+
+    // Page load fade-out transition
+    window.addEventListener('DOMContentLoaded', () => {
+      const loader = document.getElementById('loaderOverlay');
+      if (loader) {
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          setTimeout(() => {
+            loader.style.display = 'none';
+          }, 400);
+        }, 50);
+      }
+    });
+
+    // Redirection loader trigger
+    function navigateToPage(url) {
+      const loader = document.getElementById('loaderOverlay');
+      if (loader) {
+        loader.style.display = 'flex';
+        loader.offsetHeight; // reflow
+        loader.style.opacity = '0.9';
+        const video = document.getElementById('loaderVideo');
+        if (video) {
+          video.currentTime = 0;
+          video.play().catch(() => {});
+        }
+        setTimeout(() => {
+          window.location.href = url;
+        }, 1100);
+      } else {
+        window.location.href = url;
+      }
+    }
+  </script>
+</body>
+</html>

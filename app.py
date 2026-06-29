@@ -294,5 +294,5 @@ def serve_page_or_static(filepath):
     return send_from_directory('templates', filepath)
 
 if __name__ == '__main__':
-    # Run the server on port 5000
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    # Run the server on port 5000, listening on all interfaces (enables mobile connection)
+    app.run(host='0.0.0.0', port=5000, debug=True)

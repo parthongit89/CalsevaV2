@@ -482,6 +482,65 @@ def create_schedule():
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# Profile Page dynamic route
+@app.route('/caliprofile/caliprofile.html', methods=['GET'])
+def profile_route():
+    if 'user_id' not in session:
+        flash("Invalid Credentials")
+        return redirect(url_for('login_route'))
+        
+    user_id = session['user_id']
+    user = User.query.filter_by(employee_id=user_id).first()
+    if not user:
+        flash("Invalid Credentials")
+        return redirect(url_for('login_route'))
+        
+    return render_template('caliprofile/caliprofile.html', user=user)
+
+# Serve user avatar binary from database
+@app.route('/user/avatar/<employee_id>')
+def serve_avatar(employee_id):
+    user = User.query.filter_by(employee_id=employee_id).first()
+    if not user or not user.profile_image:
+        return "", 404
+        
+    from flask import Response
+    return Response(user.profile_image, mimetype='image/jpeg')
+
+# Upload avatar POST handler
+@app.route('/user/upload-avatar', methods=['POST'])
+def upload_avatar():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        
+    user_id = session['user_id']
+    user = User.query.filter_by(employee_id=user_id).first()
+    if not user:
+        return jsonify({'success': False, 'error': 'User not found'}), 404
+        
+    if 'avatar' not in request.files:
+        return jsonify({'success': False, 'error': 'No file part'}), 400
+        
+    file = request.files['avatar']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': 'No selected file'}), 400
+        
+    # Check extension
+    allowed_extensions = {'png', 'jpg', 'jpeg'}
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if ext not in allowed_extensions:
+        return jsonify({'success': False, 'error': 'Invalid file type'}), 400
+        
+    try:
+        # Read the file binary and save directly to database
+        img_binary = file.read()
+        user.profile_image = img_binary
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # Notifications route
 @app.route('/notifications/notifications.html', methods=['GET'])
 def notifications_route():

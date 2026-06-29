@@ -272,6 +272,25 @@
 
 
 
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
     /* CSS Variables matching the Calseva "Mystic Forest" color palette */
     :root {
       --color-primary: #3A606E;       /* Dark slate / teal */
@@ -1542,22 +1561,22 @@
       }
 
       // Create a temporary visible backdrop covering the whole viewport on top of everything
-      const tempDiv = document.createElement('div');
-      tempDiv.id = 'pdf-render-temp-target';
-      tempDiv.style.position = 'fixed';
-      tempDiv.style.left = '0';
-      tempDiv.style.top = '0';
-      tempDiv.style.width = '100vw';
-      tempDiv.style.height = '100vh';
-      tempDiv.style.background = 'rgba(30, 46, 53, 0.96)'; // Matches Calseva theme color
-      tempDiv.style.zIndex = '2147483647';
-      tempDiv.style.display = 'flex';
-      tempDiv.style.flexDirection = 'column';
-      tempDiv.style.alignItems = 'center';
-      tempDiv.style.justifyContent = 'flex-start';
-      tempDiv.style.overflowY = 'auto';
-      tempDiv.style.boxSizing = 'border-box';
-      tempDiv.style.padding = '40px 10px 10px 10px';
+      const compileDiv = document.createElement('div');
+      compileDiv.id = 'pdf-render-temp-target';
+      compileDiv.style.position = 'fixed';
+      compileDiv.style.left = '0';
+      compileDiv.style.top = '0';
+      compileDiv.style.width = '100vw';
+      compileDiv.style.height = '100vh';
+      compileDiv.style.background = 'rgba(30, 46, 53, 0.98)'; // Matches Calseva dark theme
+      compileDiv.style.zIndex = '2147483647'; // On top of everything
+      compileDiv.style.display = 'flex';
+      compileDiv.style.flexDirection = 'column';
+      compileDiv.style.alignItems = 'center';
+      compileDiv.style.justifyContent = 'flex-start';
+      compileDiv.style.overflowY = 'auto';
+      compileDiv.style.boxSizing = 'border-box';
+      compileDiv.style.padding = '40px 10px 10px 10px';
 
       // Status text
       const statusText = document.createElement('div');
@@ -1568,22 +1587,14 @@
       statusText.style.marginBottom = '20px';
       statusText.style.textAlign = 'center';
       statusText.innerText = 'Generating Calibration Certificates... Please wait.';
-      tempDiv.appendChild(statusText);
+      compileDiv.appendChild(statusText);
 
-      // Inner container to hold the A4 printable sheets
+      // Inner container to hold the A4 printable sheets (unscaled)
       const innerDiv = document.createElement('div');
       innerDiv.style.width = '210mm';
       innerDiv.style.background = '#FFFFFF';
       innerDiv.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
       innerDiv.style.borderRadius = '4px';
-      innerDiv.style.transformOrigin = 'top center';
-      
-      // Auto-scale the preview to fit the screen width on mobile viewports
-      const screenWidth = window.innerWidth;
-      if (screenWidth < 820) {
-        const scaleFactor = (screenWidth - 20) / 794; // 794px is roughly 210mm
-        innerDiv.style.transform = `scale(${scaleFactor})`;
-      }
 
       checkboxes.forEach((cb, idx) => {
         const reportId = parseInt(cb.getAttribute('data-id'));
@@ -1601,34 +1612,7 @@
         }
       });
 
-      tempDiv.appendChild(innerDiv);
-      document.body.appendChild(tempDiv);
-
-      // Create an unscaled clean clone specifically for compiling to PDF (placed behind backdrop)
-      const compileDiv = document.createElement('div');
-      compileDiv.style.position = 'fixed';
-      compileDiv.style.left = '0';
-      compileDiv.style.top = '0';
-      compileDiv.style.width = '210mm';
-      compileDiv.style.background = '#FFFFFF';
-      compileDiv.style.zIndex = '2147483646'; // Directly below backdrop
-
-      checkboxes.forEach((cb, idx) => {
-        const reportId = parseInt(cb.getAttribute('data-id'));
-        const report = reportsList.find(r => r.id === reportId);
-        if (report) {
-          const pageDiv = document.createElement('div');
-          pageDiv.innerHTML = generateReportHTML(report);
-          if (idx < checkboxes.length - 1) {
-            const pageEl = pageDiv.querySelector('.pdf-page');
-            if (pageEl) {
-              pageEl.style.pageBreakAfter = 'always';
-            }
-          }
-          compileDiv.appendChild(pageDiv);
-        }
-      });
-
+      compileDiv.appendChild(innerDiv);
       document.body.appendChild(compileDiv);
 
       // Wait 600ms for images to render and resolve in layout before compiling
@@ -1646,15 +1630,13 @@
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Render PDF directly from the unscaled compileDiv node!
-        html2pdf().from(compileDiv).set(opt).save().then(() => {
-          document.body.removeChild(tempDiv);
+        // Render PDF directly from the A4 innerDiv node (which is fully visible inside compileDiv!)
+        html2pdf().from(innerDiv).set(opt).save().then(() => {
           document.body.removeChild(compileDiv);
           closePrintModal();
         }).catch(err => {
           console.error(err);
           alert("Error generating PDF: " + err);
-          document.body.removeChild(tempDiv);
           document.body.removeChild(compileDiv);
         });
       }, 600);

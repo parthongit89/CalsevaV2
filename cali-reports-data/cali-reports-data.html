@@ -253,6 +253,25 @@
 
 
 
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
     /* CSS Variables matching the Calseva "Mystic Forest" color palette */
     :root {
       --color-primary: #3A606E;       /* Dark slate / teal */
@@ -1585,6 +1604,33 @@
       tempDiv.appendChild(innerDiv);
       document.body.appendChild(tempDiv);
 
+      // Create an unscaled clean clone specifically for compiling to PDF (placed behind backdrop)
+      const compileDiv = document.createElement('div');
+      compileDiv.style.position = 'fixed';
+      compileDiv.style.left = '0';
+      compileDiv.style.top = '0';
+      compileDiv.style.width = '210mm';
+      compileDiv.style.background = '#FFFFFF';
+      compileDiv.style.zIndex = '2147483646'; // Directly below backdrop
+
+      checkboxes.forEach((cb, idx) => {
+        const reportId = parseInt(cb.getAttribute('data-id'));
+        const report = reportsList.find(r => r.id === reportId);
+        if (report) {
+          const pageDiv = document.createElement('div');
+          pageDiv.innerHTML = generateReportHTML(report);
+          if (idx < checkboxes.length - 1) {
+            const pageEl = pageDiv.querySelector('.pdf-page');
+            if (pageEl) {
+              pageEl.style.pageBreakAfter = 'always';
+            }
+          }
+          compileDiv.appendChild(pageDiv);
+        }
+      });
+
+      document.body.appendChild(compileDiv);
+
       // Wait 600ms for images to render and resolve in layout before compiling
       setTimeout(() => {
         const opt = {
@@ -1600,14 +1646,16 @@
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Render PDF directly from the A4 innerDiv node (not the backdrop tempDiv!)
-        html2pdf().from(innerDiv).set(opt).save().then(() => {
+        // Render PDF directly from the unscaled compileDiv node!
+        html2pdf().from(compileDiv).set(opt).save().then(() => {
           document.body.removeChild(tempDiv);
+          document.body.removeChild(compileDiv);
           closePrintModal();
         }).catch(err => {
           console.error(err);
           alert("Error generating PDF: " + err);
           document.body.removeChild(tempDiv);
+          document.body.removeChild(compileDiv);
         });
       }, 600);
     }

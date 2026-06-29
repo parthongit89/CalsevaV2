@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calseva Calibration Report</title>
+
+  <!-- Google Fonts - Main and Alternate requested lists -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Capriola&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Commissioner:wght@100..900&family=Elms+Sans:ital,wght@0,100..900;1,100..900&family=Jura:wght@300..700&family=M+PLUS+Rounded+1c&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&family=SN+Pro:ital,wght@0,200..900;1,200..900&family=Stack+Sans+Headline:wght@200..700&family=Stack+Sans+Notch:wght@200..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+
+  <!-- General Google Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <style>
+    /* CSS Variables matching the "Mystic Forest" color palette */
+    :root {
+      --color-primary: #3A606E;       /* Dark slate / teal */
+      --color-secondary: #607B7D;     /* Medium slate */
+      --color-muted: #828E82;         /* Muted grey/green */
+      --color-sage: #AAAE8E;          /* Sage accent */
+      --color-bg-card: #E0E0E0;       /* Base grey background from palette */
+      --color-bg-body: #1E2E35;       /* Premium dark ambient background for desktop page context */
+      
+      --input-bg: #EAEAEA;            /* Slightly darker inset grey for inputs */
+      --input-border: #B5BEB5;        /* Soft border */
+      --input-focus: #3A606E;         /* Sharp focus color */
+      
+      --font-main: 'Elms Sans', 'Commissioner', 'Montserrat', 'SN Pro', sans-serif;
+      --font-alt: 'Google Sans Flex', sans-serif;
+    }
+
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, h1, p, .brand-text, .divider-text, .section-title, .step-title, .form-label {
+      font-family: var(--font-main);
+    }
+
+    input, select, button, a, .resend-link, .nav-tab-label, .input-unit {
+      font-family: var(--font-alt);
+    }
+
+    body {
+      background-color: var(--color-bg-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Desktop Background Styling */
+    .app-wrapper {
+      width: 100%;
+      max-width: 430px;
+      position: relative;
+    }
+
+    /* Device Mockup Shell - Premium App Presentation with Fixed Height & Scrollable Area */
+    .device-container {
+      background-color: var(--color-bg-card);
+      width: 100%;
+      height: 860px;
+      max-height: 95vh;
+      border-radius: 40px;
+      border: 6px solid #C5CBC5; /* Subtle physical shell border */
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Header Section (Fixed at Top) */
+    .reports-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 35px 32px 10px 32px;
+      z-index: 10;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background-color: rgba(58, 96, 110, 0.1);
+    }
+
+    .back-btn .material-symbols-outlined {
+      font-size: 26px;
+    }
+
+    .header-title-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--color-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .header-title-line {
+      width: 68px;
+      height: 2px;
+      background-color: var(--color-primary);
+      margin-top: 3px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .action-icon-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .action-icon-btn:hover {
+      background-color: rgba(58, 96, 110, 0.1);
+      transform: scale(1.05);
+    }
+
+    .action-icon-btn .material-symbols-outlined {
+      font-size: 24px;
+    }
+
+    /* Subheader & Progress Bar */
+    .report-subheader {
+      padding: 10px 32px 0px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 15px;
+    }
+
+    .calibration-title-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .calibration-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--color-primary);
+      letter-spacing: 0.1px;
+      border-bottom: 1.5px solid var(--color-primary);
+      padding-bottom: 2px;
+      display: inline-block;
+    }
+
+    /* Progress Indicator Bar */
+    .progress-track {
+      width: 100%;
+      height: 18px;
+      background-color: #D2D8D2;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 25%; /* step 1 = 25%, step 2 = 50%, step 3 = 75%, step 4 = 100% */
+      background-color: var(--color-primary);
+      border-radius: 20px;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Scrollable Form Container */
+    .form-scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 32px 25px 32px;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: none;
+    }
+
+    .form-scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Steps visibility rules */
+    .form-step {
+      display: none;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .form-step.active {
+      display: flex;
+    }
+
+    /* Section Step Headers */
+    .step-title {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .step-title .material-symbols-outlined {
+      font-size: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Form Fields Styling */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .form-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--color-secondary);
+    }
+
+    .form-input-field {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 13.5px;
+      background-color: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 10px;
+      color: var(--color-primary);
+      outline: none;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .form-input-field:focus {
+      border-color: var(--input-focus);
+      background-color: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(58, 96, 110, 0.1);
+    }
+
+    .form-input-field::placeholder {
+      color: var(--color-muted);
+      font-weight: 400;
+    }
+
+    .form-input-field:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    /* Date icon prefix layout */
+    .date-input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .date-input-wrapper .form-input-field {
+      padding-right: 40px;
+    }
+
+    .date-input-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-secondary);
+      font-size: 19px;
+      pointer-events: none;
+    }
+
+    /* Radio / Checkbox design overrides */
+    .custom-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .custom-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--color-secondary);
+      cursor: pointer;
+      font-weight: 600;
+      user-select: none;
+    }
+
+    .custom-checkbox-input {
+      display: none;
+    }
+
+    .custom-checkbox-box {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--color-primary);
+      border-radius: 50%; /* Circle look as in mockup ◯ */
+      background-color: transparent;
+      display: inline-block;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .custom-checkbox-input:checked + .custom-checkbox-box {
+      background-color: var(--color-primary);
+      box-shadow: inset 0 0 0 3px var(--color-bg-card);
+    }
+
+    /* Plus-Minus Grid Inputs */
+    .accuracy-input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .plus-minus-symbol {
+      font-size: 22px;
+      color: var(--color-primary);
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .accuracy-input-row .form-input-field {
+      flex: 1;
+    }
+
+    .input-unit {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-secondary);
+      min-width: 25px;
+      text-align: right;
+    }
+
+    /* Multi-input rows (Range & Operating Range) */
+    .multi-input-grid {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .multi-input-grid .form-input-field {
+      flex: 1;
+    }
+
+    .grid-separator {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--color-secondary);
+    }
+
+    /* Condition of UUC Radio Grid */
+    .radio-group-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .radio-group-grid .custom-checkbox-label {
+      justify-content: flex-start;
+      gap: 6px;
+      font-size: 12.5px;
+    }
+
+    /* Stepper Container (Step 2 and 3) */
+    .stepper-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: rgba(181, 190, 181, 0.25);
+      padding: 10px 16px;
+      border-radius: 12px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .stepper-label {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    .stepper-controls {
+      display: flex;
+      align-items: center;
+      background-color: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .stepper-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      font-size: 18px;
+      font-weight: 600;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      outline: none;
+    }
+
+    .stepper-btn:hover {
+      background-color: rgba(58, 96, 110, 0.1);
+    }
+
+    .stepper-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-primary);
+      padding: 0 14px;
+      min-width: 40px;
+      text-align: center;
+      user-select: none;
+    }
+
+    /* Observation / Master Card Blocks */
+    .dynamic-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      width: 100%;
+    }
+
+    .card-block {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .card-block-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-secondary);
+      border-left: 3px solid var(--color-primary);
+      padding-left: 8px;
+      margin-bottom: 2px;
+    }
+
+    .card-block-separator {
+      height: 1.5px;
+      background-color: rgba(181, 190, 181, 0.4);
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .add-row-btn-container {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn-add-row {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(58, 96, 110, 0.2);
+    }
+
+    .btn-add-row:hover {
+      background-color: #2D4C57;
+      transform: translateY(-1px);
+    }
+
+    /* Signature Canvas Layout */
+    .sig-pad-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid var(--input-border);
+      background-color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .sig-pad-header {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sig-pad-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sig-pad-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sig-action-icon {
+      font-size: 19px;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.85);
+      transition: color 0.2s ease;
+      user-select: none;
+    }
+
+    .sig-action-icon:hover {
+      color: #FFFFFF;
+    }
+
+    .sig-canvas {
+      width: 100%;
+      height: 180px;
+      display: block;
+      background-color: #FFFFFF;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .signature-capsule-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+    }
+
+    .capsule-bullet {
+      width: 12px;
+      height: 24px;
+      background-color: var(--color-primary);
+      border-radius: 6px;
+    }
+
+    /* Save/Next Form Footer (Fixed at bottom above nav tab) */
+    .form-navigation-footer {
+      display: flex;
+      gap: 12px;
+      padding: 15px 32px 20px 32px;
+      background-color: var(--color-bg-card);
+      z-index: 10;
+      border-top: 1.5px solid rgba(181, 190, 181, 0.4);
+    }
+
+    .btn-nav-action {
+      flex: 1;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+    }
+
+    .btn-nav-save {
+      background-color: var(--color-muted);
+      color: #FFFFFF;
+    }
+
+    .btn-nav-save:hover {
+      background-color: var(--color-secondary);
+      box-shadow: 0 4px 12px rgba(96, 123, 125, 0.2);
+    }
+
+    .btn-nav-next {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+    }
+
+    .btn-nav-next:hover {
+      background-color: #2D4C57;
+      box-shadow: 0 4px 12px rgba(58, 96, 110, 0.25);
+    }
+
+    /* Sticky Bottom Navigation Tab Bar */
+    .bottom-nav-bar {
+      height: 80px;
+      background-color: #E2E6E2;
+      border-top: 1.5px solid #D2D8D2;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 6px 12px 14px 12px;
+      z-index: 100;
+      border-bottom-left-radius: 34px;
+      border-bottom-right-radius: 34px;
+    }
+
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-muted);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 62px;
+      gap: 3px;
+    }
+
+    .nav-tab:hover {
+      color: var(--color-primary);
+    }
+
+    .nav-tab.active {
+      color: var(--color-primary);
+    }
+
+    .nav-tab-icon {
+      font-size: 24px;
+      font-variation-settings: 'FILL' 0, 'wght' 400;
+    }
+
+    .nav-tab.active .nav-tab-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 500;
+    }
+
+    .nav-tab-label {
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+
+    /* Validation Errors & Shake */
+    .input-error {
+      border-color: #E35E5E !important;
+      background-color: #FFF5F5 !important;
+    }
+
+    .error-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    /* Simple Toast / Success Modal */
+    .toast-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(30, 46, 53, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+      padding: 24px;
+    }
+
+    .toast-card {
+      background-color: #FFFFFF;
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+      animation: zoomIn 0.3s ease-out;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .toast-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-primary);
+      margin-bottom: 12px;
+    }
+
+    .toast-message {
+      font-size: 13.5px;
+      color: var(--color-secondary);
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    .toast-btn {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .toast-btn:hover {
+      background-color: #2D4C57;
+    }
+
+    /* Mobile overrides */
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+        background-color: var(--color-bg-card);
+      }
+      .app-wrapper {
+        max-width: 100%;
+        height: 100vh;
+      }
+      .device-container {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+    /* Custom Calendar Picker Modal */
+    .calendar-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(30, 46, 53, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 250;
+      padding: 20px;
+    }
+    
+    .calendar-card {
+      background-color: #FFFFFF;
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 320px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      animation: calZoomIn 0.25s ease-out;
+    }
+    
+    @keyframes calZoomIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    
+    .cal-nav-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s ease;
+    }
+    
+    .cal-nav-btn:hover {
+      background-color: rgba(58, 96, 110, 0.1);
+    }
+    
+    .cal-month-year {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+    
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--color-muted);
+      margin-bottom: 8px;
+    }
+    
+    .cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      row-gap: 6px;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    
+    .cal-day-cell {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--color-primary);
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    
+    .cal-day-cell:hover:not(.empty):not(.selected) {
+      background-color: rgba(58, 96, 110, 0.1);
+    }
+    
+    .cal-day-cell.empty {
+      cursor: default;
+      color: transparent;
+      pointer-events: none;
+    }
+    
+    .cal-day-cell.selected {
+      background-color: var(--color-primary);
+      color: #FFFFFF !important;
+      font-weight: 600;
+    }
+    
+    .cal-day-cell.today:not(.selected) {
+      border: 1.5px solid var(--color-primary);
+      font-weight: 600;
+    }
+    
+    .calendar-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(181, 190, 181, 0.4);
+      padding-top: 14px;
+    }
+    
+    .cal-footer-btn {
+      background: none;
+      border: none;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--color-primary);
+      transition: opacity 0.2s ease;
+    }
+    
+    .cal-footer-btn:hover {
+      opacity: 0.8;
+    }
+
+    /* Dropdown wrapper custom styling */
+    .select-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .select-wrapper::after {
+      content: 'expand_more';
+      font-family: 'Material Symbols Outlined';
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-primary);
+      font-size: 22px;
+      pointer-events: none;
+      font-variation-settings: 'FILL' 0, 'wght' 400;
+    }
+
+    select.form-input-field {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding-right: 48px;
+    }
+
+    /* Mobile overrides */
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+        background-color: var(--color-bg-card);
+      }
+      .app-wrapper {
+        max-width: 100%;
+        height: 100vh;
+      }
+      .device-container {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        height: 100vh;
+        max-height: 100vh;
+      }
+      .reports-header {
+        padding-top: 50px;
+      }
+      .bottom-nav-bar {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        padding-bottom: 24px;
+        height: 90px;
+      }
+    }
+  
+    /* Premium Video Loader Overlay */
+    .loader-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--color-bg-card, #E0E0E0);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9; /* Decreased opacity for perfect redirection outline visual */
+      transition: opacity 0.4s ease;
+      pointer-events: auto;
+    }
+
+    .loader-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 34px;
+    }
+
+    @media (max-width: 480px) {
+      .loader-video {
+        border-radius: 0;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <main class="app-wrapper">
+    <div class="device-container" id="deviceContainer">
+      <!-- Video Loader Overlay -->
+      <div class="loader-overlay" id="loaderOverlay">
+        <video class="loader-video" id="loaderVideo" autoplay loop muted playsinline>
+          <source src="../_cal-loder.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      
+      <!-- Top Reports Header -->
+      <header class="reports-header">
+        <div class="header-left">
+          <button class="back-btn" onclick="navigateBack()" aria-label="Go back">
+            <span class="material-symbols-outlined">arrow_back</span>
+          </button>
+          <div class="header-title-container">
+            <h1 class="header-title">Reports</h1>
+            <span class="header-title-line"></span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="action-icon-btn" onclick="saveFormState(true)" aria-label="Save report">
+            <span class="material-symbols-outlined">check_circle</span>
+          </button>
+          <button class="action-icon-btn" onclick="resetFormState()" aria-label="Reset form">
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Subheader with Progress Indicator -->
+      <div class="report-subheader">
+        <div class="calibration-title-container">
+          <h2 class="calibration-title">Calibration Report</h2>
+        </div>
+        <div class="progress-track" aria-label="Form completion progress">
+          <div class="progress-fill" id="progressIndicator"></div>
+        </div>
+      </div>
+
+      <!-- Main Form Content -->
+      <form id="reportForm" class="form-scroll-content" onsubmit="submitFormTrigger(); event.preventDefault();">
+        
+        <!-- ==================== STEP 1: BASIC DETAILS ==================== -->
+        <div class="form-step active" id="step1">
+          <h3 class="step-title">
+            <span class="material-symbols-outlined">arrow_right</span>
+            <span>Basic Details</span>
+          </h3>
+
+          <div class="form-group">
+            <span class="form-label">Certificate number</span>
+            <input type="text" id="certNumber" class="form-input-field" placeholder="Enter Certificate Number" required>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Inward number</span>
+            <input type="text" id="inwardNumber" class="form-input-field" placeholder="Enter Inward Number" required>
+          </div>
+
+          <div class="custom-checkbox-row">
+            <label class="custom-checkbox-label">
+              <input type="checkbox" id="useCurrentDate" class="custom-checkbox-input" onchange="toggleCurrentDate(this)">
+              <span class="custom-checkbox-box"></span>
+              <span>Use current date</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Date of calibration</span>
+            <div class="date-input-wrapper">
+              <input type="text" id="dateCalibration" class="form-input-field" readonly required>
+              <span class="date-input-icon material-symbols-outlined">calendar_today</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Date of Receipt</span>
+            <div class="date-input-wrapper">
+              <input type="text" id="dateReceipt" class="form-input-field" readonly required>
+              <span class="date-input-icon material-symbols-outlined">calendar_today</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label-row">
+              <span class="form-label">Next due date</span>
+              <label class="custom-checkbox-label" style="font-size: 12.5px;">
+                <input type="checkbox" id="noDueDate" class="custom-checkbox-input" onchange="toggleDueDate(this)">
+                <span class="custom-checkbox-box"></span>
+                <span>None</span>
+              </label>
+            </div>
+            <div class="date-input-wrapper">
+              <input type="text" id="dateDue" class="form-input-field" readonly required>
+              <span class="date-input-icon material-symbols-outlined">calendar_today</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label-row">
+              <span class="form-label">Description</span>
+              <label class="custom-checkbox-label" style="font-size: 12.5px;">
+                <input type="checkbox" id="customDescCheckbox" class="custom-checkbox-input" onchange="toggleCustomDescription(this)">
+                <span class="custom-checkbox-box"></span>
+                <span>Custom</span>
+              </label>
+            </div>
+            
+            <div class="select-wrapper" id="descriptionSelectWrapper">
+              <select id="descriptionSelect" class="form-input-field">
+                <option value="Pressure Gauge">Pressure Gauge</option>
+                <option value="Temperature Controller">Temperature Controller</option>
+                <option value="Weighing Scale">Weighing Scale</option>
+                <option value="Digital Multimeter">Digital Multimeter</option>
+              </select>
+            </div>
+            <input type="text" id="descriptionInput" class="form-input-field" placeholder="Enter Custom Description" style="display: none;">
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Make/model no.</span>
+            <input type="text" id="makeModel" class="form-input-field" placeholder="Enter Make/Model Number" required>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">ID</span>
+            <input type="text" id="instrumentId" class="form-input-field" placeholder="Enter Instrument ID" required>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Serial number</span>
+            <input type="text" id="serialNumber" class="form-input-field" placeholder="Enter Serial Number" required>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Range</span>
+            <div class="accuracy-input-row">
+              <div class="multi-input-grid">
+                <input type="number" step="any" id="rangeMin" class="form-input-field" placeholder="Min" required>
+                <span class="grid-separator">to</span>
+                <input type="number" step="any" id="rangeMax" class="form-input-field" placeholder="Max" required>
+              </div>
+              <span class="input-unit">kg/cm sq.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Least count</span>
+            <div class="accuracy-input-row">
+              <input type="number" step="any" id="leastCount" class="form-input-field" placeholder="Enter Least Count" required>
+              <span class="input-unit">kg/cm sq.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Operating range</span>
+            <div class="accuracy-input-row">
+              <div class="multi-input-grid">
+                <input type="number" step="any" id="opRangeMin" class="form-input-field" placeholder="Min" required>
+                <span class="grid-separator">to</span>
+                <input type="number" step="any" id="opRangeMax" class="form-input-field" placeholder="Max" required>
+              </div>
+              <span class="input-unit">kg/cm sq.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Specified accuracy</span>
+            <div class="accuracy-input-row">
+              <span class="plus-minus-symbol">&plusmn;</span>
+              <input type="number" step="any" id="specifiedAccuracy" class="form-input-field" placeholder="Enter Accuracy" required>
+              <span class="input-unit">FS</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Condition of UUC</span>
+            <div class="radio-group-grid">
+              <label class="custom-checkbox-label">
+                <input type="radio" name="uucCondition" value="OK" checked class="custom-checkbox-input" onchange="toggleUucCustom(false)">
+                <span class="custom-checkbox-box"></span>
+                <span>OK</span>
+              </label>
+              <label class="custom-checkbox-label">
+                <input type="radio" name="uucCondition" value="NA" class="custom-checkbox-input" onchange="toggleUucCustom(false)">
+                <span class="custom-checkbox-box"></span>
+                <span>NA</span>
+              </label>
+              <label class="custom-checkbox-label">
+                <input type="radio" name="uucCondition" value="Fail" class="custom-checkbox-input" onchange="toggleUucCustom(false)">
+                <span class="custom-checkbox-box"></span>
+                <span>Fail</span>
+              </label>
+              <label class="custom-checkbox-label">
+                <input type="radio" name="uucCondition" value="Custom" id="uucCustomRadio" class="custom-checkbox-input" onchange="toggleUucCustom(true)">
+                <span class="custom-checkbox-box"></span>
+                <span>Custom</span>
+              </label>
+            </div>
+            <input type="text" id="uucConditionCustomInput" class="form-input-field" placeholder="Enter Custom Condition" style="display: none; margin-top: 8px;">
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Acceptance Criteria</span>
+            <div class="accuracy-input-row">
+              <span class="plus-minus-symbol">&plusmn;</span>
+              <input type="number" step="any" id="acceptanceCriteria" class="form-input-field" placeholder="Enter Criteria" required>
+              <span class="input-unit">FS</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Location</span>
+            <input type="text" id="location" class="form-input-field" placeholder="Enter Location" required>
+          </div>
+        </div>
+
+        <!-- ==================== STEP 2: OBERSEVATION ==================== -->
+        <div class="form-step" id="step2">
+          <h3 class="step-title">
+            <span class="material-symbols-outlined" style="transform: rotate(90deg);">arrow_right</span>
+            <span>Obersevation</span>
+            <span style="font-size: 13.5px; font-weight: 500; color: var(--color-secondary); margin-left: auto;">kg/cm sq.</span>
+          </h3>
+
+          <div class="stepper-row">
+            <span class="stepper-label">Total Rows</span>
+            <div class="stepper-controls">
+              <button type="button" class="stepper-btn" onclick="adjustRows('observations', 1)" aria-label="Add observation row">+</button>
+              <span class="stepper-value" id="obsStepperVal">2</span>
+              <button type="button" class="stepper-btn" onclick="adjustRows('observations', -1)" aria-label="Remove observation row">-</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Observations List -->
+          <div class="dynamic-list-container" id="observationsContainer">
+            <!-- Dynamically populated rows go here -->
+          </div>
+
+          <div class="add-row-btn-container">
+            <button type="button" class="btn-add-row" onclick="adjustRows('observations', 1)">Add row</button>
+          </div>
+        </div>
+
+        <!-- ==================== STEP 3: MASTER USED ==================== -->
+        <div class="form-step" id="step3">
+          <h3 class="step-title">
+            <span class="material-symbols-outlined" style="transform: rotate(90deg);">arrow_right</span>
+            <span>Master Used for Calibration</span>
+          </h3>
+
+          <!-- Static Customer fields at top of Step 3 -->
+          <div class="form-group">
+            <span class="form-label">Customer Name</span>
+            <input type="text" id="customerName" class="form-input-field" placeholder="Enter Customer Name" required>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Address</span>
+            <input type="text" id="customerAddress" class="form-input-field" placeholder="Enter Address" required>
+          </div>
+
+          <div class="stepper-row" style="margin-top: 15px;">
+            <span class="stepper-label">Total Rows</span>
+            <div class="stepper-controls">
+              <button type="button" class="stepper-btn" onclick="adjustRows('masters', 1)" aria-label="Add master instrument">+</button>
+              <span class="stepper-value" id="mastersStepperVal">1</span>
+              <button type="button" class="stepper-btn" onclick="adjustRows('masters', -1)" aria-label="Remove master instrument">-</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Master Instruments List -->
+          <div class="dynamic-list-container" id="mastersContainer">
+            <!-- Dynamically populated blocks go here -->
+          </div>
+
+          <div class="add-row-btn-container">
+            <button type="button" class="btn-add-row" onclick="adjustRows('masters', 1)">Add row</button>
+          </div>
+        </div>
+
+        <!-- ==================== STEP 4: SIGNATURES ==================== -->
+        <div class="form-step" id="step4">
+          <h3 class="step-title">
+            <span class="material-symbols-outlined" style="transform: rotate(90deg);">arrow_right</span>
+            <span>Signature's</span>
+          </h3>
+
+          <!-- Calibrated By Signature Pad -->
+          <div class="sig-section">
+            <div class="signature-capsule-label">
+              <span class="capsule-bullet"></span>
+              <span>Calibrated By</span>
+            </div>
+            
+            <div class="sig-pad-wrapper">
+              <div class="sig-pad-header">
+                <span class="sig-pad-title">
+                  <span class="material-symbols-outlined" style="font-size: 19px;">add</span> Add signature
+                </span>
+                <div class="sig-pad-actions">
+                  <span class="material-symbols-outlined sig-action-icon" style="font-size: 20px;">menu</span>
+                  <span class="material-symbols-outlined sig-action-icon" id="clearSigCalibrated" aria-label="Clear signature">sync</span>
+                </div>
+              </div>
+              <canvas id="canvasCalibrated" class="sig-canvas" width="340" height="180"></canvas>
+            </div>
+          </div>
+
+          <div class="card-block-separator" style="margin: 5px 0;"></div>
+
+          <!-- Verified By Signature Pad -->
+          <div class="sig-section">
+            <div class="signature-capsule-label">
+              <span class="capsule-bullet"></span>
+              <span>Verified By</span>
+            </div>
+            
+            <div class="sig-pad-wrapper">
+              <div class="sig-pad-header">
+                <span class="sig-pad-title">
+                  <span class="material-symbols-outlined" style="font-size: 19px;">add</span> Add signature
+                </span>
+                <div class="sig-pad-actions">
+                  <span class="material-symbols-outlined sig-action-icon" style="font-size: 20px;">menu</span>
+                  <span class="material-symbols-outlined sig-action-icon" id="clearSigVerified" aria-label="Clear signature">sync</span>
+                </div>
+              </div>
+              <canvas id="canvasVerified" class="sig-canvas" width="340" height="180"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Save & Next Footer Navigation -->
+      <footer class="form-navigation-footer">
+        <button type="button" class="btn-nav-action btn-nav-save" onclick="saveFormState(true)">Save</button>
+        <button type="button" class="btn-nav-action btn-nav-next" id="nextStepBtn" onclick="submitFormTrigger()">Next</button>
+      </footer>
+
+      <!-- Fixed Bottom Tab Bar -->
+      <nav class="bottom-nav-bar">
+        <a class="nav-tab" onclick="navigateTab('Home')">
+          <span class="material-symbols-outlined nav-tab-icon">home</span>
+          <span class="nav-tab-label">Home</span>
+        </a>
+        <a class="nav-tab active" onclick="navigateTab('Reports')">
+          <span class="material-symbols-outlined nav-tab-icon">assignment</span>
+          <span class="nav-tab-label">Reports</span>
+        </a>
+        <a class="nav-tab" onclick="navigateTab('Tutorial')">
+          <span class="material-symbols-outlined nav-tab-icon">play_circle</span>
+          <span class="nav-tab-label">Tutorial</span>
+        </a>
+        <a class="nav-tab" onclick="navigateTab('Schedule')">
+          <span class="material-symbols-outlined nav-tab-icon">schedule</span>
+          <span class="nav-tab-label">Schedule</span>
+        </a>
+        <a class="nav-tab" onclick="navigateTab('Profile')">
+          <span class="material-symbols-outlined nav-tab-icon">person</span>
+          <span class="nav-tab-label">Profile</span>
+        </a>
+      </nav>
+
+      <!-- Success Submit Overlay -->
+      <div class="toast-overlay" id="successOverlay">
+        <div class="toast-card">
+          <div class="toast-title">Success!</div>
+          <div class="toast-message">Calibration Report has been compiled, signed, and submitted successfully.</div>
+          <button type="button" class="toast-btn" onclick="dismissSuccess()">Done</button>
+        </div>
+      </div>
+
+      <!-- Custom Date Picker Modal (Moved inside device-container relative wrapper) -->
+      <div class="calendar-modal" id="calendarModal">
+        <div class="calendar-card">
+          <header class="calendar-header">
+            <button type="button" class="cal-nav-btn" onclick="changeMonth(-1)">&lt;</button>
+            <span class="cal-month-year" id="calMonthYear">June 2026</span>
+            <button type="button" class="cal-nav-btn" onclick="changeMonth(1)">&gt;</button>
+          </header>
+          <div class="cal-weekdays">
+            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+          </div>
+          <div class="cal-days" id="calDaysGrid">
+            <!-- Day cells go here -->
+          </div>
+          <footer class="calendar-footer">
+            <button type="button" class="cal-footer-btn cal-btn-clear" onclick="clearCalDate()">Clear</button>
+            <button type="button" class="cal-footer-btn cal-btn-today" onclick="selectCalToday()">Today</button>
+            <button type="button" class="cal-footer-btn cal-btn-close" onclick="closeCalendar()">Close</button>
+          </footer>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 4;
+    const progressIndicator = document.getElementById('progressIndicator');
+    const deviceContainer = document.getElementById('deviceContainer');
+    
+    // Dynamic Row Counts
+    let obsCount = 2;
+    let masterCount = 1;
+
+    // Load initial structures
+    window.addEventListener('DOMContentLoaded', () => {
+      // Dynamic row initial loads
+      renderObservationRows();
+      renderMasterRows();
+
+      // Signature Pad Canvas Initial Setup
+      setupSignatureDrawing('canvasCalibrated', 'clearSigCalibrated');
+      setupSignatureDrawing('canvasVerified', 'clearSigVerified');
+
+      // Populate draft from localstorage if exists
+      const urlParams = new URLSearchParams(window.location.search);
+      const editId = urlParams.get('editId');
+      if (editId) {
+        const reportsList = JSON.parse(localStorage.getItem('calseva_reports') || '[]');
+        const reportToEdit = reportsList.find(r => r.id == editId);
+        if (reportToEdit && reportToEdit.payload) {
+          localStorage.setItem('calseva_report_draft', reportToEdit.payload);
+        }
+      }
+      loadSavedState();
+    });
+
+    // Navigation back to Profile
+    function navigateBack() {
+      if (currentStep > 1) {
+        setStep(currentStep - 1);
+      } else {
+        if (confirm("Go back to profile? Unsaved changes will be lost.")) {
+          navigateToPage('../caliprofile/caliprofile.html');
+        }
+      }
+    }
+
+    function navigateTab(tabName) {
+      if (tabName === 'Profile') {
+        navigateToPage('../caliprofile/caliprofile.html');
+      } else if (tabName === 'Schedule') {
+        navigateToPage('../schedule-work/schedule-work.html');
+      } else if (tabName === 'Reports') {
+        navigateToPage('../cali-reports-data/cali-reports-data.html');
+      } else if (tabName !== 'Reports') {
+        alert(`Navigating to ${tabName} screen...`);
+      }
+    }
+
+    // Step Traversal Handler
+    function setStep(stepNum) {
+      if (stepNum < 1 || stepNum > totalSteps) return;
+      
+      // Update form step visibility
+      for (let i = 1; i <= totalSteps; i++) {
+        const stepEl = document.getElementById(`step${i}`);
+        if (i === stepNum) {
+          stepEl.classList.add('active');
+        } else {
+          stepEl.classList.remove('active');
+        }
+      }
+
+      currentStep = stepNum;
+      
+      // Update Progress Indicator width
+      const fillPercentage = (currentStep / totalSteps) * 100;
+      progressIndicator.style.width = `${fillPercentage}%`;
+
+      // Scroll form to top
+      document.getElementById('reportForm').scrollTop = 0;
+
+      // Update button label
+      const nextBtn = document.getElementById('nextStepBtn');
+      if (currentStep === totalSteps) {
+        nextBtn.textContent = 'Submit';
+      } else {
+        nextBtn.textContent = 'Next';
+      }
+    }
+
+    // Validation handler for current visible step inputs
+    function validateStep(stepNum) {
+      const stepEl = document.getElementById(`step${stepNum}`);
+      const requiredInputs = stepEl.querySelectorAll('[required]');
+      let isValid = true;
+
+      requiredInputs.forEach(input => {
+        // Skip disabled fields
+        if (input.disabled || input.style.display === 'none') return;
+        
+        if (!input.value.trim()) {
+          input.classList.add('input-error');
+          isValid = false;
+        } else {
+          input.classList.remove('input-error');
+        }
+      });
+
+      if (!isValid) {
+        deviceContainer.classList.add('error-shake');
+        setTimeout(() => {
+          deviceContainer.classList.remove('error-shake');
+        }, 400);
+      }
+
+      return isValid;
+    }
+
+    // Submit / Traversal button callback
+    function submitFormTrigger() {
+      if (validateStep(currentStep)) {
+        if (currentStep < totalSteps) {
+          saveFormState(false); // Silent save progress
+          setStep(currentStep + 1);
+        } else {
+          // Final Submit Step (Check signatures drawn)
+          const calCanvas = document.getElementById('canvasCalibrated');
+          const verCanvas = document.getElementById('canvasVerified');
+          
+          if (isCanvasBlank(calCanvas) || isCanvasBlank(verCanvas)) {
+            alert("Please draw signatures for both 'Calibrated By' and 'Verified By' to proceed.");
+            deviceContainer.classList.add('error-shake');
+            setTimeout(() => {
+              deviceContainer.classList.remove('error-shake');
+            }, 400);
+            return;
+          }
+
+          // Save final state into draft first, so it captures everything including signatures
+          saveFormState(false);
+          const draftPayload = localStorage.getItem('calseva_report_draft');
+
+          const certNum = document.getElementById('certNumber').value;
+          const isCustom = document.getElementById('customDescCheckbox').checked;
+          const desc = isCustom ? document.getElementById('descriptionInput').value : document.getElementById('descriptionSelect').value;
+          const calDate = document.getElementById('dateCalibration').value;
+
+          const reportItem = {
+            id: Date.now(),
+            cert: certNum || "N/A",
+            desc: desc || "Pressure Gauge",
+            date: calDate || new Date().toISOString().split('T')[0],
+            payload: draftPayload
+          };
+
+          let reportsList = JSON.parse(localStorage.getItem('calseva_reports') || '[]');
+          
+          // Check if editing
+          const urlParams = new URLSearchParams(window.location.search);
+          const editId = urlParams.get('editId');
+          if (editId) {
+            reportsList = reportsList.map(r => r.id == editId ? { ...r, ...reportItem, id: parseInt(editId) } : r);
+          } else {
+            reportsList.unshift(reportItem);
+          }
+          localStorage.setItem('calseva_reports', JSON.stringify(reportsList));
+
+          // Trigger Success Modal
+          const successOverlay = document.getElementById('successOverlay');
+          successOverlay.style.display = 'flex';
+          
+          // Clear saved draft state on successful submit
+          localStorage.removeItem('calseva_report_draft');
+        }
+      }
+    }
+
+    function dismissSuccess() {
+      document.getElementById('successOverlay').style.display = 'none';
+      navigateToPage('../cali-reports-data/cali-reports-data.html');
+    }
+
+    // Check if canvas is untouched
+    function isCanvasBlank(canvas) {
+      const blank = document.createElement('canvas');
+      blank.width = canvas.width;
+      blank.height = canvas.height;
+      return canvas.toDataURL() === blank.toDataURL();
+    }
+
+    // Step 1: Date and Description Field toggles
+    function toggleCurrentDate(checkbox) {
+      const calInput = document.getElementById('dateCalibration');
+      const recInput = document.getElementById('dateReceipt');
+      
+      if (checkbox.checked) {
+        const today = new Date().toISOString().split('T')[0];
+        calInput.value = today;
+        recInput.value = today;
+        calInput.disabled = true;
+        recInput.disabled = true;
+        calInput.classList.remove('input-error');
+        recInput.classList.remove('input-error');
+      } else {
+        calInput.disabled = false;
+        recInput.disabled = false;
+      }
+    }
+
+    function toggleDueDate(checkbox) {
+      const dueInput = document.getElementById('dateDue');
+      if (checkbox.checked) {
+        dueInput.disabled = true;
+        dueInput.value = '';
+        dueInput.required = false;
+        dueInput.classList.remove('input-error');
+      } else {
+        dueInput.disabled = false;
+        dueInput.required = true;
+      }
+    }
+
+    function toggleCustomDescription(checkbox) {
+      const selectWrapperEl = document.getElementById('descriptionSelectWrapper');
+      const inputEl = document.getElementById('descriptionInput');
+      
+      if (checkbox.checked) {
+        selectWrapperEl.style.display = 'none';
+        inputEl.style.display = 'block';
+        inputEl.required = true;
+      } else {
+        selectWrapperEl.style.display = 'block';
+        inputEl.style.display = 'none';
+        inputEl.required = false;
+        inputEl.classList.remove('input-error');
+      }
+    }
+
+    function toggleUucCustom(isCustom) {
+      const customInput = document.getElementById('uucConditionCustomInput');
+      if (isCustom) {
+        customInput.style.display = 'block';
+        customInput.required = true;
+      } else {
+        customInput.style.display = 'none';
+        customInput.required = false;
+        customInput.value = '';
+        customInput.classList.remove('input-error');
+      }
+    }
+
+    // Steppers adjustment
+    function adjustRows(type, value) {
+      if (type === 'observations') {
+        const newCount = obsCount + value;
+        if (newCount >= 1 && newCount <= 10) {
+          obsCount = newCount;
+          document.getElementById('obsStepperVal').textContent = obsCount;
+          renderObservationRows();
+        }
+      } else if (type === 'masters') {
+        const newCount = masterCount + value;
+        if (newCount >= 1 && newCount <= 5) {
+          masterCount = newCount;
+          document.getElementById('mastersStepperVal').textContent = masterCount;
+          renderMasterRows();
+        }
+      }
+    }
+
+    // Step 2: Render Dynamic Observation Blocks
+    function renderObservationRows() {
+      const container = document.getElementById('observationsContainer');
+      const currentRowsData = getObservationInputData();
+      container.innerHTML = '';
+
+      for (let i = 1; i <= obsCount; i++) {
+        const data = currentRowsData[i - 1] || { uuc: '', obs1: '', obs2: '', mean: '', error: '' };
+        
+        const rowHTML = `
+          <div class="card-block" id="obsBlock_${i}">
+            <div class="card-block-title">Row ${i}</div>
+            
+            <div class="form-group">
+              <span class="form-label">UUC Set at</span>
+              <input type="number" step="any" class="form-input-field obs-calc-input" data-row="${i}" data-field="uuc" value="${data.uuc}" placeholder="Enter Value" required>
+            </div>
+            
+            <div class="form-group">
+              <span class="form-label">Observed on Master</span>
+              <div class="multi-input-grid">
+                <input type="number" step="any" class="form-input-field obs-calc-input" data-row="${i}" data-field="obs1" value="${data.obs1}" placeholder="Reading 1" required>
+                <input type="number" step="any" class="form-input-field obs-calc-input" data-row="${i}" data-field="obs2" value="${data.obs2}" placeholder="Reading 2" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <span class="form-label">Mean</span>
+              <input type="number" class="form-input-field" id="obsMean_${i}" value="${data.mean}" placeholder="Auto Calculated" disabled>
+            </div>
+
+            <div class="form-group">
+              <span class="form-label">Error</span>
+              <input type="number" class="form-input-field" id="obsError_${i}" value="${data.error}" placeholder="Auto Calculated" disabled>
+            </div>
+            
+            ${i < obsCount ? '<div class="card-block-separator"></div>' : ''}
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', rowHTML);
+      }
+
+      // Add auto-calc event listeners to inputs
+      const calcInputs = container.querySelectorAll('.obs-calc-input');
+      calcInputs.forEach(input => {
+        input.addEventListener('input', (e) => {
+          calculateMeanAndError(e.target.dataset.row);
+        });
+      });
+    }
+
+    // Fetch observation values to preserve inputs when row counts change
+    function getObservationInputData() {
+      const data = [];
+      for (let i = 1; i <= 10; i++) {
+        const block = document.getElementById(`obsBlock_${i}`);
+        if (block) {
+          const uuc = block.querySelector('[data-field="uuc"]').value;
+          const obs1 = block.querySelector('[data-field="obs1"]').value;
+          const obs2 = block.querySelector('[data-field="obs2"]').value;
+          const mean = document.getElementById(`obsMean_${i}`).value;
+          const error = document.getElementById(`obsError_${i}`).value;
+          data.push({ uuc, obs1, obs2, mean, error });
+        }
+      }
+      return data;
+    }
+
+    // Step 2 Calculations: Mean & Error
+    function calculateMeanAndError(rowId) {
+      const block = document.getElementById(`obsBlock_${rowId}`);
+      if (!block) return;
+
+      const uucVal = parseFloat(block.querySelector('[data-field="uuc"]').value);
+      const obs1Val = parseFloat(block.querySelector('[data-field="obs1"]').value);
+      const obs2Val = parseFloat(block.querySelector('[data-field="obs2"]').value);
+      
+      const meanInput = document.getElementById(`obsMean_${rowId}`);
+      const errorInput = document.getElementById(`obsError_${rowId}`);
+
+      if (!isNaN(obs1Val) && !isNaN(obs2Val)) {
+        const mean = (obs1Val + obs2Val) / 2;
+        meanInput.value = Number(mean.toFixed(4)); // Keeps up to 4 decimals
+
+        if (!isNaN(uucVal)) {
+          const error = mean - uucVal;
+          errorInput.value = Number(error.toFixed(4));
+        } else {
+          errorInput.value = '';
+        }
+      } else {
+        meanInput.value = '';
+        errorInput.value = '';
+      }
+    }
+
+    // Step 3: Render Dynamic Master Instruments Blocks
+    function renderMasterRows() {
+      const container = document.getElementById('mastersContainer');
+      const currentMastersData = getMastersInputData();
+      container.innerHTML = '';
+
+      for (let i = 1; i <= masterCount; i++) {
+        const data = currentMastersData[i - 1] || { name: '', idVal: '', make: '', validity: '' };
+        
+        const rowHTML = `
+          <div class="card-block" id="masterBlock_${i}">
+            <div class="card-block-title" style="margin-top: 10px;">Master ${i} Details</div>
+            
+            <div class="form-group">
+              <span class="form-label">Name</span>
+              <input type="text" class="form-input-field master-field" data-field="name" value="${data.name}" placeholder="Enter Name" required>
+            </div>
+            
+            <div class="form-group">
+              <span class="form-label">ID</span>
+              <input type="text" class="form-input-field master-field" data-field="idVal" value="${data.idVal}" placeholder="Enter ID" required>
+            </div>
+
+            <div class="form-group">
+              <span class="form-label">Make</span>
+              <input type="text" class="form-input-field master-field" data-field="make" value="${data.make}" placeholder="Enter Make" required>
+            </div>
+
+            <div class="form-group">
+              <span class="form-label">Validity</span>
+              <div class="date-input-wrapper">
+                <input type="text" class="form-input-field master-field cal-date-picker-input" data-field="validity" value="${data.validity}" placeholder="Select Date" readonly required onclick="openCalendar(this)">
+                <span class="date-input-icon material-symbols-outlined">calendar_today</span>
+              </div>
+            </div>
+            
+            ${i < masterCount ? '<div class="card-block-separator"></div>' : ''}
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', rowHTML);
+      }
+    }
+
+    function getMastersInputData() {
+      const data = [];
+      for (let i = 1; i <= 5; i++) {
+        const block = document.getElementById(`masterBlock_${i}`);
+        if (block) {
+          const name = block.querySelector('[data-field="name"]').value;
+          const idVal = block.querySelector('[data-field="idVal"]').value;
+          const make = block.querySelector('[data-field="make"]').value;
+          const validity = block.querySelector('[data-field="validity"]').value;
+          data.push({ name, idVal, make, validity });
+        }
+      }
+      return data;
+    }
+
+    // Step 4 Canvas Signature Logic
+    function setupSignatureDrawing(canvasId, clearButtonId) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      let drawing = false;
+
+      ctx.strokeStyle = '#3A606E';
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        // Calculate canvas scaling in case dimensions are responsive
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        return {
+          x: (clientX - rect.left) * scaleX,
+          y: (clientY - rect.top) * scaleY
+        };
+      }
+
+      function startDrawing(e) {
+        drawing = true;
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+      }
+
+      function draw(e) {
+        if (!drawing) return;
+        const pos = getPos(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        e.preventDefault();
+      }
+
+      function stopDrawing() {
+        drawing = false;
+      }
+
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('mouseleave', stopDrawing);
+
+      canvas.addEventListener('touchstart', startDrawing, { passive: false });
+      canvas.addEventListener('touchmove', draw, { passive: false });
+      canvas.addEventListener('touchend', stopDrawing);
+
+      document.getElementById(clearButtonId).addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      });
+    }
+
+    // Draft State saving logic (localstorage)
+    function saveFormState(showToast) {
+      const draft = {
+        certNumber: document.getElementById('certNumber').value,
+        inwardNumber: document.getElementById('inwardNumber').value,
+        useCurrentDate: document.getElementById('useCurrentDate').checked,
+        dateCalibration: document.getElementById('dateCalibration').value,
+        dateReceipt: document.getElementById('dateReceipt').value,
+        noDueDate: document.getElementById('noDueDate').checked,
+        dateDue: document.getElementById('dateDue').value,
+        customDescCheckbox: document.getElementById('customDescCheckbox').checked,
+        descriptionSelect: document.getElementById('descriptionSelect').value,
+        descriptionInput: document.getElementById('descriptionInput').value,
+        makeModel: document.getElementById('makeModel').value,
+        instrumentId: document.getElementById('instrumentId').value,
+        serialNumber: document.getElementById('serialNumber').value,
+        rangeMin: document.getElementById('rangeMin').value,
+        rangeMax: document.getElementById('rangeMax').value,
+        leastCount: document.getElementById('leastCount').value,
+        opRangeMin: document.getElementById('opRangeMin').value,
+        opRangeMax: document.getElementById('opRangeMax').value,
+        specifiedAccuracy: document.getElementById('specifiedAccuracy').value,
+        uucCondition: document.querySelector('input[name="uucCondition"]:checked')?.value || 'OK',
+        uucConditionCustomInput: document.getElementById('uucConditionCustomInput').value,
+        acceptanceCriteria: document.getElementById('acceptanceCriteria').value,
+        location: document.getElementById('location').value,
+        
+        // Dynamic arrays
+        obsCount: obsCount,
+        obsData: getObservationInputData(),
+        
+        customerName: document.getElementById('customerName').value,
+        customerAddress: document.getElementById('customerAddress').value,
+        masterCount: masterCount,
+        mastersData: getMastersInputData()
+      };
+
+      localStorage.setItem('calseva_report_draft', JSON.stringify(draft));
+      
+      if (showToast) {
+        alert("Draft report saved successfully!");
+      }
+    }
+
+    function loadSavedState() {
+      const saved = localStorage.getItem('calseva_report_draft');
+      if (!saved) return;
+
+      try {
+        const draft = JSON.parse(saved);
+        
+        document.getElementById('certNumber').value = draft.certNumber || '';
+        document.getElementById('inwardNumber').value = draft.inwardNumber || '';
+        
+        document.getElementById('useCurrentDate').checked = draft.useCurrentDate || false;
+        toggleCurrentDate(document.getElementById('useCurrentDate'));
+        document.getElementById('dateCalibration').value = draft.dateCalibration || '';
+        document.getElementById('dateReceipt').value = draft.dateReceipt || '';
+        
+        document.getElementById('noDueDate').checked = draft.noDueDate || false;
+        toggleDueDate(document.getElementById('noDueDate'));
+        document.getElementById('dateDue').value = draft.dateDue || '';
+        
+        document.getElementById('customDescCheckbox').checked = draft.customDescCheckbox || false;
+        toggleCustomDescription(document.getElementById('customDescCheckbox'));
+        document.getElementById('descriptionSelect').value = draft.descriptionSelect || 'Pressure Gauge';
+        document.getElementById('descriptionInput').value = draft.descriptionInput || '';
+        
+        document.getElementById('makeModel').value = draft.makeModel || '';
+        document.getElementById('instrumentId').value = draft.instrumentId || '';
+        document.getElementById('serialNumber').value = draft.serialNumber || '';
+        document.getElementById('rangeMin').value = draft.rangeMin || '';
+        document.getElementById('rangeMax').value = draft.rangeMax || '';
+        document.getElementById('leastCount').value = draft.leastCount || '';
+        document.getElementById('opRangeMin').value = draft.opRangeMin || '';
+        document.getElementById('opRangeMax').value = draft.opRangeMax || '';
+        document.getElementById('specifiedAccuracy').value = draft.specifiedAccuracy || '';
+        
+        const condRadio = document.querySelector(`input[name="uucCondition"][value="${draft.uucCondition || 'OK'}"]`);
+        if (condRadio) {
+          condRadio.checked = true;
+          toggleUucCustom(draft.uucCondition === 'Custom');
+        }
+        document.getElementById('uucConditionCustomInput').value = draft.uucConditionCustomInput || '';
+        document.getElementById('acceptanceCriteria').value = draft.acceptanceCriteria || '';
+        document.getElementById('location').value = draft.location || '';
+        
+        // Restore step 2
+        obsCount = draft.obsCount || 2;
+        document.getElementById('obsStepperVal').textContent = obsCount;
+        renderObservationRows();
+        if (draft.obsData) {
+          setTimeout(() => {
+            for (let i = 1; i <= obsCount; i++) {
+              const row = draft.obsData[i - 1];
+              if (row) {
+                const block = document.getElementById(`obsBlock_${i}`);
+                if (block) {
+                  block.querySelector('[data-field="uuc"]').value = row.uuc || '';
+                  block.querySelector('[data-field="obs1"]').value = row.obs1 || '';
+                  block.querySelector('[data-field="obs2"]').value = row.obs2 || '';
+                  document.getElementById(`obsMean_${i}`).value = row.mean || '';
+                  document.getElementById(`obsError_${i}`).value = row.error || '';
+                }
+              }
+            }
+          }, 100);
+        }
+        
+        // Restore step 3
+        document.getElementById('customerName').value = draft.customerName || '';
+        document.getElementById('customerAddress').value = draft.customerAddress || '';
+        masterCount = draft.masterCount || 1;
+        document.getElementById('mastersStepperVal').textContent = masterCount;
+        renderMasterRows();
+        if (draft.mastersData) {
+          setTimeout(() => {
+            for (let i = 1; i <= masterCount; i++) {
+              const row = draft.mastersData[i - 1];
+              if (row) {
+                const block = document.getElementById(`masterBlock_${i}`);
+                if (block) {
+                  block.querySelector('[data-field="name"]').value = row.name || '';
+                  block.querySelector('[data-field="idVal"]').value = row.idVal || '';
+                  block.querySelector('[data-field="make"]').value = row.make || '';
+                  block.querySelector('[data-field="validity"]').value = row.validity || '';
+                }
+              }
+            }
+          }, 100);
+        }
+      } catch (e) {
+        console.error("Failed to restore draft state:", e);
+      }
+    }
+
+    function resetFormState() {
+      if (confirm("Reset the entire form? This will clear all data and signature drawings.")) {
+        localStorage.removeItem('calseva_report_draft');
+        window.location.reload();
+      }
+    }
+
+    // Custom calendar picker implementation
+    let activeDateInput = null;
+    let selectedCalDate = new Date();
+    let displayMonth = new Date().getMonth();
+    let displayYear = new Date().getFullYear();
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    function initCustomDatePickers() {
+      const dateInputs = [
+        document.getElementById('dateCalibration'),
+        document.getElementById('dateReceipt'),
+        document.getElementById('dateDue')
+      ];
+
+      dateInputs.forEach(input => {
+        if (input) {
+          input.setAttribute('type', 'text');
+          input.setAttribute('readonly', 'true');
+          input.classList.add('cal-date-picker-input');
+          input.addEventListener('click', (e) => openCalendar(e.target));
+        }
+      });
+    }
+
+    // Call initCustomDatePickers in DOMContentLoaded
+    window.addEventListener('DOMContentLoaded', () => {
+      initCustomDatePickers();
+    });
+
+    function openCalendar(targetInput) {
+      if (targetInput.disabled) return;
+      activeDateInput = targetInput;
+      
+      let initialDate = new Date();
+      if (targetInput.value) {
+        const parsed = new Date(targetInput.value);
+        if (!isNaN(parsed)) {
+          initialDate = parsed;
+        }
+      }
+      
+      selectedCalDate = targetInput.value ? initialDate : null;
+      displayMonth = initialDate.getMonth();
+      displayYear = initialDate.getFullYear();
+      
+      renderCalendarDays();
+      document.getElementById('calendarModal').style.display = 'flex';
+    }
+
+    function closeCalendar() {
+      document.getElementById('calendarModal').style.display = 'none';
+      activeDateInput = null;
+    }
+
+    function renderCalendarDays() {
+      document.getElementById('calMonthYear').textContent = `${monthNames[displayMonth]} ${displayYear}`;
+      
+      const firstDayIndex = new Date(displayYear, displayMonth, 1).getDay();
+      const lastDay = new Date(displayYear, displayMonth + 1, 0).getDate();
+      
+      const grid = document.getElementById('calDaysGrid');
+      grid.innerHTML = '';
+      
+      for (let i = 0; i < firstDayIndex; i++) {
+        grid.insertAdjacentHTML('beforeend', '<span class="cal-day-cell empty"></span>');
+      }
+      
+      const today = new Date();
+      for (let day = 1; day <= lastDay; day++) {
+        const isToday = today.getDate() === day && today.getMonth() === displayMonth && today.getFullYear() === displayYear;
+        
+        let isSelected = false;
+        if (selectedCalDate) {
+          isSelected = selectedCalDate.getDate() === day && selectedCalDate.getMonth() === displayMonth && selectedCalDate.getFullYear() === displayYear;
+        }
+        
+        const cellClass = `cal-day-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}`;
+        
+        grid.insertAdjacentHTML('beforeend', `
+          <span class="${cellClass}" onclick="selectCalDate(${day})">${day}</span>
+        `);
+      }
+    }
+
+    function changeMonth(direction) {
+      displayMonth += direction;
+      if (displayMonth < 0) {
+        displayMonth = 11;
+        displayYear--;
+      } else if (displayMonth > 11) {
+        displayMonth = 0;
+        displayYear++;
+      }
+      renderCalendarDays();
+    }
+
+    function selectCalDate(day) {
+      const selectedDate = new Date(displayYear, displayMonth, day);
+      const formatted = selectedDate.toISOString().split('T')[0];
+      activeDateInput.value = formatted;
+      activeDateInput.classList.remove('input-error');
+      
+      if (activeDateInput.id === 'dateCalibration' || activeDateInput.id === 'dateReceipt') {
+        document.getElementById('useCurrentDate').checked = false;
+      }
+      
+      closeCalendar();
+    }
+
+    function clearCalDate() {
+      if (activeDateInput) {
+        activeDateInput.value = '';
+      }
+      closeCalendar();
+    }
+
+    function selectCalToday() {
+      if (activeDateInput) {
+        const today = new Date();
+        const formatted = today.toISOString().split('T')[0];
+        activeDateInput.value = formatted;
+        activeDateInput.classList.remove('input-error');
+        
+        if (activeDateInput.id === 'dateCalibration' || activeDateInput.id === 'dateReceipt') {
+          document.getElementById('useCurrentDate').checked = false;
+        }
+      }
+      closeCalendar();
+    }
+  
+    // Page load fade-out transition
+    window.addEventListener('DOMContentLoaded', () => {
+      const loader = document.getElementById('loaderOverlay');
+      if (loader) {
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          setTimeout(() => {
+            loader.style.display = 'none';
+          }, 400);
+        }, 50); // Fade out immediately on load to eliminate the double loader feeling
+      }
+    });
+
+    // Redirection loader trigger
+    function navigateToPage(url) {
+      const loader = document.getElementById('loaderOverlay');
+      if (loader) {
+        loader.style.display = 'flex';
+        // force reflow
+        loader.offsetHeight;
+        loader.style.opacity = '0.9'; // Decreased opacity to match design preference
+        const video = document.getElementById('loaderVideo');
+        if (video) {
+          video.currentTime = 0;
+          video.play().catch(() => {});
+        }
+        setTimeout(() => {
+          window.location.href = url;
+        }, 1100); // Play video for 1.1s before redirect
+      } else {
+        window.location.href = url;
+      }
+    }
+
+  </script>
+</body>
+</html>

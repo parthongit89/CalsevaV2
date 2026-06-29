@@ -1,0 +1,16 @@
+# Ignore active source folders to avoid duplication in GitHub
+/cal-login/
+/cal-signup/
+/caliverify/
+/caliprofile/
+/cali-report/
+/cali-reports-data/
+/schedule-work/
+/caliprofile-pages/
+/home/
+/tutorial/
+/_cal-loder.mp4
+/Colorpaletteapp.png
+
+# Ignore Windows Zone.Identifier metadata files
+*Zone.Identifier

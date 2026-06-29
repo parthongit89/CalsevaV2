@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calseva Tutorials</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&family=Commissioner:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+
+  <!-- Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <style>
+    /* CSS Variables matching the "Mystic Forest" color palette */
+    :root {
+      --color-primary: #3A606E;       /* Dark slate / teal */
+      --color-secondary: #607B7D;     /* Medium slate */
+      --color-muted: #828E82;         /* Muted grey/green */
+      --color-sage: #AAAE8E;          /* Sage accent */
+      --color-bg-card: #E0E0E0;       /* Base grey background */
+      --color-bg-body: #1E2E35;       /* Premium dark ambient background */
+      
+      --color-text-dark: #2F3E3F;
+      --color-text-light: #5A6D6E;
+      --color-card-inner: #FFFFFF;
+      --color-border: rgba(96, 123, 125, 0.15);
+      
+      --font-main: 'Elms Sans', 'Commissioner', 'Montserrat', 'SN Pro', sans-serif;
+      --font-alt: 'Google Sans Flex', sans-serif;
+    }
+
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, h1, h2, h3, p, .brand-text, .coming-soon-title {
+      font-family: var(--font-main);
+    }
+
+    input, button, a, .nav-tab-label {
+      font-family: var(--font-alt);
+    }
+
+    body {
+      background-color: var(--color-bg-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Desktop Background Styling */
+    .app-wrapper {
+      width: 100%;
+      max-width: 430px;
+      position: relative;
+    }
+
+    /* Device Mockup Shell */
+    .device-container {
+      background-color: var(--color-bg-card);
+      width: 100%;
+      height: 860px;
+      max-height: 95vh;
+      border-radius: 40px;
+      border: 6px solid #C5CBC5;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Header Section (Fixed at Top) */
+    .tutorial-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 35px 32px 10px 32px;
+      z-index: 10;
+      background-color: var(--color-bg-card);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background-color: rgba(58, 96, 110, 0.1);
+    }
+
+    .back-btn .material-symbols-outlined {
+      font-size: 26px;
+    }
+
+    .header-title-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--color-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .header-title-line {
+      width: 80px;
+      height: 2px;
+      background-color: var(--color-primary);
+      margin-top: 3px;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: rgba(58, 96, 110, 0.1);
+      transform: scale(1.05);
+    }
+
+    .logout-btn .material-symbols-outlined {
+      font-size: 26px;
+    }
+
+    /* Scrollable Container */
+    .tutorial-scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding: 10px 32px 100px 32px; /* Bottom spacing for bottom nav */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      text-align: center;
+    }
+
+    .tutorial-scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Coming Soon Visual Box */
+    .coming-soon-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 320px;
+    }
+
+    .coming-soon-icon-container {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: rgba(58, 96, 110, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .coming-soon-icon {
+      font-size: 64px;
+      color: var(--color-primary);
+      z-index: 2;
+    }
+
+    .pulse-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 2px solid var(--color-primary);
+      border-radius: 50%;
+      opacity: 0;
+      animation: pulse 2.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.5;
+      }
+      50% {
+        transform: scale(1.3);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+    }
+
+    .coming-soon-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .coming-soon-desc {
+      font-size: 13.5px;
+      color: var(--color-text-light);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    /* Newsletter Card */
+    .teaser-card {
+      background-color: var(--color-card-inner);
+      border-radius: 20px;
+      border: 1.5px solid var(--color-border);
+      padding: 22px 20px;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 10px;
+    }
+
+    .teaser-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--color-text-dark);
+    }
+
+    .teaser-input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .teaser-input {
+      background-color: #F0F2F0;
+      border: 1.5px solid var(--color-border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 13px;
+      color: var(--color-text-dark);
+      outline: none;
+      text-align: center;
+      transition: border-color 0.2s ease;
+    }
+
+    .teaser-input:focus {
+      border-color: var(--color-primary);
+    }
+
+    .teaser-btn {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 11px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .teaser-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* Logo and copyright footer */
+    .branding-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .footer-logo {
+      width: 78px;
+      height: 78px;
+      object-fit: contain;
+      user-select: none;
+    }
+
+    .footer-company-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--color-secondary);
+      letter-spacing: 0.2px;
+    }
+
+    .footer-copyright {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--color-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    /* Sticky Bottom Navigation Bar */
+    .bottom-nav-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background-color: #E2E6E2;
+      border-top: 1.5px solid #D2D8D2;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 6px 12px 14px 12px;
+      z-index: 100;
+      border-bottom-left-radius: 34px;
+      border-bottom-right-radius: 34px;
+    }
+
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-muted);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 62px;
+      gap: 3px;
+    }
+
+    .nav-tab:hover {
+      color: var(--color-primary);
+    }
+
+    .nav-tab.active {
+      color: var(--color-primary);
+    }
+
+    .nav-tab-icon {
+      font-size: 24px;
+      font-variation-settings: 'FILL' 0, 'wght' 400;
+    }
+
+    .nav-tab.active .nav-tab-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 500;
+    }
+
+    .nav-tab-label {
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+
+    /* Mobile overrides */
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+        background-color: var(--color-bg-card);
+      }
+      .app-wrapper {
+        max-width: 100%;
+        height: 100vh;
+      }
+      .device-container {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        height: 100vh;
+        max-height: 100vh;
+      }
+      .tutorial-header {
+        padding-top: 50px;
+      }
+      .bottom-nav-bar {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        padding-bottom: 24px;
+        height: 90px;
+      }
+    }
+  
+    /* Premium Video Loader Overlay */
+    .loader-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--color-bg-card, #E0E0E0);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9; /* Decreased opacity for perfect redirection outline visual */
+      transition: opacity 0.4s ease;
+      pointer-events: auto;
+    }
+
+    .loader-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 34px;
+    }
+
+    @media (max-width: 480px) {
+      .loader-video {
+        border-radius: 0;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <main class="app-wrapper">
+    <div class="device-container" id="deviceContainer">
+      <!-- Video Loader Overlay -->
+      <div class="loader-overlay" id="loaderOverlay">
+        <video class="loader-video" id="loaderVideo" autoplay loop muted playsinline>
+          <source src="../_cal-loder.mp4" type="video/mp4">
+        </video>
+      </div>
+
+
+      <!-- Header -->
+      <header class="tutorial-header">
+        <div class="header-left">
+          <button class="back-btn" onclick="handleBackAction()" aria-label="Go back">
+            <span class="material-symbols-outlined">arrow_back</span>
+          </button>
+          <div class="header-title-container">
+            <h1 class="header-title">Tutorials</h1>
+            <span class="header-title-line"></span>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="handleLogout()" aria-label="Log out">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </header>
+
+      <!-- Scrollable Content -->
+      <div class="tutorial-scroll-content">
+        
+        <!-- Coming Soon Message -->
+        <div class="coming-soon-wrapper">
+          <div class="coming-soon-icon-container">
+            <span class="material-symbols-outlined coming-soon-icon">play_circle</span>
+            <span class="pulse-ring"></span>
+          </div>
+          <h2 class="coming-soon-title">Coming Soon!</h2>
+          <p class="coming-soon-desc">
+            We are currently curating step-by-step video guides and interactive tutorials to help you master CalSEVA calibration tools.
+          </p>
+        </div>
+
+        <!-- Notification Teaser -->
+        <form class="teaser-card" onsubmit="handleTeaserSubmit(event)">
+          <h3 class="teaser-title">Get Notified</h3>
+          <div class="teaser-input-row">
+            <input type="email" id="teaserEmail" class="teaser-input" placeholder="Enter your work email" required>
+            <button type="submit" class="teaser-btn">Notify Me</button>
+          </div>
+        </form>
+
+        <!-- Logo / Copyright Section -->
+        <footer class="branding-footer">
+          <img src="../caliprofile-pages/Calsevalogo.png" alt="Calseva Logo" class="footer-logo">
+          <span class="footer-company-name">Calseva Private Solutions</span>
+          <div class="footer-copyright">
+            <span class="material-symbols-outlined" style="font-size: 14px;">copyright</span>
+            <span>2025 All Rights Reserved</span>
+          </div>
+        </footer>
+
+      </div>
+
+      <!-- Sticky Bottom Navigation Bar -->
+      <nav class="bottom-nav-bar">
+        <a class="nav-tab" onclick="navigateTab('Home')">
+          <span class="material-symbols-outlined nav-tab-icon">home</span>
+          <span class="nav-tab-label">Home</span>
+        </a>
+        <a class="nav-tab" onclick="navigateTab('Reports')">
+          <span class="material-symbols-outlined nav-tab-icon">assignment</span>
+          <span class="nav-tab-label">Reports</span>
+        </a>
+        <a class="nav-tab active" onclick="navigateTab('Tutorial')">
+          <span class="material-symbols-outlined nav-tab-icon">play_circle</span>
+          <span class="nav-tab-label">Tutorial</span>
+        </a>
+        <a class="nav-tab" onclick="navigateTab('Schedule')">
+          <span class="material-symbols-outlined nav-tab-icon">schedule</span>
+          <span class="nav-tab-label">Schedule</span>
+        </a>
+        <a class="nav-tab" onclick="navigateTab('Profile')">
+          <span class="material-symbols-outlined nav-tab-icon">person</span>
+          <span class="nav-tab-label">Profile</span>
+        </a>
+      </nav>
+
+    </div>
+  </main>
+
+  <script>
+    function handleBackAction() {
+      navigateToPage('../home/home.html');
+    }
+
+    function handleLogout() {
+      if (confirm("Are you sure you want to log out?")) {
+        navigateToPage('../cal-login/cal-login.html');
+      }
+    }
+
+    // Bottom Tab Navigation Linkage
+    function navigateTab(tabName) {
+      if (tabName === 'Home') {
+        navigateToPage('../home/home.html');
+      } else if (tabName === 'Profile') {
+        navigateToPage('../caliprofile/caliprofile.html');
+      } else if (tabName === 'Reports') {
+        navigateToPage('../cali-reports-data/cali-reports-data.html');
+      } else if (tabName === 'Schedule') {
+        navigateToPage('../schedule-work/schedule-work.html');
+      }
+    }
+
+    // Teaser handler
+    function handleTeaserSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('teaserEmail').value;
+      alert(`Thank you!\nWe'll notify you at ${email} when Calseva tutorial series goes live.`);
+      document.getElementById('teaserEmail').value = '';
+    }
+
+    // Check dark mode preference
+    window.addEventListener('DOMContentLoaded', () => {
+      const isDarkMode = localStorage.getItem('calseva_dark_mode') === 'true';
+      if (isDarkMode) {
+        const container = document.getElementById('deviceContainer');
+        container.style.backgroundColor = '#1F2023';
+        document.documentElement.style.setProperty('--color-bg-card', '#1F2023');
+        document.documentElement.style.setProperty('--color-card-inner', '#2A2B2E');
+        document.documentElement.style.setProperty('--color-text-dark', '#E8EAED');
+        document.documentElement.style.setProperty('--color-text-light', '#9AA0A6');
+        document.documentElement.style.setProperty('--color-border', 'rgba(255, 255, 255, 0.08)');
+      }
+    });
+  
+    // Page load fade-out transition
+    window.addEventListener('DOMContentLoaded', () => {
+      const loader = document.getElementById('loaderOverlay');
+      if (loader) {
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          setTimeout(() => {
+            loader.style.display = 'none';
+          }, 400);
+        }, 50); // Fade out immediately on load to eliminate the double loader feeling
+      }
+    });
+
+    // Redirection loader trigger
+    function navigateToPage(url) {
+      const loader = document.getElementById('loaderOverlay');
+      if (loader) {
+        loader.style.display = 'flex';
+        // force reflow
+        loader.offsetHeight;
+        loader.style.opacity = '0.9'; // Decreased opacity to match design preference
+        const video = document.getElementById('loaderVideo');
+        if (video) {
+          video.currentTime = 0;
+          video.play().catch(() => {});
+        }
+        setTimeout(() => {
+          window.location.href = url;
+        }, 1100); // Play video for 1.1s before redirect
+      } else {
+        window.location.href = url;
+      }
+    }
+
+  </script>
+</body>
+</html>

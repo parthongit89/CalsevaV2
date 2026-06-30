@@ -40,7 +40,7 @@ except Exception as db_err:
 def send_otp_email(to_email, otp_code):
     resend_key = os.environ.get('RESEND_API_KEY')
     sendgrid_key = os.environ.get('SENDGRID_API_KEY')
-    sender = os.environ.get('GMAIL_SENDER', 'supportcalsevatec@gmail.com')
+    sender = os.environ.get('GMAIL_SENDER', 'supportcalsevatec@gmail.com').strip()
     subject = "Your One-Time Password (OTP) - CalSEVA"
     
     body = f"""
@@ -109,6 +109,7 @@ def send_otp_email(to_email, otp_code):
                 "Authorization": f"Bearer {sendgrid_key}",
                 "Content-Type": "application/json"
             }
+            print(f"[SendGrid System] Attempting to send email via SendGrid from sender: '{sender}' to: '{to_email}'")
             data = {
                 "personalizations": [{"to": [{"email": to_email}]}],
                 "from": {"email": sender, "name": "CalSEVA Support"},

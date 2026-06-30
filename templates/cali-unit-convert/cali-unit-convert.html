@@ -55,6 +55,25 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
+
+
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
     /* CSS Variables matching design palette */
     :root {
       --color-primary: #3A606E;       /* Dark slate / teal */
@@ -386,9 +405,68 @@
         height: 100vh;
         max-height: 100vh;
         padding-top: 10px;
+        padding-bottom: 10px;
       }
       .header-bar {
-        padding-top: 40px;
+        padding-top: 35px;
+        padding-bottom: 5px;
+      }
+      .converter-card {
+        margin: 5px 12px 10px 12px;
+        padding: 15px 12px;
+        border-radius: 20px;
+      }
+      .category-tabs {
+        margin-bottom: 12px;
+      }
+      .category-tab {
+        padding: 8px 0;
+        font-size: 11px;
+      }
+      .conversion-panel {
+        padding: 10px;
+        margin-bottom: 12px;
+        border-radius: 14px;
+      }
+      .panel-row {
+        margin-bottom: 8px;
+      }
+      .select-dropdown-container {
+        margin-bottom: 4px;
+      }
+      .unit-select {
+        font-size: 12.5px;
+      }
+      .value-display-box {
+        padding: 8px 14px;
+        min-height: 52px;
+        border-radius: 10px;
+      }
+      .display-value-text {
+        font-size: 21px;
+      }
+      .keypad-grid {
+        gap: 8px;
+        padding-top: 8px;
+      }
+      .key-btn {
+        width: 46px;
+        height: 46px;
+        font-size: 17px;
+      }
+      .watermark-footer {
+        padding: 5px 0;
+      }
+      .watermark-footer svg {
+        width: 40px;
+        height: 40px;
+      }
+      .watermark-title {
+        font-size: 9px;
+        margin-top: 4px;
+      }
+      .watermark-copyright {
+        display: none; /* Hide copyright text to reclaim vertical space */
       }
     }
 
@@ -705,14 +783,28 @@
       const el = document.getElementById(elementId);
       if (!el) return;
       const length = el.textContent.length;
-      if (length > 18) {
-        el.style.fontSize = '14px';
-      } else if (length > 12) {
-        el.style.fontSize = '18px';
-      } else if (length > 8) {
-        el.style.fontSize = '22px';
+      const isMobile = window.innerWidth <= 480;
+
+      if (isMobile) {
+        if (length > 18) {
+          el.style.fontSize = '12px';
+        } else if (length > 12) {
+          el.style.fontSize = '15px';
+        } else if (length > 8) {
+          el.style.fontSize = '18px';
+        } else {
+          el.style.fontSize = '21px';
+        }
       } else {
-        el.style.fontSize = '26px';
+        if (length > 18) {
+          el.style.fontSize = '14px';
+        } else if (length > 12) {
+          el.style.fontSize = '18px';
+        } else if (length > 8) {
+          el.style.fontSize = '22px';
+        } else {
+          el.style.fontSize = '26px';
+        }
       }
     }
 

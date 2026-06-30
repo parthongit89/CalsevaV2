@@ -14,3 +14,7 @@
 
 # Ignore Windows Zone.Identifier metadata files
 *Zone.Identifier
+
+# Ignore local virtual environment and python caches
+venv/
+__pycache__/

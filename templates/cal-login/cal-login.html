@@ -879,6 +879,8 @@
       vertical-align: middle;
     }
   </style>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3A606E">
 </head>
 <body>
       <!-- Video Loader Overlay -->
@@ -1040,6 +1042,15 @@
       }
     }
 
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
   </script>
 </body>
 </html>

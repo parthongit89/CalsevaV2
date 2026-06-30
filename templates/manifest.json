@@ -1,0 +1,24 @@
+{
+  "name": "CalSEVA Calibration Assistant",
+  "short_name": "CalSEVA",
+  "description": "Premium Calibration Reference and Reporting tool.",
+  "start_url": "/cal-login/cal-login.html",
+  "display": "standalone",
+  "background_color": "#E0E0E0",
+  "theme_color": "#3A606E",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/caliprofile-pages/Calsevalogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/caliprofile-pages/Calsevalogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

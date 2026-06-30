@@ -146,18 +146,15 @@ def login_route():
                 flash("Invalid Password Please Signup")
                 return redirect(url_for('login_route'))
 
-            # Successful Authentication -> Send OTP via email
+            # Successful Authentication -> Send OTP via email in a background thread to prevent blocking
             otp_code = str(random.randint(100000, 999999))
             session['otp_code'] = otp_code
             session['temp_employee_id'] = employee_id
 
-            email_sent = send_otp_email(user.email, otp_code)
-            if not email_sent:
-                # Network or SMTP delivery issue fallback
-                flash("Please try again later")
-                return redirect(url_for('login_route'))
+            import threading
+            threading.Thread(target=send_otp_email, args=(user.email, otp_code)).start()
 
-            # Redirect to verification code entries page
+            # Redirect to verification code entries page instantly
             return redirect(url_for('serve_page_or_static', filepath='caliverify/caliverify.html'))
 
         except Exception as db_err:

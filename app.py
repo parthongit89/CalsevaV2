@@ -126,6 +126,12 @@ def send_otp_email(to_email, otp_code):
                 return True
         except Exception as api_err:
             print(f"Error sending email via SendGrid API: {api_err}")
+            if hasattr(api_err, 'read'):
+                try:
+                    error_body = api_err.read().decode('utf-8')
+                    print(f"SendGrid Error Response Body: {error_body}")
+                except Exception:
+                    pass
             return False
 
     else:

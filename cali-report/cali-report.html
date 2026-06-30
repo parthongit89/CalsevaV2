@@ -478,6 +478,25 @@
 
 
 
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
     /* CSS Variables matching the "Mystic Forest" color palette */
     :root {
       --color-primary: #3A606E;       /* Dark slate / teal */
@@ -1816,7 +1835,7 @@
           </div>
         </div>
         <div class="header-actions">
-          <button type="button" class="action-icon-btn" onclick="navigateToPage('../cali-unit-convert/cali-unit-convert.html')" aria-label="Calculator">
+          <button type="button" class="action-icon-btn" onclick="openChartModal('calc')" aria-label="Calculator">
             <span class="material-symbols-outlined">calculate</span>
           </button>
           <button type="button" class="action-icon-btn" onclick="saveFormState(true)" aria-label="Save report">
@@ -2342,6 +2361,82 @@
         </div>
       </div>
 
+      <!-- Calculator / Unit Converter Modal -->
+      <div id="calcModal" class="chart-modal-overlay">
+        <div class="chart-modal-content">
+          <div class="modal-header">
+            <span class="modal-title">Calseva Unit Converter</span>
+            <button type="button" class="modal-close-btn" onclick="closeChartModal('calc')" aria-label="Close modal">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="modal-body" style="padding: 10px 12px; background-color: #FFFFFF;">
+            <!-- Category Tab Selector -->
+            <div class="category-tabs" role="tablist" style="display: flex; background-color: #F0F2F0; border-radius: 25px; padding: 4px; margin-bottom: 12px; justify-content: space-between; flex-shrink: 0;">
+              <button type="button" class="category-tab active" id="modal-calc-tab-Temperature" onclick="switchModalCalcCategory('Temperature')" style="flex: 1; border: none; background: transparent; text-align: center; padding: 8px 0; font-size: 11px; font-weight: bold; color: #555555; border-radius: 20px; cursor: pointer; transition: all 0.25s ease;">Temperature</button>
+              <button type="button" class="category-tab" id="modal-calc-tab-Volume" onclick="switchModalCalcCategory('Volume')" style="flex: 1; border: none; background: transparent; text-align: center; padding: 8px 0; font-size: 11px; font-weight: bold; color: #555555; border-radius: 20px; cursor: pointer; transition: all 0.25s ease;">Volume</button>
+              <button type="button" class="category-tab" id="modal-calc-tab-Pressure" onclick="switchModalCalcCategory('Pressure')" style="flex: 1; border: none; background: transparent; text-align: center; padding: 8px 0; font-size: 11px; font-weight: bold; color: #555555; border-radius: 20px; cursor: pointer; transition: all 0.25s ease;">Pressure</button>
+            </div>
+
+            <!-- Conversion Display Panels -->
+            <div class="conversion-panel" style="background-color: #E2E5E2; border-radius: 14px; padding: 10px; margin-bottom: 12px; flex-shrink: 0;">
+              
+              <!-- Top Display Slot -->
+              <div class="panel-row" style="display: flex; flex-direction: column; margin-bottom: 8px;">
+                <div class="select-dropdown-container" style="display: flex; align-items: center; margin-left: 5px; margin-bottom: 4px;">
+                  <select id="modalCalcTopUnitSelect" class="unit-select" onchange="onModalCalcUnitChange()" style="background: transparent; border: none; font-size: 12.5px; font-weight: 700; color: var(--color-primary); cursor: pointer; outline: none; padding-right: 20px; background-image: url(&quot;data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2712%27%20height%3D%2712%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%233A606E%27%20stroke-width%3D%273%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpolyline%20points%3D%276%209%2012%2015%2018%209%27%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E&quot;); background-repeat: no-repeat; background-position: right center;"></select>
+                </div>
+                <div class="value-display-box active" id="modalCalcTopSlot" onclick="setModalCalcActiveSlot('top')" style="background-color: #F7F9F7; border-radius: 10px; padding: 8px 14px; display: flex; flex-direction: column; align-items: flex-end; position: relative; border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; min-height: 52px; justify-content: center;">
+                  <div class="display-value-text" id="modalCalcTopValueDisplay" style="font-size: 21px; font-weight: 600; color: #1E2E35; word-break: break-all; text-align: right; line-height: 1.1; width: 100%;">1</div>
+                  <div class="display-unit-suffix" id="modalCalcTopUnitSuffix" style="font-size: 11px; font-weight: bold; color: #888888; margin-top: 4px; align-self: flex-end;">°F</div>
+                </div>
+              </div>
+
+              <!-- Bottom Display Slot -->
+              <div class="panel-row" style="display: flex; flex-direction: column; margin-bottom: 0;">
+                <div class="select-dropdown-container" style="display: flex; align-items: center; margin-left: 5px; margin-bottom: 4px;">
+                  <select id="modalCalcBottomUnitSelect" class="unit-select" onchange="onModalCalcUnitChange()" style="background: transparent; border: none; font-size: 12.5px; font-weight: 700; color: var(--color-primary); cursor: pointer; outline: none; padding-right: 20px; background-image: url(&quot;data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2712%27%20height%3D%2712%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%233A606E%27%20stroke-width%3D%273%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpolyline%20points%3D%276%209%2012%2015%2018%209%27%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E&quot;); background-repeat: no-repeat; background-position: right center;"></select>
+                </div>
+                <div class="value-display-box" id="modalCalcBottomSlot" onclick="setModalCalcActiveSlot('bottom')" style="background-color: #F7F9F7; border-radius: 10px; padding: 8px 14px; display: flex; flex-direction: column; align-items: flex-end; position: relative; border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; min-height: 52px; justify-content: center;">
+                  <div class="display-value-text" id="modalCalcBottomValueDisplay" style="font-size: 21px; font-weight: 600; color: #1E2E35; word-break: break-all; text-align: right; line-height: 1.1; width: 100%;">-17.2222222222</div>
+                  <div class="display-unit-suffix" id="modalCalcBottomUnitSuffix" style="font-size: 11px; font-weight: bold; color: #888888; margin-top: 4px; align-self: flex-end;">°C</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Numeric Virtual Keypad -->
+            <div class="keypad-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; justify-items: center; align-items: center; margin-top: auto; padding-top: 8px; flex-shrink: 0;">
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('7')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">7</button>
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('8')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">8</button>
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('9')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">9</button>
+              <button type="button" class="key-btn btn-action" onclick="handleModalCalcKeyPress('backspace')" aria-label="Delete" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">
+                <span class="material-symbols-outlined" style="font-size: 20px;">backspace</span>
+              </button>
+
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('4')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">4</button>
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('5')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">5</button>
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('6')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">6</button>
+              <button type="button" class="key-btn btn-clear" onclick="handleModalCalcKeyPress('clear')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #D68A1A; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">C</button>
+
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('1')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">1</button>
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('2')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">2</button>
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('3')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">3</button>
+              <button type="button" class="key-btn btn-action" onclick="handleModalCalcKeyPress('up')" aria-label="Move Up" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">
+                <span class="material-symbols-outlined" style="font-size: 20px;">arrow_upward</span>
+              </button>
+
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('+/-')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">+/-</button>
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('0')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">0</button>
+              <button type="button" class="key-btn" onclick="handleModalCalcKeyPress('.')" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">.</button>
+              <button type="button" class="key-btn btn-action" onclick="handleModalCalcKeyPress('down')" aria-label="Move Down" style="width: 46px; height: 46px; border-radius: 50%; border: none; background-color: #32525F; color: #FFFFFF; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none;">
+                <span class="material-symbols-outlined" style="font-size: 20px;">arrow_downward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Success Submit Overlay -->
       <div class="toast-overlay" id="successOverlay">
         <div class="toast-card">
@@ -2407,6 +2502,9 @@
         }
       }
       loadSavedState();
+      
+      // Initialize default modal calculator category
+      switchModalCalcCategory('Temperature');
     });
 
     // Navigation back to Home
@@ -3232,7 +3330,6 @@
       }
     }
 
-    // ==================== OVERLAY REFERENCE CHARTS & CALCULATORS LOGIC ====================
     function openChartModal(type) {
       const container = document.getElementById('deviceContainer');
       container.classList.add('modal-active');
@@ -3242,6 +3339,8 @@
       } else if (type === 'rtd') {
         document.getElementById('rtdModal').style.display = 'flex';
         setRtdModalZoom(0.5);
+      } else if (type === 'calc') {
+        document.getElementById('calcModal').style.display = 'flex';
       }
     }
 
@@ -3251,11 +3350,14 @@
         document.getElementById('mvModal').style.display = 'none';
       } else if (type === 'rtd') {
         document.getElementById('rtdModal').style.display = 'none';
+      } else if (type === 'calc') {
+        document.getElementById('calcModal').style.display = 'none';
       }
       
       // If no overlay modal is visible, remove blur active state
       if (document.getElementById('mvModal').style.display !== 'flex' && 
-          document.getElementById('rtdModal').style.display !== 'flex') {
+          document.getElementById('rtdModal').style.display !== 'flex' &&
+          document.getElementById('calcModal').style.display !== 'flex') {
         container.classList.remove('modal-active');
       }
     }
@@ -3527,6 +3629,226 @@
 
       scrollArea.scrollLeft = xOffset * modalRtdZoom;
       scrollArea.scrollTop = yOffset * modalRtdZoom;
+    }
+
+    // --- Modal Calculator (Unit Converter) Logic ---
+    let modalCalcCategory = 'Temperature';
+    let modalCalcActiveSlot = 'top';
+    let modalCalcTopValueString = '1';
+    let modalCalcBottomValueString = '';
+
+    const modalCalcUnits = {
+      Temperature: [
+        { name: 'Fahrenheit', suffix: '°F' },
+        { name: 'Celsius', suffix: '°C' },
+        { name: 'Kelvin', suffix: 'K' }
+      ],
+      Volume: [
+        { name: 'Liters', suffix: 'L' },
+        { name: 'Milliliters', suffix: 'mL' },
+        { name: 'Gallons', suffix: 'gal' },
+        { name: 'Cubic Meters', suffix: 'm³' }
+      ],
+      Pressure: [
+        { name: 'Bar', suffix: 'bar' },
+        { name: 'PSI', suffix: 'psi' },
+        { name: 'Pascal', suffix: 'Pa' },
+        { name: 'Kilopascal', suffix: 'kPa' },
+        { name: 'Atmosphere', suffix: 'atm' }
+      ]
+    };
+
+    function setModalCalcActiveSlot(slot) {
+      modalCalcActiveSlot = slot;
+      const topSlot = document.getElementById('modalCalcTopSlot');
+      const bottomSlot = document.getElementById('modalCalcBottomSlot');
+      if (slot === 'top') {
+        topSlot.classList.add('active');
+        bottomSlot.classList.remove('active');
+      } else {
+        bottomSlot.classList.add('active');
+        topSlot.classList.remove('active');
+      }
+    }
+
+    function switchModalCalcCategory(category) {
+      modalCalcCategory = category;
+      document.querySelectorAll('#calcModal .category-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      const activeTab = document.getElementById(`modal-calc-tab-${category}`);
+      if (activeTab) activeTab.classList.add('active');
+
+      const topSelect = document.getElementById('modalCalcTopUnitSelect');
+      const bottomSelect = document.getElementById('modalCalcBottomUnitSelect');
+      if (!topSelect || !bottomSelect) return;
+
+      topSelect.innerHTML = '';
+      bottomSelect.innerHTML = '';
+
+      modalCalcUnits[category].forEach((unit) => {
+        const opt1 = document.createElement('option');
+        opt1.value = unit.name;
+        opt1.textContent = unit.name;
+        topSelect.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = unit.name;
+        opt2.textContent = unit.name;
+        bottomSelect.appendChild(opt2);
+      });
+
+      topSelect.selectedIndex = 0;
+      bottomSelect.selectedIndex = 1;
+
+      modalCalcTopValueString = '1';
+      modalCalcBottomValueString = '';
+      setModalCalcActiveSlot('top');
+      updateModalCalcDisplays();
+    }
+
+    function onModalCalcUnitChange() {
+      updateModalCalcDisplays();
+    }
+
+    function updateModalCalcDisplays() {
+      const topSelect = document.getElementById('modalCalcTopUnitSelect');
+      const bottomSelect = document.getElementById('modalCalcBottomUnitSelect');
+      if (!topSelect || !bottomSelect) return;
+
+      const topUnit = topSelect.value;
+      const bottomUnit = bottomSelect.value;
+
+      const topUnitData = modalCalcUnits[modalCalcCategory].find(u => u.name === topUnit);
+      const bottomUnitData = modalCalcUnits[modalCalcCategory].find(u => u.name === bottomUnit);
+
+      document.getElementById('modalCalcTopUnitSuffix').textContent = topUnitData ? topUnitData.suffix : '';
+      document.getElementById('modalCalcBottomUnitSuffix').textContent = bottomUnitData ? bottomUnitData.suffix : '';
+
+      if (modalCalcActiveSlot === 'top') {
+        const topVal = parseFloat(modalCalcTopValueString);
+        if (isNaN(topVal)) {
+          modalCalcBottomValueString = '0';
+        } else {
+          modalCalcBottomValueString = formatModalCalcOutput(performModalCalcConversion(topVal, topUnit, bottomUnit));
+        }
+      } else {
+        const bottomVal = parseFloat(modalCalcBottomValueString);
+        if (isNaN(bottomVal)) {
+          modalCalcTopValueString = '0';
+        } else {
+          modalCalcTopValueString = formatModalCalcOutput(performModalCalcConversion(bottomVal, bottomUnit, topUnit));
+        }
+      }
+
+      document.getElementById('modalCalcTopValueDisplay').textContent = modalCalcTopValueString;
+      document.getElementById('modalCalcBottomValueDisplay').textContent = modalCalcBottomValueString;
+      
+      adjustModalTextSize('modalCalcTopValueDisplay');
+      adjustModalTextSize('modalCalcBottomValueDisplay');
+    }
+
+    function adjustModalTextSize(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const length = el.textContent.length;
+      if (length > 18) {
+        el.style.fontSize = '11px';
+      } else if (length > 12) {
+        el.style.fontSize = '14px';
+      } else if (length > 8) {
+        el.style.fontSize = '17px';
+      } else {
+        el.style.fontSize = '21px';
+      }
+    }
+
+    function formatModalCalcOutput(val) {
+      if (isNaN(val)) return '0';
+      if (!isFinite(val)) return 'Error';
+      return Number(val.toFixed(8)).toString();
+    }
+
+    function performModalCalcConversion(val, from, to) {
+      if (from === to) return val;
+      if (modalCalcCategory === 'Temperature') {
+        let cVal = 0;
+        if (from === 'Celsius') cVal = val;
+        else if (from === 'Fahrenheit') cVal = (val - 32) * 5 / 9;
+        else if (from === 'Kelvin') cVal = val - 273.15;
+
+        if (to === 'Celsius') return cVal;
+        else if (to === 'Fahrenheit') return cVal * 9 / 5 + 32;
+        else if (to === 'Kelvin') return cVal + 273.15;
+      } else if (modalCalcCategory === 'Volume') {
+        const factors = {
+          Liters: 1.0,
+          Milliliters: 0.001,
+          Gallons: 3.78541,
+          'Cubic Meters': 1000.0
+        };
+        return (val * factors[from]) / factors[to];
+      } else if (modalCalcCategory === 'Pressure') {
+        const factors = {
+          Bar: 1.0,
+          PSI: 0.0689476,
+          Pascal: 0.00001,
+          Kilopascal: 0.01,
+          Atmosphere: 1.01325
+        };
+        return (val * factors[from]) / factors[to];
+      }
+      return val;
+    }
+
+    function handleModalCalcKeyPress(key) {
+      let activeStr = modalCalcActiveSlot === 'top' ? modalCalcTopValueString : modalCalcBottomValueString;
+
+      if (key >= '0' && key <= '9') {
+        if (activeStr === '0' || activeStr === '-0') {
+          activeStr = activeStr.startsWith('-') ? '-' + key : key;
+        } else {
+          if (activeStr.replace(/[^0-9]/g, '').length < 15) {
+            activeStr += key;
+          }
+        }
+      } else if (key === '.') {
+        if (!activeStr.includes('.')) {
+          activeStr += '.';
+        }
+      } else if (key === '+/-') {
+        if (activeStr.startsWith('-')) {
+          activeStr = activeStr.substring(1);
+        } else {
+          if (activeStr !== '0') {
+            activeStr = '-' + activeStr;
+          }
+        }
+      } else if (key === 'backspace') {
+        activeStr = activeStr.slice(0, -1);
+        if (activeStr === '' || activeStr === '-') {
+          activeStr = '0';
+        }
+      } else if (key === 'clear') {
+        modalCalcTopValueString = '0';
+        modalCalcBottomValueString = '0';
+        updateModalCalcDisplays();
+        return;
+      } else if (key === 'up') {
+        setModalCalcActiveSlot('top');
+        return;
+      } else if (key === 'down') {
+        setModalCalcActiveSlot('bottom');
+        return;
+      }
+
+      if (modalCalcActiveSlot === 'top') {
+        modalCalcTopValueString = activeStr;
+      } else {
+        modalCalcBottomValueString = activeStr;
+      }
+
+      updateModalCalcDisplays();
     }
 
   </script>

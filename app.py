@@ -223,7 +223,6 @@ def login_route():
             session['temp_employee_id'] = employee_id
 
             print(f"[OTP System] Generated OTP is: {otp_code} for user: {user.email}")
-            flash(f"[Sandbox Mode] OTP code generated: {otp_code}")
 
             import threading
             threading.Thread(target=send_otp_email, args=(user.email, otp_code)).start()
@@ -321,7 +320,7 @@ def verify_route():
             flash("Invalid Credentials")
             return redirect(url_for('login_route'))
 
-        if submitted_otp == session_otp or submitted_otp == "123456":
+        if submitted_otp == session_otp:
             # Successful validation -> Authenticate user session
             session['user_id'] = temp_emp_id
             session.pop('otp_code', None)

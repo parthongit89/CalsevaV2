@@ -36,20 +36,17 @@ try:
 except Exception as db_err:
     print(f"Warning: Dynamic database table creation failed: {db_err}")
 
-# Helper function to send email via SMTP
+# Helper function to send email via SMTP or HTTP API (Render compliant)
 def send_otp_email(to_email, otp_code):
+    resend_key = os.environ.get('RESEND_API_KEY')
+    sendgrid_key = os.environ.get('SENDGRID_API_KEY')
     sender = os.environ.get('GMAIL_SENDER', 'supportcalsevatec@gmail.com')
-    app_password = os.environ.get('GMAIL_APP_PASSWORD', 'wvib cbaq dsza sexe')
-    
     subject = "Your One-Time Password (OTP) - CalSEVA"
     
     body = f"""
     <html>
       <body style="font-family: Arial, sans-serif; text-align: center; color: #333333; padding: 20px; background-color: #f4f6f4;">
         <div style="max-width: 500px; margin: auto; border: 1px solid #dddddd; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); background-color: #ffffff;">
-          <div style="text-align: center; margin: 0 auto 20px auto;">
-            <img src="cid:logo" alt="CalSEVA Logo" style="width: 80px; height: 80px; object-fit: contain;">
-          </div>
           <h2 style="color: #3A606E; margin-bottom: 5px; font-size: 20px; font-weight: bold;">Calseva Tec Solutions PVT.LTD</h2>
           <hr style="border: 0; border-top: 1.5px solid #eeeeee; margin: 20px 0;">
           <p style="font-size: 15px; line-height: 1.5; color: #555555; text-align: left;">Dear Customer,</p>
@@ -71,39 +68,97 @@ def send_otp_email(to_email, otp_code):
       </body>
     </html>
     """
-    
-    msg = MIMEMultipart()
-    msg['From'] = f"Calseva Support <{sender}>"
-    msg['To'] = to_email
-    msg['Subject'] = subject
-    
-    msg.attach(MIMEText(body, 'html'))
-    
-    # Attach Logo as inline CID image
-    logo_path = "templates/caliprofile-pages/Calsevalogo.png"
-    if os.path.exists(logo_path):
-        try:
-            with open(logo_path, 'rb') as f:
-                img_data = f.read()
-            msg_image = MIMEImage(img_data)
-            msg_image.add_header('Content-ID', '<logo>')
-            msg_image.add_header('Content-Disposition', 'inline', filename="Calsevalogo.png")
-            msg.attach(msg_image)
-        except Exception as attach_err:
-            print(f"Error attaching logo: {attach_err}")
-    else:
-        print(f"Logo file not found at: {logo_path}")
 
-    try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(sender, app_password)
-        server.sendmail(sender, to_email, msg.as_string())
-        server.quit()
-        return True
-    except Exception as e:
-        print(f"Error sending email: {e}")
-        return False
+    if resend_key:
+        try:
+            import urllib.request
+            import json
+            url = "https://api.resend.com/emails"
+            headers = {
+                "Authorization": f"Bearer {resend_key}",
+                "Content-Type": "application/json"
+            }
+            # Resend requires a verified domain, defaults to onboarding@resend.dev for sandboxing
+            from_email = os.environ.get('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
+            data = {
+                "from": f"CalSEVA Support <{from_email}>",
+                "to": [to_email],
+                "subject": subject,
+                "html": body
+            }
+            req = urllib.request.Request(
+                url, 
+                data=json.dumps(data).encode('utf-8'), 
+                headers=headers, 
+                method='POST'
+            )
+            with urllib.request.urlopen(req) as response:
+                res_body = response.read().decode('utf-8')
+                print(f"Email sent successfully via Resend API: {res_body}")
+                return True
+        except Exception as api_err:
+            print(f"Error sending email via Resend API: {api_err}")
+            return False
+
+    elif sendgrid_key:
+        try:
+            import urllib.request
+            import json
+            url = "https://api.sendgrid.com/v3/mail/send"
+            headers = {
+                "Authorization": f"Bearer {sendgrid_key}",
+                "Content-Type": "application/json"
+            }
+            data = {
+                "personalizations": [{"to": [{"email": to_email}]}],
+                "from": {"email": sender, "name": "CalSEVA Support"},
+                "subject": subject,
+                "content": [{"type": "text/html", "value": body}]
+            }
+            req = urllib.request.Request(
+                url, 
+                data=json.dumps(data).encode('utf-8'), 
+                headers=headers, 
+                method='POST'
+            )
+            with urllib.request.urlopen(req) as response:
+                print("Email sent successfully via SendGrid API.")
+                return True
+        except Exception as api_err:
+            print(f"Error sending email via SendGrid API: {api_err}")
+            return False
+
+    else:
+        # SMTP Fallback (default for local development)
+        app_password = os.environ.get('GMAIL_APP_PASSWORD', 'wvib cbaq dsza sexe')
+        msg = MIMEMultipart()
+        msg['From'] = f"Calseva Support <{sender}>"
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'html'))
+        
+        logo_path = "templates/caliprofile-pages/Calsevalogo.png"
+        if os.path.exists(logo_path):
+            try:
+                with open(logo_path, 'rb') as f:
+                    img_data = f.read()
+                msg_image = MIMEImage(img_data)
+                msg_image.add_header('Content-ID', '<logo>')
+                msg_image.add_header('Content-Disposition', 'inline', filename="Calsevalogo.png")
+                msg.attach(msg_image)
+            except Exception as attach_err:
+                print(f"Error attaching logo: {attach_err}")
+
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(sender, app_password)
+            server.sendmail(sender, to_email, msg.as_string())
+            server.quit()
+            return True
+        except Exception as e:
+            print(f"Error sending email via SMTP: {e}")
+            return False
 
 # Validation helper for password complexity (8+ chars, alphanumeric + special character)
 def is_valid_password(password):

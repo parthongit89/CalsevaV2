@@ -18,3 +18,4 @@
 # Ignore local virtual environment and python caches
 venv/
 __pycache__/
+.env

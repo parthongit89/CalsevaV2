@@ -8,22 +8,38 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory, jsonify
 from sqlalchemy import text
+from dotenv import load_dotenv
 
 from database import db
 from models import User
 
+# Load environment variables from .env if present
+load_dotenv()
+
 app = Flask(__name__, template_folder='templates', static_folder='templates')
-app.secret_key = 'calseva_super_secret_session_encryption_key'
+app.secret_key = os.environ.get('SECRET_KEY', 'calseva_super_secret_session_encryption_key')
 
 # Configure PostgreSQL Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:parthpostgress89##@localhost:5432/calsevav2'
+db_url = os.environ.get('DATABASE_URL', 'postgresql://postgres:parthpostgress89##@localhost:5432/calsevav2')
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
+# Auto-initialize database tables on startup
+try:
+    with app.app_context():
+        db.create_all()
+    print("Database tables initialized/verified successfully.")
+except Exception as db_err:
+    print(f"Warning: Dynamic database table creation failed: {db_err}")
+
 # Helper function to send email via SMTP
 def send_otp_email(to_email, otp_code):
-    sender = "supportcalsevatec@gmail.com"
-    app_password = "wvib cbaq dsza sexe"
+    sender = os.environ.get('GMAIL_SENDER', 'supportcalsevatec@gmail.com')
+    app_password = os.environ.get('GMAIL_APP_PASSWORD', 'wvib cbaq dsza sexe')
     
     subject = "Your One-Time Password (OTP) - CalSEVA"
     

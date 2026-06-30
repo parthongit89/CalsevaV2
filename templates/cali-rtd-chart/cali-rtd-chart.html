@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calseva Type K Thermocouple MV Chart</title>
+  <title>Calseva RTD Temperature vs Resistance Chart</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,44 +18,6 @@
       src: url('../material-symbols-outlined.woff2') format('woff2');
       font-display: block; /* Hides raw text fallback until icon font is loaded */
     }
-
-    .material-symbols-outlined {
-      font-family: 'Material Symbols Outlined' !important;
-      font-style: normal;
-      font-weight: normal;
-      display: inline-block;
-      vertical-align: middle;
-      line-height: 1;
-      text-transform: none;
-      letter-spacing: normal;
-      word-wrap: normal;
-      white-space: nowrap;
-      direction: ltr;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-
-
-    .material-symbols-outlined {
-      font-family: 'Material Symbols Outlined' !important;
-      font-style: normal;
-      font-weight: normal;
-      display: inline-block;
-      vertical-align: middle;
-      line-height: 1;
-      text-transform: none;
-      letter-spacing: normal;
-      word-wrap: normal;
-      white-space: nowrap;
-      direction: ltr;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-
 
     .material-symbols-outlined {
       font-family: 'Material Symbols Outlined' !important;
@@ -230,21 +192,21 @@
       overflow-y: auto;
     }
 
-    /* 2x2 Category Select Range Panel */
+    /* Range Selector Tab Panel */
     .range-selector-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-bottom: 15px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
       flex-shrink: 0;
     }
 
     .range-tab {
       background-color: #F0F2F0;
       border: none;
-      border-radius: 12px;
-      padding: 10px 6px;
-      font-size: 10.5px;
+      border-radius: 10px;
+      padding: 8px 4px;
+      font-size: 9px;
       font-weight: bold;
       color: #555555;
       cursor: pointer;
@@ -257,12 +219,12 @@
     }
 
     .range-tab-label {
-      font-size: 11.5px;
+      font-size: 10px;
       margin-bottom: 2px;
     }
 
     .range-tab-bounds {
-      font-size: 9px;
+      font-size: 8px;
       color: #888888;
       font-weight: normal;
     }
@@ -275,7 +237,7 @@
       color: #E2E6E2;
     }
 
-    /* Lookup Tool Card */
+    /* Bidirectional Lookup Card */
     .lookup-card {
       background-color: #E2E5E2;
       border-radius: 16px;
@@ -324,8 +286,8 @@
       background-color: #F7F9F7;
       border: 1.5px solid transparent;
       border-radius: 8px;
-      padding: 8px 30px 8px 10px;
-      font-size: 13.5px;
+      padding: 8px 45px 8px 10px;
+      font-size: 13px;
       font-weight: bold;
       color: #1E2E35;
       text-align: right;
@@ -340,8 +302,8 @@
 
     .lookup-suffix {
       position: absolute;
-      right: 10px;
-      font-size: 10px;
+      right: 8px;
+      font-size: 9.5px;
       font-weight: bold;
       color: #888888;
       pointer-events: none;
@@ -401,7 +363,7 @@
       font-weight: bold;
     }
 
-    /* Interactive Axis Navigation Overlay Buttons */
+    /* Viewport Frame for RTD Sheet */
     .viewport-outer-container {
       position: relative;
       margin-bottom: 10px;
@@ -429,13 +391,13 @@
 
     .chart-page-image {
       display: block;
-      width: 850px; /* High fidelity desktop width of reference PDF layout */
+      width: 900px; /* Precise layout width matching European Curve RTD sheet */
       height: auto;
       user-select: none;
       pointer-events: none;
     }
 
-    /* Range Pan helper button controls */
+    /* Pan assistant navigation pad overlay */
     .axis-navigation-overlay {
       position: absolute;
       right: 10px;
@@ -476,7 +438,7 @@
       font-size: 16px;
     }
 
-    /* Watermark logo footer styling */
+    /* Watermark Footer styling */
     .watermark-footer {
       display: flex;
       flex-direction: column;
@@ -501,7 +463,7 @@
       margin-top: 2px;
     }
 
-    /* Mobile Responsive Overrides */
+    /* Mobile Responsive Viewport Sizing */
     @media (max-width: 480px) {
       body {
         padding: 0;
@@ -530,17 +492,17 @@
         border-radius: 20px;
       }
       .range-selector-grid {
-        gap: 6px;
-        margin-bottom: 10px;
+        gap: 4px;
+        margin-bottom: 8px;
       }
       .range-tab {
         padding: 6px;
       }
       .range-tab-label {
-        font-size: 10px;
+        font-size: 9px;
       }
       .range-tab-bounds {
-        font-size: 8px;
+        font-size: 7.5px;
       }
       .lookup-card {
         padding: 8px;
@@ -552,11 +514,11 @@
         margin-bottom: 5px;
       }
       .lookup-input {
-        padding: 6px 25px 6px 8px;
-        font-size: 12px;
+        padding: 6px 35px 6px 8px;
+        font-size: 11.5px;
       }
       .viewport-scroll-area {
-        height: 310px;
+        height: 330px;
         border-radius: 12px;
       }
       .controls-row {
@@ -629,7 +591,7 @@
             <span class="material-symbols-outlined">arrow_back</span>
           </button>
           <div class="header-title-container">
-            <h1 class="header-title"><span class="header-title-underline">CalSEVA</span> MV Chart</h1>
+            <h1 class="header-title"><span class="header-title-underline">CalSEVA</span> RTD Chart</h1>
           </div>
         </div>
         <button class="logout-btn" onclick="handleLogout()" aria-label="Logout">
@@ -640,23 +602,19 @@
       <!-- Main Dashboard Card -->
       <div class="content-card">
         
-        <!-- 2x2 Temperature Ranges Selector -->
+        <!-- 3 Range Selector Tabs -->
         <div class="range-selector-grid" role="tablist">
-          <button class="range-tab active" id="tab-page2" onclick="switchRange('page2')" role="tab">
-            <span class="range-tab-label">Negative Range</span>
-            <span class="range-tab-bounds">-270 to 0 °C</span>
+          <button class="range-tab active" id="tab-page1" onclick="switchRange('page1')" role="tab">
+            <span class="range-tab-label">Low Range</span>
+            <span class="range-tab-bounds">-200 to 119 °C</span>
+          </button>
+          <button class="range-tab" id="tab-page2" onclick="switchRange('page2')" role="tab">
+            <span class="range-tab-label">Medium Range</span>
+            <span class="range-tab-bounds">120 to 479 °C</span>
           </button>
           <button class="range-tab" id="tab-page3" onclick="switchRange('page3')" role="tab">
-            <span class="range-tab-label">Low Range</span>
-            <span class="range-tab-bounds">0 to 440 °C</span>
-          </button>
-          <button class="range-tab" id="tab-page4" onclick="switchRange('page4')" role="tab">
-            <span class="range-tab-label">Medium Range</span>
-            <span class="range-tab-bounds">450 to 890 °C</span>
-          </button>
-          <button class="range-tab" id="tab-page5" onclick="switchRange('page5')" role="tab">
             <span class="range-tab-label">High Range</span>
-            <span class="range-tab-bounds">900 to 1370 °C</span>
+            <span class="range-tab-bounds">480 to 850 °C</span>
           </button>
         </div>
 
@@ -664,23 +622,23 @@
         <div class="lookup-card">
           <div class="lookup-title">
             <span class="material-symbols-outlined" style="font-size: 16px;">search</span>
-            <span>Bidirectional Field Range Finder (Type K)</span>
+            <span>Bidirectional Field Range Finder (Alpha = 0.00385)</span>
           </div>
           <div class="lookup-inputs">
             
             <div class="lookup-field">
               <label for="tempInput">Temperature</label>
               <div class="lookup-input-wrapper">
-                <input type="number" id="tempInput" class="lookup-input" step="any" placeholder="e.g. 250" oninput="calculateFromTemp()">
+                <input type="number" id="tempInput" class="lookup-input" step="any" placeholder="e.g. 100" oninput="calculateFromTemp()">
                 <span class="lookup-suffix">°C</span>
               </div>
             </div>
 
             <div class="lookup-field">
-              <label for="voltageInput">Thermoelectric</label>
+              <label for="resistanceInput">Resistance</label>
               <div class="lookup-input-wrapper">
-                <input type="number" id="voltageInput" class="lookup-input" step="any" placeholder="e.g. 10.153" oninput="calculateFromVoltage()">
-                <span class="lookup-suffix">mV</span>
+                <input type="number" id="resistanceInput" class="lookup-input" step="any" placeholder="e.g. 138.50" oninput="calculateFromResistance()">
+                <span class="lookup-suffix">Ohms</span>
               </div>
             </div>
 
@@ -714,7 +672,7 @@
           
           <div class="viewport-scroll-area" id="scrollArea">
             <div class="image-transform-wrapper" id="imageWrapper">
-              <img id="chartImage" src="page2.jpg" class="chart-page-image" alt="Type K Thermocouple reference sheet table">
+              <img id="chartImage" src="page1.png" class="chart-page-image" alt="RTD European standard reference sheet table">
             </div>
           </div>
 
@@ -757,7 +715,7 @@
 
   <script>
     // State management
-    let activeRangeId = 'page2';
+    let activeRangeId = 'page1';
     let zoomLevel = 0.5; // Default starts at 50% zoom as requested
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -807,7 +765,7 @@
 
       // Update active image src
       const chartImg = document.getElementById('chartImage');
-      chartImg.src = `${rangeId}.jpg`;
+      chartImg.src = `${rangeId}.png`;
       
       resetViewportScroll();
     }
@@ -819,6 +777,7 @@
       }
     }
 
+    // Zoom Out
     function zoomOut() {
       if (zoomLevel > 0.3) {
         setZoom(zoomLevel - 0.1);
@@ -831,7 +790,7 @@
       wrapper.style.transform = `scale(${zoomLevel})`;
       
       // Adjust scrollable inner area sizes to match transform bounds
-      const baseWidth = 850;
+      const baseWidth = 900;
       wrapper.style.width = (baseWidth * zoomLevel) + 'px';
       
       document.getElementById('zoomLabel').textContent = Math.round(zoomLevel * 100) + '%';
@@ -853,68 +812,40 @@
       scrollArea.scrollLeft = 0;
     }
 
-    // NIST Thermocouple polynomial formulas
-    function tempToVoltageK(t) {
-      if (t < -270 || t > 1372) return NaN;
+    // Callendar-Van Dusen RTD formula for European Curve (Alpha = 0.00385, R0 = 100.0)
+    function tempToResistanceRTD(t) {
+      if (t < -200 || t > 850) return NaN;
       
-      if (t < 0) {
-        const c = [
-          0.0,
-          3.9450128025e-2,
-          2.3622373598e-5,
-          -3.2858906784e-7,
-          -4.9904828777e-9,
-          -6.7509059173e-11,
-          -5.7410327428e-13,
-          -3.1088872894e-15,
-          -1.0451601245e-17,
-          -1.9889266878e-20,
-          -1.6322697486e-23
-        ];
-        let sum = 0;
-        for (let i = 0; i < c.length; i++) {
-          sum += c[i] * Math.pow(t, i);
-        }
-        return sum;
+      const R0 = 100.0;
+      const A = 3.9083e-3;
+      const B = -5.775e-7;
+      const C = -4.183e-12;
+      
+      if (t >= 0) {
+        return R0 * (1.0 + A * t + B * t * t);
       } else {
-        const c = [
-          0.0,
-          3.9450128025e-2,
-          1.8946115610e-5,
-          -1.5590494491e-8,
-          6.6228308877e-12,
-          -2.0302872277e-15,
-          3.7160165046e-19,
-          -3.8362286897e-23,
-          2.1881508217e-27,
-          -5.3385496189e-32
-        ];
-        let sum = 0;
-        for (let i = 1; i < c.length; i++) {
-          sum += c[i] * Math.pow(t, i);
-        }
-        const a0 = 0.1185976;
-        const a1 = -0.1183432e-3;
-        const a2 = 126.9686;
-        const expTerm = a0 * Math.exp(a1 * Math.pow(t - a2, 2));
-        return sum + expTerm;
+        return R0 * (1.0 + A * t + B * t * t + C * (t - 100.0) * Math.pow(t, 3));
       }
     }
 
-    function voltageToTempK(v) {
-      if (v < -6.458 || v > 54.886) return NaN;
+    function resistanceToTempRTD(r) {
+      // min resistance at -200C is approx 18.52 Ohms, max at 850C is approx 390.48 Ohms
+      if (r < 18.52 || r > 390.48) return NaN;
       
-      let t = v * 25.0; // linear starter guess
+      // Starting guess based on linear approximation (approx 2.6 C per Ohm above 100)
+      let t = (r - 100.0) * 2.6;
+      
+      // Newton-Raphson iteration
       for (let iter = 0; iter < 100; iter++) {
-        const vCalc = tempToVoltageK(t);
+        const rCalc = tempToResistanceRTD(t);
         const deltaT = 0.01;
-        const vDelta = tempToVoltageK(t + deltaT);
-        const dVdT = (vDelta - vCalc) / deltaT;
+        const rDelta = tempToResistanceRTD(t + deltaT);
+        const dRdT = (rDelta - rCalc) / deltaT;
         
-        const error = vCalc - v;
+        const error = rCalc - r;
         if (Math.abs(error) < 1e-6) break;
-        if (Math.abs(dVdT) < 1e-8) break;
-        t = t - error / dVdT;
+        if (Math.abs(dRdT) < 1e-8) break;
+        t = t - error / dRdT;
       }
       return t;
     }
@@ -922,34 +853,34 @@
     // Bidirectional range finder logic
     function calculateFromTemp() {
       const tempInEl = document.getElementById('tempInput');
-      const voltInEl = document.getElementById('voltageInput');
+      const resInEl = document.getElementById('resistanceInput');
       
       const tempVal = parseFloat(tempInEl.value);
       if (isNaN(tempVal)) {
-        voltInEl.value = '';
+        resInEl.value = '';
         return;
       }
       
-      const v = tempToVoltageK(tempVal);
-      if (isNaN(v)) {
-        voltInEl.value = 'Error';
+      const r = tempToResistanceRTD(tempVal);
+      if (isNaN(r)) {
+        resInEl.value = 'Error';
       } else {
-        voltInEl.value = parseFloat(v.toFixed(4));
+        resInEl.value = parseFloat(r.toFixed(2));
         autoSelectRangeTab(tempVal);
       }
     }
 
-    function calculateFromVoltage() {
+    function calculateFromResistance() {
       const tempInEl = document.getElementById('tempInput');
-      const voltInEl = document.getElementById('voltageInput');
+      const resInEl = document.getElementById('resistanceInput');
       
-      const voltVal = parseFloat(voltInEl.value);
-      if (isNaN(voltVal)) {
+      const resVal = parseFloat(resInEl.value);
+      if (isNaN(resVal)) {
         tempInEl.value = '';
         return;
       }
       
-      const t = voltageToTempK(voltVal);
+      const t = resistanceToTempRTD(resVal);
       if (isNaN(t)) {
         tempInEl.value = 'Error';
       } else {
@@ -960,11 +891,10 @@
 
     // Auto-switches reference sheets matching input range
     function autoSelectRangeTab(t) {
-      let targetRange = 'page3';
-      if (t < 0) targetRange = 'page2';
-      else if (t <= 440) targetRange = 'page3';
-      else if (t <= 890) targetRange = 'page4';
-      else targetRange = 'page5';
+      let targetRange = 'page1';
+      if (t < 120) targetRange = 'page1';
+      else if (t < 480) targetRange = 'page2';
+      else targetRange = 'page3';
 
       if (activeRangeId !== targetRange) {
         switchRange(targetRange);
@@ -974,32 +904,49 @@
       autoScrollToCoords(t);
     }
 
-    // Automatically centers scrollbars to approximate table area matching searched temp
+    // Automatically scrolls viewport horizontally and vertically to focus on corresponding table area
     function autoScrollToCoords(t) {
       const scrollArea = document.getElementById('scrollArea');
       
-      // Calculate row coordinates approximately
-      let rowOffset = 0;
-      if (t < 0) {
-        // range -270 to 0
-        const stepIndex = Math.abs(t) / 10;
-        rowOffset = stepIndex * 15; // approximate row height in pixels
-      } else if (t <= 440) {
-        // range 0 to 440
-        const stepIndex = t / 10;
-        rowOffset = stepIndex * 15;
-      } else if (t <= 890) {
-        // range 450 to 890
-        const stepIndex = (t - 450) / 10;
-        rowOffset = stepIndex * 15;
+      let colIndex = 0;
+      let startT = 0;
+      let colWidth = 145; // 900px wide image divided by 6 columns
+      let rowHeight = 11.5; // approximate row height in pixels
+      let headerOffset = 150; // approximate table header margin
+
+      if (t < 120) {
+        // Page 1 (-200 to 119)
+        if (t >= -200 && t <= -141) { colIndex = 0; startT = -200; }
+        else if (t >= -140 && t <= -81) { colIndex = 1; startT = -140; }
+        else if (t >= -80 && t <= -21) { colIndex = 2; startT = -80; }
+        else if (t >= -20 && t <= -1) { colIndex = 3; startT = -20; }
+        else if (t >= 0 && t <= 59) { colIndex = 4; startT = 0; }
+        else if (t >= 60 && t <= 119) { colIndex = 5; startT = 60; }
+      } else if (t < 480) {
+        // Page 2 (120 to 479)
+        if (t >= 120 && t <= 179) { colIndex = 0; startT = 120; }
+        else if (t >= 180 && t <= 239) { colIndex = 1; startT = 180; }
+        else if (t >= 240 && t <= 299) { colIndex = 2; startT = 240; }
+        else if (t >= 300 && t <= 359) { colIndex = 3; startT = 300; }
+        else if (t >= 360 && t <= 419) { colIndex = 4; startT = 360; }
+        else if (t >= 420 && t <= 479) { colIndex = 5; startT = 420; }
       } else {
-        // range 900 to 1370
-        const stepIndex = (t - 900) / 10;
-        rowOffset = stepIndex * 15;
+        // Page 3 (480 to 850)
+        if (t >= 480 && t <= 541) { colIndex = 0; startT = 480; }
+        else if (t >= 542 && t <= 603) { colIndex = 1; startT = 542; }
+        else if (t >= 604 && t <= 665) { colIndex = 2; startT = 604; }
+        else if (t >= 666 && t <= 727) { colIndex = 3; startT = 666; }
+        else if (t >= 728 && t <= 789) { colIndex = 4; startT = 728; }
+        else if (t >= 790 && t <= 850) { colIndex = 5; startT = 790; }
       }
 
-      // Scale rowOffset by zoom level
-      scrollArea.scrollTop = rowOffset * zoomLevel;
+      const xOffset = colIndex * colWidth;
+      const diff = Math.floor(Math.abs(t - startT));
+      const yOffset = headerOffset + (diff * rowHeight);
+
+      // Apply zoom scaled scrolling coordinates
+      scrollArea.scrollLeft = xOffset * zoomLevel;
+      scrollArea.scrollTop = yOffset * zoomLevel;
     }
 
     // Page load fade-out transition

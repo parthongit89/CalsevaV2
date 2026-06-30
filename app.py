@@ -168,6 +168,7 @@ def login_route():
             session['temp_employee_id'] = employee_id
 
             print(f"[OTP System] Generated OTP is: {otp_code} for user: {user.email}")
+            flash(f"[Sandbox Mode] OTP code generated: {otp_code}")
 
             import threading
             threading.Thread(target=send_otp_email, args=(user.email, otp_code)).start()

@@ -715,7 +715,7 @@ def serve_page_or_static(filepath):
     # Render HTML pages dynamically
     if filepath.endswith('.html'):
         # Check authentication for protected sub-pages
-        protected_folders = ['home/', 'caliprofile/', 'cali-report/', 'cali-reports-data/', 'schedule-work/', 'caliprofile-pages/', 'tutorial/', 'cali-unit-convert/']
+        protected_folders = ['home/', 'caliprofile/', 'cali-report/', 'cali-reports-data/', 'schedule-work/', 'caliprofile-pages/', 'tutorial/', 'cali-unit-convert/', 'cali-mv-chart/']
         is_protected = any(filepath.startswith(folder) for folder in protected_folders)
         
         if is_protected and 'user_id' not in session:

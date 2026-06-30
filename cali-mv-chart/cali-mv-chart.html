@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calseva Type K Thermocouple MV Chart</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&family=Commissioner:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+
+  <style>
+    @font-face {
+      font-family: 'Material Symbols Outlined';
+      font-style: normal;
+      src: url('../material-symbols-outlined.woff2') format('woff2');
+      font-display: block; /* Hides raw text fallback until icon font is loaded */
+    }
+
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* CSS Variables matching design palette */
+    :root {
+      --color-primary: #3A606E;       /* Dark slate / teal */
+      --color-secondary: #607B7D;     /* Medium slate */
+      --color-muted: #828E82;         /* Muted grey/green */
+      --color-sage: #AAAE8E;          /* Sage accent */
+      --color-bg-card: #E0E0E0;       /* Base grey background from palette */
+      --color-bg-body: #1E2E35;       /* Premium dark ambient background */
+      
+      --font-main: 'Elms Sans', 'Commissioner', 'Montserrat', 'SN Pro', sans-serif;
+      --font-alt: 'Google Sans Flex', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, h1, h2, h3, p, .brand-text, .section-title {
+      font-family: var(--font-main);
+    }
+
+    button, a, select, input {
+      font-family: var(--font-alt);
+    }
+
+    body {
+      background-color: var(--color-bg-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .app-wrapper {
+      width: 100%;
+      max-width: 430px;
+      position: relative;
+    }
+
+    .device-container {
+      background-color: var(--color-bg-card);
+      width: 100%;
+      height: 860px;
+      max-height: 95vh;
+      border-radius: 40px;
+      border: 6px solid #C5CBC5;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Header Bar */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 25px 25px 15px 25px;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn, .logout-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #E2E6E2;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .back-btn:hover, .logout-btn:hover {
+      background-color: #D4DAD4;
+      transform: scale(1.05);
+    }
+
+    .header-title-container {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .header-title-underline {
+      text-decoration: underline;
+      text-decoration-color: var(--color-primary);
+      text-underline-offset: 4px;
+    }
+
+    /* Main Container Card */
+    .content-card {
+      flex: 1;
+      background-color: #FFFFFF;
+      margin: 10px 20px 20px 20px;
+      border-radius: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* 2x2 Category Select Range Panel */
+    .range-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 15px;
+      flex-shrink: 0;
+    }
+
+    .range-tab {
+      background-color: #F0F2F0;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 6px;
+      font-size: 10.5px;
+      font-weight: bold;
+      color: #555555;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .range-tab-label {
+      font-size: 11.5px;
+      margin-bottom: 2px;
+    }
+
+    .range-tab-bounds {
+      font-size: 9px;
+      color: #888888;
+      font-weight: normal;
+    }
+
+    .range-tab.active {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+    }
+    .range-tab.active .range-tab-bounds {
+      color: #E2E6E2;
+    }
+
+    /* Lookup Tool Card */
+    .lookup-card {
+      background-color: #E2E5E2;
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 15px;
+      flex-shrink: 0;
+    }
+
+    .lookup-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .lookup-inputs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .lookup-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lookup-field label {
+      font-size: 9px;
+      font-weight: bold;
+      color: #666666;
+      margin-bottom: 4px;
+      margin-left: 2px;
+    }
+
+    .lookup-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .lookup-input {
+      width: 100%;
+      background-color: #F7F9F7;
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      padding: 8px 30px 8px 10px;
+      font-size: 13.5px;
+      font-weight: bold;
+      color: #1E2E35;
+      text-align: right;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .lookup-input:focus {
+      border-color: var(--color-primary);
+      background-color: #FFFFFF;
+    }
+
+    .lookup-suffix {
+      position: absolute;
+      right: 10px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #888888;
+      pointer-events: none;
+    }
+
+    /* Zoom and Scroll controls row */
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      background-color: #F0F2F0;
+      padding: 6px 12px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .zoom-indicator {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 5px;
+    }
+
+    .control-btn {
+      background-color: #FFFFFF;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .control-btn:hover {
+      background-color: #E2E6E2;
+    }
+
+    .control-btn:active {
+      transform: scale(0.92);
+    }
+
+    .control-btn span {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    /* Interactive Axis Navigation Overlay Buttons */
+    .viewport-outer-container {
+      position: relative;
+      margin-bottom: 10px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .viewport-scroll-area {
+      width: 100%;
+      height: 380px;
+      overflow: auto;
+      border: 2px solid #E2E5E2;
+      border-radius: 16px;
+      background-color: #8C998C;
+      position: relative;
+      scrollbar-width: thin;
+    }
+
+    .image-transform-wrapper {
+      transform-origin: top left;
+      transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .chart-page-image {
+      display: block;
+      width: 850px; /* High fidelity desktop width of reference PDF layout */
+      height: auto;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Range Pan helper button controls */
+    .axis-navigation-overlay {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      display: grid;
+      grid-template-areas: 
+        ".    up   ."
+        "left center right"
+        ".    down .";
+      gap: 4px;
+      background-color: rgba(255, 255, 255, 0.85);
+      padding: 6px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100;
+    }
+
+    .pan-btn {
+      width: 26px;
+      height: 26px;
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .pan-btn:active {
+      transform: scale(0.85);
+      background-color: #243D47;
+    }
+
+    .pan-btn span {
+      font-size: 16px;
+    }
+
+    /* Watermark logo footer styling */
+    .watermark-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+
+    .watermark-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: #828E82;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .watermark-copyright {
+      font-size: 9px;
+      color: #9EA69E;
+      margin-top: 2px;
+    }
+
+    /* Mobile Responsive Overrides */
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+        background-color: var(--color-bg-card);
+      }
+      .app-wrapper {
+        max-width: 100%;
+        height: 100vh;
+      }
+      .device-container {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        height: 100vh;
+        max-height: 100vh;
+        padding-top: 10px;
+        padding-bottom: 5px;
+      }
+      .header-bar {
+        padding-top: 35px;
+        padding-bottom: 5px;
+      }
+      .content-card {
+        margin: 5px 12px 10px 12px;
+        padding: 12px 10px;
+        border-radius: 20px;
+      }
+      .range-selector-grid {
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .range-tab {
+        padding: 6px;
+      }
+      .range-tab-label {
+        font-size: 10px;
+      }
+      .range-tab-bounds {
+        font-size: 8px;
+      }
+      .lookup-card {
+        padding: 8px;
+        margin-bottom: 10px;
+        border-radius: 12px;
+      }
+      .lookup-title {
+        font-size: 10.5px;
+        margin-bottom: 5px;
+      }
+      .lookup-input {
+        padding: 6px 25px 6px 8px;
+        font-size: 12px;
+      }
+      .viewport-scroll-area {
+        height: 310px;
+        border-radius: 12px;
+      }
+      .controls-row {
+        margin-bottom: 8px;
+        padding: 4px 8px;
+      }
+      .watermark-footer {
+        padding: 5px 0;
+      }
+      .watermark-footer svg {
+        width: 32px;
+        height: 32px;
+      }
+      .watermark-title {
+        font-size: 9px;
+        margin-top: 2px;
+      }
+      .watermark-copyright {
+        display: none;
+      }
+    }
+
+    /* Premium Redirect Video Loader Overlay */
+    .loader-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--color-bg-card);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9;
+      transition: opacity 0.4s ease;
+      pointer-events: auto;
+    }
+
+    .loader-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 34px;
+    }
+
+    @media (max-width: 480px) {
+      .loader-video {
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="app-wrapper">
+    <div class="device-container" id="deviceContainer">
+      
+      <!-- Video Loader Overlay -->
+      <div class="loader-overlay" id="loaderOverlay">
+        <video class="loader-video" id="loaderVideo" autoplay loop muted playsinline>
+          <source src="../_cal-loder.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <!-- Header Bar -->
+      <header class="header-bar">
+        <div class="header-left">
+          <button class="back-btn" onclick="handleBackAction()" aria-label="Go back">
+            <span class="material-symbols-outlined">arrow_back</span>
+          </button>
+          <div class="header-title-container">
+            <h1 class="header-title"><span class="header-title-underline">CalSEVA</span> MV Chart</h1>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="handleLogout()" aria-label="Logout">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </header>
+
+      <!-- Main Dashboard Card -->
+      <div class="content-card">
+        
+        <!-- 2x2 Temperature Ranges Selector -->
+        <div class="range-selector-grid" role="tablist">
+          <button class="range-tab active" id="tab-page2" onclick="switchRange('page2')" role="tab">
+            <span class="range-tab-label">Negative Range</span>
+            <span class="range-tab-bounds">-270 to 0 °C</span>
+          </button>
+          <button class="range-tab" id="tab-page3" onclick="switchRange('page3')" role="tab">
+            <span class="range-tab-label">Low Range</span>
+            <span class="range-tab-bounds">0 to 440 °C</span>
+          </button>
+          <button class="range-tab" id="tab-page4" onclick="switchRange('page4')" role="tab">
+            <span class="range-tab-label">Medium Range</span>
+            <span class="range-tab-bounds">450 to 890 °C</span>
+          </button>
+          <button class="range-tab" id="tab-page5" onclick="switchRange('page5')" role="tab">
+            <span class="range-tab-label">High Range</span>
+            <span class="range-tab-bounds">900 to 1370 °C</span>
+          </button>
+        </div>
+
+        <!-- Bidirectional Lookup Card -->
+        <div class="lookup-card">
+          <div class="lookup-title">
+            <span class="material-symbols-outlined" style="font-size: 16px;">search</span>
+            <span>Bidirectional Field Range Finder (Type K)</span>
+          </div>
+          <div class="lookup-inputs">
+            
+            <div class="lookup-field">
+              <label for="tempInput">Temperature</label>
+              <div class="lookup-input-wrapper">
+                <input type="number" id="tempInput" class="lookup-input" step="any" placeholder="e.g. 250" oninput="calculateFromTemp()">
+                <span class="lookup-suffix">°C</span>
+              </div>
+            </div>
+
+            <div class="lookup-field">
+              <label for="voltageInput">Thermoelectric</label>
+              <div class="lookup-input-wrapper">
+                <input type="number" id="voltageInput" class="lookup-input" step="any" placeholder="e.g. 10.153" oninput="calculateFromVoltage()">
+                <span class="lookup-suffix">mV</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Zoom Control Toolbar -->
+        <div class="controls-row">
+          <div class="zoom-indicator">
+            <span class="material-symbols-outlined" style="font-size: 16px;">zoom_in</span>
+            <span id="zoomLabel">50%</span>
+          </div>
+          <div class="btn-group">
+            <button class="control-btn" onclick="zoomOut()" aria-label="Zoom Out">
+              <span class="material-symbols-outlined">remove</span>
+            </button>
+            <button class="control-btn" onclick="zoomIn()" aria-label="Zoom In">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+            <button class="control-btn" onclick="setZoom(0.5)" style="font-size: 10px; font-weight: bold;" aria-label="Zoom to 50%">
+              50%
+            </button>
+            <button class="control-btn" onclick="setZoom(1.0)" style="font-size: 10px; font-weight: bold;" aria-label="Zoom to 100%">
+              100%
+            </button>
+          </div>
+        </div>
+
+        <!-- Chart Viewport Wrapper -->
+        <div class="viewport-outer-container">
+          
+          <div class="viewport-scroll-area" id="scrollArea">
+            <div class="image-transform-wrapper" id="imageWrapper">
+              <img id="chartImage" src="page2.jpg" class="chart-page-image" alt="Type K Thermocouple reference sheet table">
+            </div>
+          </div>
+
+          <!-- Touch Pan Assistant Buttons Overlay -->
+          <div class="axis-navigation-overlay">
+            <button class="pan-btn" style="grid-area: up;" onclick="panViewport('up')" aria-label="Pan Up">
+              <span class="material-symbols-outlined">keyboard_arrow_up</span>
+            </button>
+            <button class="pan-btn" style="grid-area: left;" onclick="panViewport('left')" aria-label="Pan Left">
+              <span class="material-symbols-outlined">keyboard_arrow_left</span>
+            </button>
+            <button class="pan-btn" style="grid-area: center; background-color: #8C998C;" onclick="resetViewportScroll()" aria-label="Center viewport">
+              <span class="material-symbols-outlined">center_focus_strong</span>
+            </button>
+            <button class="pan-btn" style="grid-area: right;" onclick="panViewport('right')" aria-label="Pan Right">
+              <span class="material-symbols-outlined">keyboard_arrow_right</span>
+            </button>
+            <button class="pan-btn" style="grid-area: down;" onclick="panViewport('down')" aria-label="Pan Down">
+              <span class="material-symbols-outlined">keyboard_arrow_down</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Watermark Footer -->
+      <footer class="watermark-footer">
+        <svg width="50" height="50" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.16;">
+          <circle cx="50" cy="50" r="45" stroke="#3A606E" stroke-width="3" />
+          <circle cx="50" cy="50" r="38" stroke="#3A606E" stroke-width="1.5" stroke-dasharray="4 2" />
+          <path d="M50 25 C40 25 35 30 35 37 C35 45 42 47 50 49 C58 51 65 53 65 62 C65 71 58 75 50 75 C40 75 35 70 35 63" stroke="#3A606E" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span class="watermark-title">Calseva Private Solutions</span>
+        <span class="watermark-copyright">© 2025 All Rights Reserved</span>
+      </footer>
+
+    </div>
+  </main>
+
+  <script>
+    // State management
+    let activeRangeId = 'page2';
+    let zoomLevel = 0.5; // Default starts at 50% zoom as requested
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Dark Mode theme check
+      const isDarkMode = localStorage.getItem('calseva_dark_mode') === 'true';
+      applyDarkTheme(isDarkMode);
+
+      // Set initial zoom level
+      setZoom(0.5);
+    });
+
+    function applyDarkTheme(enable) {
+      const container = document.getElementById('deviceContainer');
+      if (container) {
+        if (enable) {
+          container.classList.add('dark-theme');
+        } else {
+          container.classList.remove('dark-theme');
+        }
+      }
+    }
+
+    function handleBackAction() {
+      navigateToPage('../home/home.html');
+    }
+
+    // Handles safe back keypress for physical android devices
+    window.addEventListener('popstate', () => {
+      navigateToPage('../home/home.html');
+    });
+
+    function handleLogout() {
+      if (confirm("Are you sure you want to log out?")) {
+        navigateToPage('/cal-login/cal-logout');
+      }
+    }
+
+    // Switch active range tab
+    function switchRange(rangeId) {
+      activeRangeId = rangeId;
+      
+      // Update Tab CSS classes
+      document.querySelectorAll('.range-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.getElementById(`tab-${rangeId}`).classList.add('active');
+
+      // Update active image src
+      const chartImg = document.getElementById('chartImage');
+      chartImg.src = `${rangeId}.jpg`;
+      
+      resetViewportScroll();
+    }
+
+    // Zoom adjustments
+    function zoomIn() {
+      if (zoomLevel < 1.5) {
+        setZoom(zoomLevel + 0.1);
+      }
+    }
+
+    function zoomOut() {
+      if (zoomLevel > 0.3) {
+        setZoom(zoomLevel - 0.1);
+      }
+    }
+
+    function setZoom(level) {
+      zoomLevel = parseFloat(level.toFixed(2));
+      const wrapper = document.getElementById('imageWrapper');
+      wrapper.style.transform = `scale(${zoomLevel})`;
+      
+      // Adjust scrollable inner area sizes to match transform bounds
+      const baseWidth = 850;
+      wrapper.style.width = (baseWidth * zoomLevel) + 'px';
+      
+      document.getElementById('zoomLabel').textContent = Math.round(zoomLevel * 100) + '%';
+    }
+
+    // Viewport pan assistants
+    function panViewport(direction) {
+      const scrollArea = document.getElementById('scrollArea');
+      const step = 80; // pixels to pan
+      if (direction === 'up') scrollArea.scrollTop -= step;
+      else if (direction === 'down') scrollArea.scrollTop += step;
+      else if (direction === 'left') scrollArea.scrollLeft -= step;
+      else if (direction === 'right') scrollArea.scrollLeft += step;
+    }
+
+    function resetViewportScroll() {
+      const scrollArea = document.getElementById('scrollArea');
+      scrollArea.scrollTop = 0;
+      scrollArea.scrollLeft = 0;
+    }
+
+    // NIST Thermocouple polynomial formulas
+    function tempToVoltageK(t) {
+      if (t < -270 || t > 1372) return NaN;
+      
+      if (t < 0) {
+        const c = [
+          0.0,
+          3.9450128025e-2,
+          2.3622373598e-5,
+          -3.2858906784e-7,
+          -4.9904828777e-9,
+          -6.7509059173e-11,
+          -5.7410327428e-13,
+          -3.1088872894e-15,
+          -1.0451601245e-17,
+          -1.9889266878e-20,
+          -1.6322697486e-23
+        ];
+        let sum = 0;
+        for (let i = 0; i < c.length; i++) {
+          sum += c[i] * Math.pow(t, i);
+        }
+        return sum;
+      } else {
+        const c = [
+          0.0,
+          3.9450128025e-2,
+          1.8946115610e-5,
+          -1.5590494491e-8,
+          6.6228308877e-12,
+          -2.0302872277e-15,
+          3.7160165046e-19,
+          -3.8362286897e-23,
+          2.1881508217e-27,
+          -5.3385496189e-32
+        ];
+        let sum = 0;
+        for (let i = 1; i < c.length; i++) {
+          sum += c[i] * Math.pow(t, i);
+        }
+        const a0 = 0.1185976;
+        const a1 = -0.1183432e-3;
+        const a2 = 126.9686;
+        const expTerm = a0 * Math.exp(a1 * Math.pow(t - a2, 2));
+        return sum + expTerm;
+      }
+    }
+
+    function voltageToTempK(v) {
+      if (v < -6.458 || v > 54.886) return NaN;
+      
+      let t = v * 25.0; // linear starter guess
+      for (let iter = 0; iter < 100; iter++) {
+        const vCalc = tempToVoltageK(t);
+        const deltaT = 0.01;
+        const vDelta = tempToVoltageK(t + deltaT);
+        const dVdT = (vDelta - vCalc) / deltaT;
+        
+        const error = vCalc - v;
+        if (Math.abs(error) < 1e-6) break;
+        if (Math.abs(dVdT) < 1e-8) break;
+        t = t - error / dVdT;
+      }
+      return t;
+    }
+
+    // Bidirectional range finder logic
+    function calculateFromTemp() {
+      const tempInEl = document.getElementById('tempInput');
+      const voltInEl = document.getElementById('voltageInput');
+      
+      const tempVal = parseFloat(tempInEl.value);
+      if (isNaN(tempVal)) {
+        voltInEl.value = '';
+        return;
+      }
+      
+      const v = tempToVoltageK(tempVal);
+      if (isNaN(v)) {
+        voltInEl.value = 'Error';
+      } else {
+        voltInEl.value = parseFloat(v.toFixed(4));
+        autoSelectRangeTab(tempVal);
+      }
+    }
+
+    function calculateFromVoltage() {
+      const tempInEl = document.getElementById('tempInput');
+      const voltInEl = document.getElementById('voltageInput');
+      
+      const voltVal = parseFloat(voltInEl.value);
+      if (isNaN(voltVal)) {
+        tempInEl.value = '';
+        return;
+      }
+      
+      const t = voltageToTempK(voltVal);
+      if (isNaN(t)) {
+        tempInEl.value = 'Error';
+      } else {
+        tempInEl.value = parseFloat(t.toFixed(1));
+        autoSelectRangeTab(t);
+      }
+    }
+
+    // Auto-switches reference sheets matching input range
+    function autoSelectRangeTab(t) {
+      let targetRange = 'page3';
+      if (t < 0) targetRange = 'page2';
+      else if (t <= 440) targetRange = 'page3';
+      else if (t <= 890) targetRange = 'page4';
+      else targetRange = 'page5';
+
+      if (activeRangeId !== targetRange) {
+        switchRange(targetRange);
+      }
+
+      // Auto scroll viewport to corresponding area based on temp
+      autoScrollToCoords(t);
+    }
+
+    // Automatically centers scrollbars to approximate table area matching searched temp
+    function autoScrollToCoords(t) {
+      const scrollArea = document.getElementById('scrollArea');
+      
+      // Calculate row coordinates approximately
+      let rowOffset = 0;
+      if (t < 0) {
+        // range -270 to 0
+        const stepIndex = Math.abs(t) / 10;
+        rowOffset = stepIndex * 15; // approximate row height in pixels
+      } else if (t <= 440) {
+        // range 0 to 440
+        const stepIndex = t / 10;
+        rowOffset = stepIndex * 15;
+      } else if (t <= 890) {
+        // range 450 to 890
+        const stepIndex = (t - 450) / 10;
+        rowOffset = stepIndex * 15;
+      } else {
+        // range 900 to 1370
+        const stepIndex = (t - 900) / 10;
+        rowOffset = stepIndex * 15;
+      }
+
+      // Scale rowOffset by zoom level
+      scrollArea.scrollTop = rowOffset * zoomLevel;
+    }
+
+    // Page load fade-out transition
+    window.addEventListener('DOMContentLoaded', () => {
+      const loader = document.getElementById('loaderOverlay');
+      if (loader) {
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          setTimeout(() => {
+            loader.style.display = 'none';
+          }, 400);
+        }, 50);
+      }
+    });
+
+    // Redirection loader trigger
+    function navigateToPage(url) {
+      const loader = document.getElementById('loaderOverlay');
+      if (loader) {
+        loader.style.display = 'flex';
+        loader.offsetHeight; // reflow
+        loader.style.opacity = '0.9';
+        const video = document.getElementById('loaderVideo');
+        if (video) {
+          video.currentTime = 0;
+          video.play().catch(() => {});
+        }
+        setTimeout(() => {
+          window.location.href = url;
+        }, 1100);
+      } else {
+        window.location.href = url;
+      }
+    }
+  </script>
+</body>
+</html>

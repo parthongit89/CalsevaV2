@@ -440,6 +440,25 @@
 
 
 
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
     /* CSS Variables matching the "Mystic Forest" color palette */
     :root {
       --color-primary: #3A606E;       /* Dark slate / teal */
@@ -1447,6 +1466,305 @@
       }
     }
 
+    /* Side Tabs & Overlay Modals styling */
+    .side-tabs-container {
+      position: absolute;
+      right: 0;
+      top: 40%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+    }
+    
+    .side-tab-btn {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px 0 0 8px;
+      padding: 18px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: -2px 4px 10px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+    }
+    
+    .side-tab-btn:hover {
+      background-color: #243D47;
+      padding-right: 12px;
+    }
+
+    .modal-blur-target {
+      transition: filter 0.3s ease;
+    }
+
+    .device-container.modal-active .modal-blur-target {
+      filter: blur(5px);
+      pointer-events: none;
+    }
+
+    .chart-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(30, 46, 53, 0.6);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 25px 15px;
+      animation: fadeIn 0.25s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .chart-modal-content {
+      background-color: #FFFFFF;
+      width: 100%;
+      height: 100%;
+      border-radius: 24px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background-color: #F0F2F0;
+      border-bottom: 1.5px solid #E2E6E2;
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--color-primary);
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+
+    .modal-close-btn:hover {
+      background-color: #D4DAD4;
+    }
+
+    .modal-body {
+      flex: 1;
+      padding: 15px 12px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Range and tab selectors in modal */
+    .modal-range-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    .modal-range-grid.three-cols {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .modal-tab-btn {
+      background-color: #F0F2F0;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 2px;
+      font-size: 8px;
+      font-weight: bold;
+      color: #555555;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .modal-tab-btn.active {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+    }
+
+    .modal-tab-bounds {
+      font-size: 7px;
+      font-weight: normal;
+      opacity: 0.8;
+    }
+
+    /* Modal Lookup Card */
+    .modal-lookup-card {
+      background-color: #E2E5E2;
+      border-radius: 12px;
+      padding: 8px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    .modal-lookup-title {
+      font-size: 10.5px;
+      font-weight: bold;
+      color: var(--color-primary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .modal-lookup-fields {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .modal-lookup-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-lookup-field label {
+      font-size: 8px;
+      font-weight: bold;
+      color: #555555;
+      margin-bottom: 2px;
+    }
+
+    .modal-lookup-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .modal-lookup-input {
+      width: 100%;
+      background-color: #F7F9F7;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 6px 30px 6px 6px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #1E2E35;
+      text-align: right;
+      outline: none;
+    }
+
+    .modal-lookup-input:focus {
+      border-color: var(--color-primary);
+      background-color: #FFFFFF;
+    }
+
+    .modal-lookup-suffix {
+      position: absolute;
+      right: 6px;
+      font-size: 8px;
+      color: #777777;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    /* Modal Viewport */
+    .modal-viewport-area {
+      width: 100%;
+      height: 250px;
+      overflow: auto;
+      border: 1.5px solid #E2E5E2;
+      border-radius: 12px;
+      background-color: #8C998C;
+      position: relative;
+    }
+
+    .modal-image-wrapper {
+      transform-origin: top left;
+      transition: transform 0.15s ease;
+    }
+
+    .modal-chart-image {
+      display: block;
+      width: 850px;
+      height: auto;
+    }
+
+    /* Controls */
+    .modal-controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      background-color: #F0F2F0;
+      padding: 4px 8px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .modal-zoom-label {
+      font-size: 9.5px;
+      font-weight: bold;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .modal-btn-group {
+      display: flex;
+      gap: 4px;
+    }
+
+    .modal-control-btn {
+      background-color: #FFFFFF;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: bold;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .modal-control-btn span {
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -1462,7 +1780,7 @@
 
       
       <!-- Top Reports Header -->
-      <header class="reports-header">
+      <header class="reports-header modal-blur-target">
         <div class="header-left">
           <button class="back-btn" onclick="navigateBack()" aria-label="Go back">
             <span class="material-symbols-outlined">arrow_back</span>
@@ -1483,7 +1801,7 @@
       </header>
 
       <!-- Subheader with Progress Indicator -->
-      <div class="report-subheader">
+      <div class="report-subheader modal-blur-target">
         <div class="calibration-title-container">
           <h2 class="calibration-title">Calibration Report</h2>
         </div>
@@ -1493,7 +1811,7 @@
       </div>
 
       <!-- Main Form Content -->
-      <form id="reportForm" class="form-scroll-content" onsubmit="submitFormTrigger(); event.preventDefault();">
+      <form id="reportForm" class="form-scroll-content modal-blur-target" onsubmit="submitFormTrigger(); event.preventDefault();">
         
         <!-- ==================== STEP 1: BASIC DETAILS ==================== -->
         <div class="form-step active" id="step1">
@@ -1797,13 +2115,13 @@
       </form>
 
       <!-- Save & Next Footer Navigation -->
-      <footer class="form-navigation-footer">
+      <footer class="form-navigation-footer modal-blur-target">
         <button type="button" class="btn-nav-action btn-nav-save" onclick="saveFormState(true)">Save</button>
         <button type="button" class="btn-nav-action btn-nav-next" id="nextStepBtn" onclick="submitFormTrigger()">Next</button>
       </footer>
 
       <!-- Fixed Bottom Tab Bar -->
-      <nav class="bottom-nav-bar">
+      <nav class="bottom-nav-bar modal-blur-target">
         <a class="nav-tab" onclick="navigateTab('Home')">
           <span class="material-symbols-outlined nav-tab-icon">home</span>
           <span class="nav-tab-label">Home</span>
@@ -1825,6 +2143,172 @@
           <span class="nav-tab-label">Profile</span>
         </a>
       </nav>
+
+      <!-- Side Tab Controls (visible on step 1 & 2) -->
+      <div id="sideTabsContainer" class="side-tabs-container modal-blur-target">
+        <button type="button" class="side-tab-btn" onclick="openChartModal('mv')">MV Chart</button>
+        <button type="button" class="side-tab-btn" onclick="openChartModal('rtd')">RTD Chart</button>
+      </div>
+
+      <!-- MV Chart Overlay Modal -->
+      <div id="mvModal" class="chart-modal-overlay">
+        <div class="chart-modal-content">
+          <div class="modal-header">
+            <span class="modal-title">Type K Thermocouple MV Reference Chart</span>
+            <button type="button" class="modal-close-btn" onclick="closeChartModal('mv')" aria-label="Close modal">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- 2x2 Temperature Ranges Selector -->
+            <div class="modal-range-grid" role="tablist">
+              <button type="button" class="modal-tab-btn active" id="modal-mv-tab-page2" onclick="switchMvModalRange('page2')">
+                <span>Negative Range</span>
+                <span class="modal-tab-bounds">-270 to 0 °C</span>
+              </button>
+              <button type="button" class="modal-tab-btn" id="modal-mv-tab-page3" onclick="switchMvModalRange('page3')">
+                <span>Low Range</span>
+                <span class="modal-tab-bounds">0 to 440 °C</span>
+              </button>
+              <button type="button" class="modal-tab-btn" id="modal-mv-tab-page4" onclick="switchMvModalRange('page4')">
+                <span>Medium Range</span>
+                <span class="modal-tab-bounds">450 to 890 °C</span>
+              </button>
+              <button type="button" class="modal-tab-btn" id="modal-mv-tab-page5" onclick="switchMvModalRange('page5')">
+                <span>High Range</span>
+                <span class="modal-tab-bounds">900 to 1370 °C</span>
+              </button>
+            </div>
+
+            <!-- Bidirectional Lookup Card -->
+            <div class="modal-lookup-card">
+              <div class="modal-lookup-title">
+                <span class="material-symbols-outlined" style="font-size: 14px;">search</span>
+                <span>Type K Bidirectional Finder</span>
+              </div>
+              <div class="modal-lookup-fields">
+                <div class="modal-lookup-field">
+                  <label for="modalMvTempInput">Temperature</label>
+                  <div class="modal-lookup-input-wrapper">
+                    <input type="number" id="modalMvTempInput" class="modal-lookup-input" step="any" placeholder="e.g. 250" oninput="calculateModalMvFromTemp()">
+                    <span class="modal-lookup-suffix">°C</span>
+                  </div>
+                </div>
+                <div class="modal-lookup-field">
+                  <label for="modalMvVoltageInput">Thermoelectric</label>
+                  <div class="modal-lookup-input-wrapper">
+                    <input type="number" id="modalMvVoltageInput" class="modal-lookup-input" step="any" placeholder="e.g. 10.15" oninput="calculateModalMvFromVoltage()">
+                    <span class="modal-lookup-suffix">mV</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Zoom and Controls toolbar -->
+            <div class="modal-controls-row">
+              <div class="modal-zoom-label">
+                <span class="material-symbols-outlined" style="font-size: 13px;">zoom_in</span>
+                <span id="modalMvZoomLabel">50%</span>
+              </div>
+              <div class="modal-btn-group">
+                <button type="button" class="modal-control-btn" onclick="zoomMvModalOut()">
+                  <span class="material-symbols-outlined">remove</span>
+                </button>
+                <button type="button" class="modal-control-btn" onclick="zoomMvModalIn()">
+                  <span class="material-symbols-outlined">add</span>
+                </button>
+                <button type="button" class="modal-control-btn" onclick="setMvModalZoom(0.5)">50%</button>
+                <button type="button" class="modal-control-btn" onclick="setMvModalZoom(1.0)">100%</button>
+              </div>
+            </div>
+
+            <!-- Viewport -->
+            <div class="modal-viewport-area" id="modalMvScrollArea">
+              <div class="modal-image-wrapper" id="modalMvImageWrapper">
+                <img id="modalMvChartImage" src="/cali-mv-chart/page2.png" class="modal-chart-image" alt="Type K Thermocouple reference sheet table">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RTD Chart Overlay Modal -->
+      <div id="rtdModal" class="chart-modal-overlay">
+        <div class="chart-modal-content">
+          <div class="modal-header">
+            <span class="modal-title">RTD Temperature vs Resistance Chart</span>
+            <button type="button" class="modal-close-btn" onclick="closeChartModal('rtd')" aria-label="Close modal">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- 3 Range Selector Tabs -->
+            <div class="modal-range-grid three-cols" role="tablist">
+              <button type="button" class="modal-tab-btn active" id="modal-rtd-tab-page1" onclick="switchRtdModalRange('page1')">
+                <span>Low Range</span>
+                <span class="modal-tab-bounds">-200 to 119 °C</span>
+              </button>
+              <button type="button" class="modal-tab-btn" id="modal-rtd-tab-page2" onclick="switchRtdModalRange('page2')">
+                <span>Medium Range</span>
+                <span class="modal-tab-bounds">120 to 479 °C</span>
+              </button>
+              <button type="button" class="modal-tab-btn" id="modal-rtd-tab-page3" onclick="switchRtdModalRange('page3')">
+                <span>High Range</span>
+                <span class="modal-tab-bounds">480 to 850 °C</span>
+              </button>
+            </div>
+
+            <!-- Bidirectional Lookup Card -->
+            <div class="modal-lookup-card">
+              <div class="modal-lookup-title">
+                <span class="material-symbols-outlined" style="font-size: 14px;">search</span>
+                <span>RTD Bidirectional Finder (Alpha = 0.00385)</span>
+              </div>
+              <div class="modal-lookup-fields">
+                <div class="modal-lookup-field">
+                  <label for="modalRtdTempInput">Temperature</label>
+                  <div class="modal-lookup-input-wrapper">
+                    <input type="number" id="modalRtdTempInput" class="modal-lookup-input" step="any" placeholder="e.g. 100" oninput="calculateModalRtdFromTemp()">
+                    <span class="modal-lookup-suffix">°C</span>
+                  </div>
+                </div>
+                <div class="modal-lookup-field">
+                  <label for="modalRtdResistanceInput">Resistance</label>
+                  <div class="modal-lookup-input-wrapper">
+                    <input type="number" id="modalRtdResistanceInput" class="modal-lookup-input" step="any" placeholder="e.g. 138.5" oninput="calculateModalRtdFromResistance()">
+                    <span class="modal-lookup-suffix">Ohms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Zoom and Controls toolbar -->
+            <div class="modal-controls-row">
+              <div class="modal-zoom-label">
+                <span class="material-symbols-outlined" style="font-size: 13px;">zoom_in</span>
+                <span id="modalRtdZoomLabel">50%</span>
+              </div>
+              <div class="modal-btn-group">
+                <button type="button" class="modal-control-btn" onclick="zoomRtdModalOut()">
+                  <span class="material-symbols-outlined">remove</span>
+                </button>
+                <button type="button" class="modal-control-btn" onclick="zoomRtdModalIn()">
+                  <span class="material-symbols-outlined">add</span>
+                </button>
+                <button type="button" class="modal-control-btn" onclick="setRtdModalZoom(0.5)">50%</button>
+                <button type="button" class="modal-control-btn" onclick="setRtdModalZoom(1.0)">100%</button>
+              </div>
+            </div>
+
+            <!-- Viewport -->
+            <div class="modal-viewport-area" id="modalRtdScrollArea">
+              <div class="modal-image-wrapper" id="modalRtdImageWrapper">
+                <img id="modalRtdChartImage" src="/cali-rtd-chart/page1.png" class="modal-chart-image" alt="RTD standard reference sheet table">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Success Submit Overlay -->
       <div class="toast-overlay" id="successOverlay">
@@ -1931,6 +2415,16 @@
       }
 
       currentStep = stepNum;
+
+      // Toggle side tabs visibility: Step 1 (Basic Details) and Step 2 (Observations) only
+      const sideTabs = document.getElementById('sideTabsContainer');
+      if (sideTabs) {
+        if (stepNum === 1 || stepNum === 2) {
+          sideTabs.style.display = 'flex';
+        } else {
+          sideTabs.style.display = 'none';
+        }
+      }
       
       // Auto-populate Approved By Name with Customer Name from Step 3 when moving to Step 4
       if (stepNum === 4) {
@@ -2704,6 +3198,303 @@
       } else {
         window.location.href = url;
       }
+    }
+
+    // ==================== OVERLAY REFERENCE CHARTS & CALCULATORS LOGIC ====================
+    function openChartModal(type) {
+      const container = document.getElementById('deviceContainer');
+      container.classList.add('modal-active');
+      if (type === 'mv') {
+        document.getElementById('mvModal').style.display = 'flex';
+        setMvModalZoom(0.5);
+      } else if (type === 'rtd') {
+        document.getElementById('rtdModal').style.display = 'flex';
+        setRtdModalZoom(0.5);
+      }
+    }
+
+    function closeChartModal(type) {
+      const container = document.getElementById('deviceContainer');
+      if (type === 'mv') {
+        document.getElementById('mvModal').style.display = 'none';
+      } else if (type === 'rtd') {
+        document.getElementById('rtdModal').style.display = 'none';
+      }
+      
+      // If no overlay modal is visible, remove blur active state
+      if (document.getElementById('mvModal').style.display !== 'flex' && 
+          document.getElementById('rtdModal').style.display !== 'flex') {
+        container.classList.remove('modal-active');
+      }
+    }
+
+    // --- MV Modal Controls & Standard NIST Conversions ---
+    let modalMvActiveRange = 'page2';
+    let modalMvZoom = 0.5;
+
+    function switchMvModalRange(rangeId) {
+      modalMvActiveRange = rangeId;
+      document.querySelectorAll('#mvModal .modal-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const targetTab = document.getElementById(`modal-mv-tab-${rangeId}`);
+      if (targetTab) targetTab.classList.add('active');
+      document.getElementById('modalMvChartImage').src = `/cali-mv-chart/${rangeId}.png`;
+      resetMvModalScroll();
+    }
+
+    function zoomMvModalIn() {
+      if (modalMvZoom < 1.5) setMvModalZoom(modalMvZoom + 0.1);
+    }
+    function zoomMvModalOut() {
+      if (modalMvZoom > 0.3) setMvModalZoom(modalMvZoom - 0.1);
+    }
+    function setMvModalZoom(level) {
+      modalMvZoom = parseFloat(level.toFixed(2));
+      const wrapper = document.getElementById('modalMvImageWrapper');
+      wrapper.style.transform = `scale(${modalMvZoom})`;
+      wrapper.style.width = (850 * modalMvZoom) + 'px';
+      document.getElementById('modalMvZoomLabel').textContent = Math.round(modalMvZoom * 100) + '%';
+    }
+    function resetMvModalScroll() {
+      const area = document.getElementById('modalMvScrollArea');
+      area.scrollTop = 0;
+      area.scrollLeft = 0;
+    }
+
+    // NIST Type K Reference Coefficients
+    function tempToVoltageK(t) {
+      if (t < -270 || t > 1372) return NaN;
+      if (t < 0) {
+        const c = [0.0, 3.9450128025e-2, 2.3622373598e-5, -3.2858906784e-7, -4.9904828777e-9, -6.7509059173e-11, -5.7410327428e-13, -3.1088872894e-15, -1.0451601245e-17, -1.9889266878e-20, -1.6322697486e-23];
+        let sum = 0;
+        for (let i = 0; i < c.length; i++) sum += c[i] * Math.pow(t, i);
+        return sum;
+      } else {
+        const c = [0.0, 3.9450128025e-2, 1.8946115610e-5, -1.5590494491e-8, 6.6228308877e-12, -2.0302872277e-15, 3.7160165046e-19, -3.8362286897e-23, 2.1881508217e-27, -5.3385496189e-32];
+        let sum = 0;
+        for (let i = 1; i < c.length; i++) sum += c[i] * Math.pow(t, i);
+        const a0 = 0.1185976;
+        const a1 = -0.1183432e-3;
+        const a2 = 126.9686;
+        const expTerm = a0 * Math.exp(a1 * Math.pow(t - a2, 2));
+        return sum + expTerm;
+      }
+    }
+
+    function voltageToTempK(v) {
+      if (v < -6.458 || v > 54.886) return NaN;
+      let t = v * 25.0;
+      for (let iter = 0; iter < 100; iter++) {
+        const vCalc = tempToVoltageK(t);
+        const deltaT = 0.01;
+        const vDelta = tempToVoltageK(t + deltaT);
+        const dVdT = (vDelta - vCalc) / deltaT;
+        const error = vCalc - v;
+        if (Math.abs(error) < 1e-6) break;
+        if (Math.abs(dVdT) < 1e-8) break;
+        t = t - error / dVdT;
+      }
+      return t;
+    }
+
+    function calculateModalMvFromTemp() {
+      const tempIn = document.getElementById('modalMvTempInput');
+      const voltIn = document.getElementById('modalMvVoltageInput');
+      const t = parseFloat(tempIn.value);
+      if (isNaN(t)) { voltIn.value = ''; return; }
+      const v = tempToVoltageK(t);
+      if (isNaN(v)) { voltIn.value = 'Error'; }
+      else {
+        voltIn.value = parseFloat(v.toFixed(4));
+        autoSelectMvModalRange(t);
+      }
+    }
+
+    // Auto-calculate temperature from input voltage
+    function calculateModalMvFromVoltage() {
+      const tempIn = document.getElementById('modalMvTempInput');
+      const voltIn = document.getElementById('modalMvVoltageInput');
+      const v = parseFloat(voltIn.value);
+      if (isNaN(v)) { tempIn.value = ''; return; }
+      const t = voltageToTempK(v);
+      if (isNaN(t)) { tempIn.value = 'Error'; }
+      else {
+        tempIn.value = parseFloat(t.toFixed(1));
+        autoSelectMvModalRange(t);
+      }
+    }
+
+    function autoSelectMvModalRange(t) {
+      let targetRange = 'page3';
+      if (t < 0) targetRange = 'page2';
+      else if (t <= 440) targetRange = 'page3';
+      else if (t <= 890) targetRange = 'page4';
+      else targetRange = 'page5';
+
+      if (modalMvActiveRange !== targetRange) {
+        switchMvModalRange(targetRange);
+      }
+      autoScrollMvModal(t);
+    }
+
+    function autoScrollMvModal(t) {
+      const scrollArea = document.getElementById('modalMvScrollArea');
+      let rowOffset = 0;
+      let headerOffset = 110;
+      let rowHeight = 11.5;
+
+      let diff = 0;
+      if (t < 0) {
+        diff = Math.abs(t);
+      } else if (t <= 440) {
+        diff = t;
+      } else if (t <= 890) {
+        diff = t - 450;
+      } else {
+        diff = t - 900;
+      }
+      rowOffset = headerOffset + (Math.floor(diff / 10) * rowHeight);
+
+      scrollArea.scrollTop = rowOffset * modalMvZoom;
+    }
+
+    // --- RTD Modal Controls & Callendar-Van Dusen Equations ---
+    let modalRtdActiveRange = 'page1';
+    let modalRtdZoom = 0.5;
+
+    function switchRtdModalRange(rangeId) {
+      modalRtdActiveRange = rangeId;
+      document.querySelectorAll('#rtdModal .modal-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const targetTab = document.getElementById(`modal-rtd-tab-${rangeId}`);
+      if (targetTab) targetTab.classList.add('active');
+      document.getElementById('modalRtdChartImage').src = `/cali-rtd-chart/${rangeId}.png`;
+      resetRtdModalScroll();
+    }
+
+    function zoomRtdModalIn() {
+      if (modalRtdZoom < 1.5) setRtdModalZoom(modalRtdZoom + 0.1);
+    }
+    function zoomRtdModalOut() {
+      if (modalRtdZoom > 0.3) setRtdModalZoom(modalRtdZoom - 0.1);
+    }
+    function setRtdModalZoom(level) {
+      modalRtdZoom = parseFloat(level.toFixed(2));
+      const wrapper = document.getElementById('modalRtdImageWrapper');
+      wrapper.style.transform = `scale(${modalRtdZoom})`;
+      wrapper.style.width = (850 * modalRtdZoom) + 'px';
+      document.getElementById('modalRtdZoomLabel').textContent = Math.round(modalRtdZoom * 100) + '%';
+    }
+    function resetRtdModalScroll() {
+      const area = document.getElementById('modalRtdScrollArea');
+      area.scrollTop = 0;
+      area.scrollLeft = 0;
+    }
+
+    // Callendar-Van Dusen standard math (Alpha = 0.00385)
+    function tempToResistanceRTD(t) {
+      if (t < -200 || t > 850) return NaN;
+      const R0 = 100.0;
+      const A = 3.9083e-3;
+      const B = -5.775e-7;
+      const C = -4.183e-12;
+      if (t >= 0) return R0 * (1.0 + A * t + B * t * t);
+      else return R0 * (1.0 + A * t + B * t * t + C * (t - 100.0) * Math.pow(t, 3));
+    }
+
+    function resistanceToTempRTD(r) {
+      if (r < 18.52 || r > 390.48) return NaN;
+      let t = (r - 100.0) * 2.6;
+      for (let iter = 0; iter < 100; iter++) {
+        const rCalc = tempToResistanceRTD(t);
+        const deltaT = 0.01;
+        const rDelta = tempToResistanceRTD(t + deltaT);
+        const dRdT = (rDelta - rCalc) / deltaT;
+        const error = rCalc - r;
+        if (Math.abs(error) < 1e-6) break;
+        if (Math.abs(dRdT) < 1e-8) break;
+        t = t - error / dRdT;
+      }
+      return t;
+    }
+
+    function calculateModalRtdFromTemp() {
+      const tempIn = document.getElementById('modalRtdTempInput');
+      const resIn = document.getElementById('modalRtdResistanceInput');
+      const t = parseFloat(tempIn.value);
+      if (isNaN(t)) { resIn.value = ''; return; }
+      const r = tempToResistanceRTD(t);
+      if (isNaN(r)) { resIn.value = 'Error'; }
+      else {
+        resIn.value = parseFloat(r.toFixed(2));
+        autoSelectRtdModalRange(t);
+      }
+    }
+
+    function calculateModalRtdFromResistance() {
+      const tempIn = document.getElementById('modalRtdTempInput');
+      const resIn = document.getElementById('modalRtdResistanceInput');
+      const r = parseFloat(resIn.value);
+      if (isNaN(r)) { tempIn.value = ''; return; }
+      const t = resistanceToTempRTD(r);
+      if (isNaN(t)) { tempIn.value = 'Error'; }
+      else {
+        tempIn.value = parseFloat(t.toFixed(1));
+        autoSelectRtdModalRange(t);
+      }
+    }
+
+    function autoSelectRtdModalRange(t) {
+      let targetRange = 'page1';
+      if (t < 120) targetRange = 'page1';
+      else if (t < 480) targetRange = 'page2';
+      else targetRange = 'page3';
+
+      if (modalRtdActiveRange !== targetRange) {
+        switchRtdModalRange(targetRange);
+      }
+      autoScrollRtdModal(t);
+    }
+
+    function autoScrollRtdModal(t) {
+      const scrollArea = document.getElementById('modalRtdScrollArea');
+      let colIndex = 0;
+      let startT = 0;
+      let colWidth = 140;
+      let rowHeight = 11.5;
+      let headerOffset = 150;
+
+      if (t < 120) {
+        if (t >= -200 && t <= -141) { colIndex = 0; startT = -200; }
+        else if (t >= -140 && t <= -81) { colIndex = 1; startT = -140; }
+        else if (t >= -80 && t <= -21) { colIndex = 2; startT = -80; }
+        else if (t >= -20 && t <= -1) { colIndex = 3; startT = -20; }
+        else if (t >= 0 && t <= 59) { colIndex = 4; startT = 0; }
+        else if (t >= 60 && t <= 119) { colIndex = 5; startT = 60; }
+      } else if (t < 480) {
+        if (t >= 120 && t <= 179) { colIndex = 0; startT = 120; }
+        else if (t >= 180 && t <= 239) { colIndex = 1; startT = 180; }
+        else if (t >= 240 && t <= 299) { colIndex = 2; startT = 240; }
+        else if (t >= 300 && t <= 359) { colIndex = 3; startT = 300; }
+        else if (t >= 360 && t <= 419) { colIndex = 4; startT = 360; }
+        else if (t >= 420 && t <= 479) { colIndex = 5; startT = 420; }
+      } else {
+        if (t >= 480 && t <= 541) { colIndex = 0; startT = 480; }
+        else if (t >= 542 && t <= 603) { colIndex = 1; startT = 542; }
+        else if (t >= 604 && t <= 665) { colIndex = 2; startT = 604; }
+        else if (t >= 666 && t <= 727) { colIndex = 3; startT = 666; }
+        else if (t >= 728 && t <= 789) { colIndex = 4; startT = 728; }
+        else if (t >= 790 && t <= 850) { colIndex = 5; startT = 790; }
+      }
+
+      const xOffset = colIndex * colWidth;
+      const diff = Math.floor(Math.abs(t - startT));
+      const yOffset = headerOffset + (diff * rowHeight);
+
+      scrollArea.scrollLeft = xOffset * modalRtdZoom;
+      scrollArea.scrollTop = yOffset * modalRtdZoom;
     }
 
   </script>

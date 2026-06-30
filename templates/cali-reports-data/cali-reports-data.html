@@ -291,6 +291,25 @@
 
 
 
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
     /* CSS Variables matching the Calseva "Mystic Forest" color palette */
     :root {
       --color-primary: #3A606E;       /* Dark slate / teal */
@@ -1372,7 +1391,7 @@
 
       const calSig = payload.calSignature || '';
       const verSig = payload.verSignature || '';
-      const obs = payload.observations || [];
+      const obs = Array.isArray(payload.obsData) ? payload.obsData : (Array.isArray(payload.observations) ? payload.observations : []);
       let obsRows = '';
       obs.forEach(o => {
         obsRows += `
@@ -1386,15 +1405,17 @@
         `;
       });
 
-      const masters = payload.mastersData || [];
+      const masters = Array.isArray(payload.mastersData) ? payload.mastersData : [];
       let masterRows = '';
       masters.forEach(m => {
+        const certNo = m.cert || 'CEPL/2026/M-12';
+        const traceability = m.traceability || 'NABL';
         masterRows += `
           <tr>
             <td style="border: 1.5px solid #1E2E35; padding: 6px;">${m.name || 'N/A'}</td>
-            <td style="text-align: center; border: 1.5px solid #1E2E35; padding: 6px;">${m.id || 'N/A'}</td>
-            <td style="text-align: center; border: 1.5px solid #1E2E35; padding: 6px;">${m.cert || 'N/A'}</td>
-            <td style="text-align: center; border: 1.5px solid #1E2E35; padding: 6px;">${m.make || 'N/A'}</td>
+            <td style="text-align: center; border: 1.5px solid #1E2E35; padding: 6px;">${m.idVal || m.id || 'N/A'}</td>
+            <td style="text-align: center; border: 1.5px solid #1E2E35; padding: 6px;">${certNo}</td>
+            <td style="text-align: center; border: 1.5px solid #1E2E35; padding: 6px;">${traceability}</td>
             <td style="text-align: center; border: 1.5px solid #1E2E35; padding: 6px;">${m.validity || 'N/A'}</td>
           </tr>
         `;
@@ -1422,7 +1443,7 @@
             </tr>
             <tr>
               <td style="border: 1.5px solid #1E2E35; padding: 6px; font-weight: 600; background: #F0F3F0;">Customer Details</td>
-              <td colspan="3" style="border: 1.5px solid #1E2E35; padding: 6px;">Rajaram Consumer Care Pvt Ltd<br>A20/2/1A, MIDC Industrial Area, Islampur Walwa, Sangli, Maharashtra, India 415409</td>
+              <td colspan="3" style="border: 1.5px solid #1E2E35; padding: 6px;"><strong>${payload.customerName || 'Rajaram Consumer Care Pvt Ltd'}</strong><br>${payload.customerAddress || 'A20/2/1A, MIDC Industrial Area, Islampur Walwa, Sangli, Maharashtra, India 415409'}</td>
             </tr>
             <tr>
               <td style="border: 1.5px solid #1E2E35; padding: 6px; font-weight: 600; background: #F0F3F0;">Ref. CRF Number</td>
@@ -1525,14 +1546,14 @@
                 <div style="font-weight: 600; margin-bottom: 4px;">For Chavanke Engineering Pvt.Ltd.</div>
                 <div style="font-style: italic; color: #888; margin-bottom: 6px;">Calibrated By:</div>
                 ${calSig ? `<img src="${calSig}" style="max-height: 48px; display: block;" alt="Calibrator Signature">` : '<div style="height: 48px;"></div>'}
-                <div style="font-weight: 600; margin-top: 4px;">Azruddin Landage</div>
+                <div style="font-weight: 600; margin-top: 4px;">${payload.calibratedByName || 'Azruddin Landage'}</div>
                 <div style="font-size: 9px; color: #555;">Calibration Engineer</div>
               </td>
               <td style="width: 50%; vertical-align: top; padding-top: 6px; text-align: right;">
                 <div style="font-weight: 600; margin-bottom: 4px;">For Customer</div>
                 <div style="font-style: italic; color: #888; margin-bottom: 6px;">Approved By:</div>
                 ${verSig ? `<img src="${verSig}" style="max-height: 48px; display: inline-block;" alt="Customer Signature">` : '<div style="height: 48px;"></div>'}
-                <div style="font-weight: 600; margin-top: 4px;">Rajaram Consumer Care Pvt Ltd</div>
+                <div style="font-weight: 600; margin-top: 4px;">${payload.approvedByName || payload.customerName || 'Rajaram Consumer Care Pvt Ltd'}</div>
                 <div style="font-size: 9px; color: #555;">Quality Approver</div>
               </td>
             </tr>

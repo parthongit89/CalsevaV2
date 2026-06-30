@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/caliprofile-pages/Calsevalogo.png",
+      "src": "/caliprofile-pages/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/caliprofile-pages/Calsevalogo.png",
+      "src": "/caliprofile-pages/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

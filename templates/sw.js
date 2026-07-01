@@ -3,6 +3,7 @@ const ASSETS_TO_CACHE = [
   '/theme-loader.js',
   '/waking-monitor.js',
   '/button-loaders.js',
+  '/calsevaweb.html',
   '/cal-login/cal-login.html',
   '/cal-signup/cal-signup.html',
   '/caliverify/caliverify.html',

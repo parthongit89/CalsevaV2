@@ -1932,8 +1932,53 @@
             
             <div class="select-wrapper" id="descriptionSelectWrapper">
               <select id="descriptionSelect" class="form-input-field">
-                <option value="Pressure Gauge">Pressure Gauge</option>
                 <option value="Temperature Controller">Temperature Controller</option>
+                <option value="TT – Temperature Transmitter">TT – Temperature Transmitter</option>
+                <option value="PT – Pressure Transmitter">PT – Pressure Transmitter</option>
+                <option value="LT – Level Transmitter">LT – Level Transmitter</option>
+                <option value="Radar Sensor">Radar Sensor</option>
+                <option value="Gas Analyzer">Gas Analyzer</option>
+                <option value="Water Flow Meter">Water Flow Meter</option>
+                <option value="RH Sensor – Relative Humidity Sensor">RH Sensor – Relative Humidity Sensor</option>
+                <option value="Pressure Indicator (PI)">Pressure Indicator (PI)</option>
+                <option value="Pressure Switch (PS)">Pressure Switch (PS)</option>
+                <option value="Pressure Gauge">Pressure Gauge (PG)</option>
+                <option value="Magnetic Sensor">Magnetic Sensor</option>
+                <option value="Gas Detector">Gas Detector</option>
+                <option value="Vernier Caliper">Vernier Caliper</option>
+                <option value="Dial Thickness Gauge">Dial Thickness Gauge</option>
+                <option value="External (Outside) Micrometer">External (Outside) Micrometer</option>
+                <option value="Feeler Gauge">Feeler Gauge</option>
+                <option value="Measuring Pin (Gauge Pin)">Measuring Pin (Gauge Pin)</option>
+                <option value="Dial Gauge (Dial Indicator)">Dial Gauge (Dial Indicator)</option>
+                <option value="Micrometer Setting Rod">Micrometer Setting Rod</option>
+                <option value="Plain Gauge">Plain Gauge</option>
+                <option value="Plunger Dial Indicator">Plunger Dial Indicator</option>
+                <option value="Test Sieve">Test Sieve</option>
+                <option value="Thread Measuring Wire">Thread Measuring Wire</option>
+                <option value="Thread Plug Gauge">Thread Plug Gauge</option>
+                <option value="Thread Ring Gauge">Thread Ring Gauge</option>
+                <option value="Scanner">Scanner</option>
+                <option value="Multimeter">Multimeter</option>
+                <option value="Clamp Meter">Clamp Meter</option>
+                <option value="Ammeter">Ammeter</option>
+                <option value="Voltmeter">Voltmeter</option>
+                <option value="Insulation Tester (Megger)">Insulation Tester (Megger)</option>
+                <option value="Earth Tester">Earth Tester</option>
+                <option value="Stopwatch">Stopwatch</option>
+                <option value="Timer">Timer</option>
+                <option value="Temperature Sensor">Temperature Sensor</option>
+                <option value="RTD – Resistance Temperature Detector">RTD – Resistance Temperature Detector</option>
+                <option value="Thermocouple">Thermocouple</option>
+                <option value="Hygrometer">Hygrometer</option>
+                <option value="Data Logger">Data Logger</option>
+                <option value="Glass Thermometer">Glass Thermometer</option>
+                <option value="IR Gun – Infrared Thermometer">IR Gun – Infrared Thermometer</option>
+                <option value="Digital Thermometer">Digital Thermometer</option>
+                <option value="RPM Meter – Revolutions Per Minute Meter">RPM Meter – Revolutions Per Minute Meter</option>
+                <option value="Tachometer">Tachometer</option>
+                <option value="Control Valve">Control Valve</option>
+                <option value="pH Sensor – Potential of Hydrogen Sensor">pH Sensor – Potential of Hydrogen Sensor</option>
                 <option value="Weighing Scale">Weighing Scale</option>
                 <option value="Digital Multimeter">Digital Multimeter</option>
               </select>
@@ -2523,14 +2568,16 @@
     }
 
     function navigateTab(tabName) {
-      if (tabName === 'Profile') {
+      if (tabName === 'Home') {
+        navigateToPage('../home/home.html');
+      } else if (tabName === 'Profile') {
         navigateToPage('../caliprofile/caliprofile.html');
       } else if (tabName === 'Schedule') {
         navigateToPage('../schedule-work/schedule-work.html');
       } else if (tabName === 'Reports') {
         navigateToPage('../cali-reports-data/cali-reports-data.html');
-      } else if (tabName !== 'Reports') {
-        alert(`Navigating to ${tabName} screen...`);
+      } else if (tabName === 'Tutorial') {
+        navigateToPage('../tutorial/tutorial.html');
       }
     }
 
@@ -3658,7 +3705,8 @@
         { name: 'PSI', suffix: 'psi' },
         { name: 'Pascal', suffix: 'Pa' },
         { name: 'Kilopascal', suffix: 'kPa' },
-        { name: 'Atmosphere', suffix: 'atm' }
+        { name: 'Atmosphere', suffix: 'atm' },
+        { name: 'Kg/cm2', suffix: 'kg/cm²' }
       ]
     };
 
@@ -3798,7 +3846,8 @@
           PSI: 0.0689476,
           Pascal: 0.00001,
           Kilopascal: 0.01,
-          Atmosphere: 1.01325
+          Atmosphere: 1.01325,
+          'Kg/cm2': 0.980665
         };
         return (val * factors[from]) / factors[to];
       }

@@ -18,6 +18,7 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', 'calseva_super_secret_session_encryption_key')
+app.permanent_session_lifetime = datetime.timedelta(days=30)
 
 # Configure PostgreSQL Database
 db_url = os.environ.get('DATABASE_URL', 'postgresql://postgres:parthpostgress89##@localhost:5432/calsevav2')
@@ -177,9 +178,16 @@ def is_valid_password(password):
     has_special = re.search(r"[@$!%*#?&_#@!%^&*()-+=]", password)
     return bool(has_letter and has_digit and has_special)
 
+# Ping endpoint for server waking detection
+@app.route('/ping')
+def ping_route():
+    return jsonify({"status": "ok"})
+
 # Root route - Redirect to Login
 @app.route('/')
 def index():
+    if 'user_id' in session:
+        return redirect(url_for('home_route'))
     return redirect(url_for('serve_page_or_static', filepath='cal-login/cal-login.html'))
 
 # Google Auth Fallback Handler
@@ -193,6 +201,8 @@ def google_auth_fallback():
 # Login Page handler (intercepts GET and POST)
 @app.route('/cal-login/cal-login.html', methods=['GET', 'POST'])
 def login_route():
+    if 'user_id' in session:
+        return redirect(url_for('home_route'))
     if request.method == 'POST':
         employee_id = request.form.get('employeeId', '').strip()
         password = request.form.get('password', '').strip()
@@ -248,6 +258,8 @@ def login_route():
 # Signup Page handler (intercepts GET and POST)
 @app.route('/cal-signup/cal-signup.html', methods=['GET', 'POST'])
 def signup_route():
+    if 'user_id' in session:
+        return redirect(url_for('home_route'))
     if request.method == 'POST':
         employee_id = request.form.get('employeeId', '').strip()
         email = request.form.get('email', '').strip()
@@ -330,6 +342,7 @@ def verify_route():
         if submitted_otp == session_otp:
             # Successful validation -> Authenticate user session
             session['user_id'] = temp_emp_id
+            session.permanent = True
             session.pop('otp_code', None)
             session.pop('temp_employee_id', None)
             

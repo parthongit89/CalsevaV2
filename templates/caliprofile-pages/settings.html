@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/waking-monitor.js"></script>
+  <script src="/theme-loader.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calseva Settings</title>
@@ -1245,6 +1247,7 @@
     }
 
     function applyDarkTheme(enable) {
+      document.documentElement.classList.toggle('dark-mode', enable);
       const container = document.getElementById('deviceContainer');
       if (enable) {
         container.style.backgroundColor = '#1F2023';
@@ -1334,7 +1337,7 @@
         }
         setTimeout(() => {
           window.location.href = url;
-        }, 1100); // Play video for 1.1s before redirect
+        }, 300); // Play video for 1.1s before redirect
       } else {
         window.location.href = url;
       }

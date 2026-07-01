@@ -1,5 +1,8 @@
 const CACHE_NAME = 'calseva-pwa-cache-v2';
 const ASSETS_TO_CACHE = [
+  '/theme-loader.js',
+  '/waking-monitor.js',
+  '/button-loaders.js',
   '/cal-login/cal-login.html',
   '/cal-signup/cal-signup.html',
   '/caliverify/caliverify.html',
@@ -61,6 +64,7 @@ self.addEventListener('fetch', (event) => {
 
   // Skip API routes / database operations (always go to network)
   if (url.pathname.startsWith('/api') || 
+      url.pathname === '/ping' ||
       url.pathname.startsWith('/cal-login/auth') || 
       url.pathname.startsWith('/cal-signup/register') ||
       url.pathname.startsWith('/verify-otp') ||

@@ -407,7 +407,16 @@ def verify_route():
             flash("Invalid OTP Code")
             return redirect(url_for('verify_route'))
 
-    return render_template('caliverify/caliverify.html')
+    temp_emp_id = session.get('temp_employee_id')
+    user_email = ""
+    if temp_emp_id:
+        try:
+            u = User.query.filter_by(employee_id=temp_emp_id).first()
+            if u:
+                user_email = u.email
+        except Exception:
+            pass
+    return render_template('caliverify/caliverify.html', user_email=user_email)
 
 # Log out route
 @app.route('/cal-login/cal-logout')

@@ -832,7 +832,9 @@
       <!-- Header Area -->
       <header class="header-section">
         <h1 class="app-title">Verification</h1>
-        <p class="app-subtitle">Check Email Inbox we just sent OTP</p>
+        <p class="app-subtitle" style="line-height: 1.5; font-size: 13.5px; margin-top: 8px;">
+          Enter the OTP. If not received, please check your spam folder. Sent to <strong>{% if user_email %}{{ user_email }}{% else %}your registered email{% endif %}</strong> by CalSEVA Tec Solutions.
+        </p>
       </header>
 
       <!-- OTP Form -->

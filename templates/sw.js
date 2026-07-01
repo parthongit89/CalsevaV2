@@ -65,6 +65,7 @@ self.addEventListener('fetch', (event) => {
   // Skip API routes / database operations (always go to network)
   if (url.pathname.startsWith('/api') || 
       url.pathname === '/ping' ||
+      url.pathname === '/get-notifications' ||
       url.pathname.startsWith('/cal-login/auth') || 
       url.pathname.startsWith('/cal-signup/register') ||
       url.pathname.startsWith('/verify-otp') ||

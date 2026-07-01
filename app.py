@@ -11,7 +11,7 @@ from sqlalchemy import text
 from dotenv import load_dotenv
 
 from database import db
-from models import User
+from models import User, Notification
 
 # Load environment variables from .env if present
 load_dotenv()
@@ -178,10 +178,53 @@ def is_valid_password(password):
     has_special = re.search(r"[@$!%*#?&_#@!%^&*()-+=]", password)
     return bool(has_letter and has_digit and has_special)
 
+# Helper to format notification relative timestamps
+def format_relative_time(dt):
+    try:
+        now = datetime.datetime.utcnow()
+        diff = now - dt
+        if diff.days > 0:
+            if diff.days == 1:
+                return "Yesterday"
+            return f"{diff.days} days ago"
+        seconds = diff.seconds
+        if seconds < 60:
+            return "Just now"
+        minutes = seconds // 60
+        if minutes < 60:
+            return f"{minutes} min ago"
+        hours = minutes // 60
+        return f"{hours} hours ago"
+    except Exception:
+        return "Just now"
+
 # Ping endpoint for server waking detection
 @app.route('/ping')
 def ping_route():
     return jsonify({"status": "ok"})
+
+# Get notifications for the logged-in user
+@app.route('/get-notifications')
+def get_notifications():
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    user_id = session['user_id']
+    try:
+        # Fetch the last 30 notifications sorted by timestamp
+        notifications = Notification.query.filter_by(employee_id=user_id).order_by(Notification.timestamp.desc()).limit(30).all()
+        result = []
+        for n in notifications:
+            result.append({
+                "id": n.id,
+                "icon": n.icon,
+                "message": n.message,
+                "timestamp": format_relative_time(n.timestamp)
+            })
+        return jsonify(result)
+    except Exception as e:
+        print(f"Error fetching notifications: {e}")
+        return jsonify([])
 
 # Root route - Redirect to Login
 @app.route('/')
@@ -346,6 +389,18 @@ def verify_route():
             session.pop('otp_code', None)
             session.pop('temp_employee_id', None)
             
+            # Create login activity notification
+            try:
+                login_notif = Notification(
+                    employee_id=temp_emp_id,
+                    icon='login',
+                    message="Logged in successfully to CalSEVA"
+                )
+                db.session.add(login_notif)
+                db.session.commit()
+            except Exception as notif_err:
+                print(f"Error creating login notification: {notif_err}")
+            
             # Redirect to Home dashboard
             return redirect(url_for('home_route'))
         else:
@@ -357,6 +412,18 @@ def verify_route():
 # Log out route
 @app.route('/cal-login/cal-logout')
 def logout_route():
+    user_id = session.get('user_id')
+    if user_id:
+        try:
+            logout_notif = Notification(
+                employee_id=user_id,
+                icon='logout',
+                message="Logged out of your session successfully"
+            )
+            db.session.add(logout_notif)
+            db.session.commit()
+        except Exception as e:
+            print(f"Error creating logout notification: {e}")
     session.clear()
     return redirect(url_for('login_route'))
 
@@ -499,8 +566,28 @@ def delete_schedule(schedule_id):
         
     user_id = session['user_id']
     try:
+        title = "Unknown"
+        try:
+            row = db.session.execute(text(f"SELECT title FROM schedules_{user_id} WHERE id = :id"), {'id': schedule_id}).fetchone()
+            if row:
+                title = row[0]
+        except Exception:
+            pass
+
         db.session.execute(text(f"DELETE FROM schedules_{user_id} WHERE id = :id"), {'id': schedule_id})
         db.session.commit()
+
+        # Add schedule deletion notification
+        try:
+            notif = Notification(
+                employee_id=user_id,
+                icon='delete',
+                message=f"Deleted schedule: '{title}'"
+            )
+            db.session.add(notif)
+            db.session.commit()
+        except Exception as notif_err:
+            print(f"Error logging schedule deletion notification: {notif_err}")
         
         # Fetch new schedules count
         new_count = db.session.execute(text(f"SELECT COUNT(*) FROM schedules_{user_id}")).scalar() or 0
@@ -589,6 +676,19 @@ def create_schedule():
             VALUES (:title, :due_time)
         """), {'title': title, 'due_time': due_time})
         db.session.commit()
+
+        # Add schedule creation notification
+        try:
+            notif = Notification(
+                employee_id=user_id,
+                icon='calendar_today',
+                message=f"Created schedule: '{title}'"
+            )
+            db.session.add(notif)
+            db.session.commit()
+        except Exception as notif_err:
+            print(f"Error logging schedule notification: {notif_err}")
+        
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
@@ -710,6 +810,19 @@ def create_report():
             'status': status
         })
         db.session.commit()
+
+        # Add report creation notification
+        try:
+            notif = Notification(
+                employee_id=user_id,
+                icon='article',
+                message=f"Created report: '{cert}'"
+            )
+            db.session.add(notif)
+            db.session.commit()
+        except Exception as notif_err:
+            print(f"Error logging report creation notification: {notif_err}")
+            
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
@@ -722,8 +835,29 @@ def delete_report(report_id):
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
     user_id = session['user_id']
     try:
+        cert = "Unknown"
+        try:
+            row = db.session.execute(text(f"SELECT cert FROM reports_{user_id} WHERE id = :id"), {'id': report_id}).fetchone()
+            if row:
+                cert = row[0]
+        except Exception:
+            pass
+
         db.session.execute(text(f"DELETE FROM reports_{user_id} WHERE id = :id"), {'id': report_id})
         db.session.commit()
+
+        # Add report deletion notification
+        try:
+            notif = Notification(
+                employee_id=user_id,
+                icon='delete',
+                message=f"Deleted report: '{cert}'"
+            )
+            db.session.add(notif)
+            db.session.commit()
+        except Exception as notif_err:
+            print(f"Error logging report deletion notification: {notif_err}")
+
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()

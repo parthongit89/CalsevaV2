@@ -4,6 +4,9 @@
   <script src="/button-loaders.js"></script>
   <script src="/waking-monitor.js"></script>
   <script src="/theme-loader.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calseva Signup</title>
@@ -955,8 +958,20 @@
             class="form-input" 
             placeholder="Enter Your Email" 
             autocomplete="email"
+            {% if google_email %}
+              value="{{ google_email }}"
+              readonly
+              style="background-color: #d1d5db; color: #374151; cursor: not-allowed;"
+            {% endif %}
           >
         </div>
+        {% if google_email %}
+          <div style="font-size: 12px; color: #3A606E; margin-top: -12px; margin-bottom: 8px; font-weight: bold; display: flex; align-items: center; gap: 4px; padding: 0 4px;">
+            <span class="material-symbols-outlined" style="font-size: 16px; color: #3A606E;">verified</span>
+            <span>Google Linked.</span>
+            <a href="/clear-google-signup" style="color: #b91c1c; text-decoration: underline; margin-left: auto; font-weight: normal;">Change email</a>
+          </div>
+        {% endif %}
 
         <!-- Phone Number Input -->
         <div class="input-wrapper">
@@ -999,6 +1014,7 @@
         Already have an account ?<a href="../cal-login/cal-login.html" class="signup-link">Login</a>
       </p>
 
+      {% if not google_email %}
       <!-- Divider -->
       <div class="divider-container">
         <span class="divider-line"></span>
@@ -1007,12 +1023,13 @@
       </div>
 
       <!-- Third Party Auth (Google) -->
-      <form action="/google-auth-fallback" method="POST" style="width: 100%;">
-        <button type="submit" class="btn-google">
+      <form action="/google-auth-fallback" method="POST" id="googleForm" style="width: 100%;">
+        <button type="submit" class="btn-google" id="googleLoginBtn">
           <img src="Googlelogologin.png" alt="Google logo">
           <span>Login with Google</span>
         </button>
       </form>
+      {% endif %}
 
       <!-- Calseva Branding Bottom -->
       <footer class="branding-footer">
@@ -1083,6 +1100,71 @@
         }, 300); // Play video for 1.1s before redirect
       } else {
         window.location.href = url;
+      }
+    }
+
+    // Firebase Configuration dynamically injected
+    const firebaseConfig = {
+      apiKey: "{{ firebase_config.apiKey }}",
+      authDomain: "{{ firebase_config.authDomain }}",
+      projectId: "{{ firebase_config.projectId }}",
+      appId: "{{ firebase_config.appId }}"
+    };
+
+    if (firebaseConfig.apiKey && firebaseConfig.authDomain) {
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // Attach Google Auth Event Listener
+      const googleBtn = document.getElementById('googleLoginBtn');
+      if (googleBtn) {
+        googleBtn.addEventListener('click', (e) => {
+          e.preventDefault(); // Intercept default form submission
+          
+          // Disable button to prevent double-clicks
+          googleBtn.disabled = true;
+          const origText = googleBtn.querySelector('span').textContent;
+          googleBtn.querySelector('span').textContent = 'Connecting...';
+
+          const provider = new firebase.auth.GoogleAuthProvider();
+          firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+              return result.user.getIdToken();
+            })
+            .then((idToken) => {
+              // Send verified token to Flask backend
+              return fetch('/firebase-login', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ idToken: idToken })
+              });
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                if (data.action === 'login') {
+                  navigateToPage('/home/home.html');
+                } else if (data.action === 'signup') {
+                  navigateToPage('/cal-signup/cal-signup.html');
+                }
+              } else {
+                alert('Authentication failed: ' + (data.error || 'Unknown error'));
+                googleBtn.disabled = false;
+                googleBtn.querySelector('span').textContent = origText;
+              }
+            })
+            .catch((error) => {
+              console.error('Google Sign-in Error:', error);
+              // Check if user closed the popup
+              if (error.code !== 'auth/popup-closed-by-user') {
+                alert('Google Sign-in failed: ' + error.message);
+              }
+              googleBtn.disabled = false;
+              googleBtn.querySelector('span').textContent = origText;
+            });
+        });
       }
     }
 

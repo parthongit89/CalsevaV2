@@ -4,6 +4,9 @@
   <script src="/button-loaders.js"></script>
   <script src="/waking-monitor.js"></script>
   <script src="/theme-loader.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calseva Login</title>
@@ -966,8 +969,8 @@
       </div>
 
       <!-- Third Party Auth (Google) -->
-      <form action="/google-auth-fallback" method="POST" style="width: 100%;">
-        <button type="submit" class="btn-google">
+      <form action="/google-auth-fallback" method="POST" id="googleForm" style="width: 100%;">
+        <button type="submit" class="btn-google" id="googleLoginBtn">
           <img src="Googlelogologin.png" alt="Google logo">
           <span>Login with Google</span>
         </button>
@@ -1042,6 +1045,71 @@
         }, 300); // Play video for 1.1s before redirect
       } else {
         window.location.href = url;
+      }
+    }
+
+    // Firebase Configuration dynamically injected
+    const firebaseConfig = {
+      apiKey: "{{ firebase_config.apiKey }}",
+      authDomain: "{{ firebase_config.authDomain }}",
+      projectId: "{{ firebase_config.projectId }}",
+      appId: "{{ firebase_config.appId }}"
+    };
+
+    if (firebaseConfig.apiKey && firebaseConfig.authDomain) {
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // Attach Google Auth Event Listener
+      const googleBtn = document.getElementById('googleLoginBtn');
+      if (googleBtn) {
+        googleBtn.addEventListener('click', (e) => {
+          e.preventDefault(); // Intercept default form submission
+          
+          // Disable button to prevent double-clicks
+          googleBtn.disabled = true;
+          const origText = googleBtn.querySelector('span').textContent;
+          googleBtn.querySelector('span').textContent = 'Connecting...';
+
+          const provider = new firebase.auth.GoogleAuthProvider();
+          firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+              return result.user.getIdToken();
+            })
+            .then((idToken) => {
+              // Send verified token to Flask backend
+              return fetch('/firebase-login', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ idToken: idToken })
+              });
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                if (data.action === 'login') {
+                  navigateToPage('/home/home.html');
+                } else if (data.action === 'signup') {
+                  navigateToPage('/cal-signup/cal-signup.html');
+                }
+              } else {
+                alert('Authentication failed: ' + (data.error || 'Unknown error'));
+                googleBtn.disabled = false;
+                googleBtn.querySelector('span').textContent = origText;
+              }
+            })
+            .catch((error) => {
+              console.error('Google Sign-in Error:', error);
+              // Check if user closed the popup
+              if (error.code !== 'auth/popup-closed-by-user') {
+                alert('Google Sign-in failed: ' + error.message);
+              }
+              googleBtn.disabled = false;
+              googleBtn.querySelector('span').textContent = origText;
+            });
+        });
       }
     }
 

@@ -29,6 +29,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
+# Context processor to inject Firebase configuration parameters into all templates
+@app.context_processor
+def inject_firebase_config():
+    return {
+        'firebase_config': {
+            'apiKey': os.environ.get('FIREBASE_API_KEY', ''),
+            'authDomain': os.environ.get('FIREBASE_AUTH_DOMAIN', ''),
+            'projectId': os.environ.get('FIREBASE_PROJECT_ID', ''),
+            'appId': os.environ.get('FIREBASE_APP_ID', '')
+        }
+    }
+
 # Auto-initialize database tables on startup
 try:
     with app.app_context():
@@ -241,6 +253,75 @@ def google_auth_fallback():
     referrer = request.referrer or url_for('serve_page_or_static', filepath='cal-login/cal-login.html')
     return redirect(referrer)
 
+# Firebase Auth ID Token login verification handler
+@app.route('/firebase-login', methods=['POST'])
+def firebase_login():
+    data = request.get_json()
+    if not data or 'idToken' not in data:
+        return jsonify({'success': False, 'error': 'Missing ID Token'}), 400
+        
+    id_token = data['idToken']
+    api_key = os.environ.get('FIREBASE_API_KEY')
+    if not api_key:
+        return jsonify({'success': False, 'error': 'Firebase API Key not configured on server'}), 500
+        
+    # Verify token with Firebase Auth REST API
+    try:
+        import urllib.request
+        import json
+        url = f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={api_key}"
+        req_data = json.dumps({'idToken': id_token}).encode('utf-8')
+        req = urllib.request.Request(
+            url, 
+            data=req_data, 
+            headers={'Content-Type': 'application/json'}, 
+            method='POST'
+        )
+        with urllib.request.urlopen(req) as response:
+            res_body = json.loads(response.read().decode('utf-8'))
+            if 'users' not in res_body or len(res_body['users']) == 0:
+                return jsonify({'success': False, 'error': 'Invalid token response'}), 401
+                
+            user_info = res_body['users'][0]
+            email = user_info.get('email')
+            if not email:
+                return jsonify({'success': False, 'error': 'Email not found in token'}), 400
+                
+            # Look up email in database
+            user = User.query.filter_by(email=email).first()
+            if user:
+                # User exists -> Log them in!
+                session['user_id'] = user.employee_id
+                session.permanent = True
+                
+                # Create login notification
+                try:
+                    login_notif = Notification(
+                        employee_id=user.employee_id,
+                        icon='login',
+                        message="Logged in via Google"
+                    )
+                    db.session.add(login_notif)
+                    db.session.commit()
+                except Exception as notif_err:
+                    print(f"Error logging notification: {notif_err}")
+                    
+                return jsonify({'success': True, 'action': 'login'})
+            else:
+                # User does not exist -> Redirect to complete signup
+                session['google_verified_email'] = email
+                return jsonify({'success': True, 'action': 'signup', 'email': email})
+                
+    except Exception as e:
+        print(f"Error verifying Firebase token: {e}")
+        return jsonify({'success': False, 'error': 'Token verification failed'}), 401
+
+# Route to clear Google signup verified session
+@app.route('/clear-google-signup')
+def clear_google_signup():
+    session.pop('google_verified_email', None)
+    return redirect(url_for('signup_route'))
+
 # Login Page handler (intercepts GET and POST)
 @app.route('/cal-login/cal-login.html', methods=['GET', 'POST'])
 def login_route():
@@ -314,6 +395,12 @@ def signup_route():
             flash("Invalid Credentials")
             return redirect(url_for('signup_route'))
 
+        # Security check: If there is a google verified email in session, check that it matches
+        google_verified_email = session.get('google_verified_email')
+        if google_verified_email and email.lower() != google_verified_email.lower():
+            flash("Email mismatch with Google account")
+            return redirect(url_for('signup_route'))
+
         # 2. Employee ID check (exactly 5 digits)
         if not re.match(r"^\d{5}$", employee_id):
             flash("Employee ID must be exactly 5 digits")
@@ -351,6 +438,9 @@ def signup_route():
             db.session.add(new_user)
             db.session.commit()
 
+            # Clear session google email after successful registration
+            session.pop('google_verified_email', None)
+
             # Redirect directly to login on success
             return redirect(url_for('login_route'))
 
@@ -359,7 +449,8 @@ def signup_route():
             flash("Please try again later")
             return redirect(url_for('signup_route'))
 
-    return render_template('cal-signup/cal-signup.html')
+    google_email = session.get('google_verified_email')
+    return render_template('cal-signup/cal-signup.html', google_email=google_email)
 
 # Verification code route handler
 @app.route('/caliverify/caliverify.html', methods=['GET', 'POST'])

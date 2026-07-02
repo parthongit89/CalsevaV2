@@ -1056,61 +1056,65 @@
       appId: "{{ firebase_config.appId }}"
     };
 
-    if (firebaseConfig.apiKey && firebaseConfig.authDomain) {
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
+    const googleBtn = document.getElementById('googleLoginBtn');
+    if (googleBtn) {
+      googleBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Intercept default form submission
 
-      // Attach Google Auth Event Listener
-      const googleBtn = document.getElementById('googleLoginBtn');
-      if (googleBtn) {
-        googleBtn.addEventListener('click', (e) => {
-          e.preventDefault(); // Intercept default form submission
-          
-          // Disable button to prevent double-clicks
-          googleBtn.disabled = true;
-          const origText = googleBtn.querySelector('span').textContent;
-          googleBtn.querySelector('span').textContent = 'Connecting...';
+        if (!firebaseConfig.apiKey || !firebaseConfig.authDomain) {
+          alert('Google Sign-In is not configured on this server. Please set the FIREBASE_API_KEY and other Firebase environment variables in your Render/server settings.');
+          return;
+        }
 
-          const provider = new firebase.auth.GoogleAuthProvider();
-          firebase.auth().signInWithPopup(provider)
-            .then((result) => {
-              return result.user.getIdToken();
-            })
-            .then((idToken) => {
-              // Send verified token to Flask backend
-              return fetch('/firebase-login', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ idToken: idToken })
-              });
-            })
-            .then(res => res.json())
-            .then(data => {
-              if (data.success) {
-                if (data.action === 'login') {
-                  navigateToPage('/home/home.html');
-                } else if (data.action === 'signup') {
-                  navigateToPage('/cal-signup/cal-signup.html');
-                }
-              } else {
-                alert('Authentication failed: ' + (data.error || 'Unknown error'));
-                googleBtn.disabled = false;
-                googleBtn.querySelector('span').textContent = origText;
+        // Initialize Firebase
+        if (firebase.apps.length === 0) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        
+        // Disable button to prevent double-clicks
+        googleBtn.disabled = true;
+        const origText = googleBtn.querySelector('span').textContent;
+        googleBtn.querySelector('span').textContent = 'Connecting...';
+
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider)
+          .then((result) => {
+            return result.user.getIdToken();
+          })
+          .then((idToken) => {
+            // Send verified token to Flask backend
+            return fetch('/firebase-login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ idToken: idToken })
+            });
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              if (data.action === 'login') {
+                navigateToPage('/home/home.html');
+              } else if (data.action === 'signup') {
+                navigateToPage('/cal-signup/cal-signup.html');
               }
-            })
-            .catch((error) => {
-              console.error('Google Sign-in Error:', error);
-              // Check if user closed the popup
-              if (error.code !== 'auth/popup-closed-by-user') {
-                alert('Google Sign-in failed: ' + error.message);
-              }
+            } else {
+              alert('Authentication failed: ' + (data.error || 'Unknown error'));
               googleBtn.disabled = false;
               googleBtn.querySelector('span').textContent = origText;
-            });
-        });
-      }
+            }
+          })
+          .catch((error) => {
+            console.error('Google Sign-in Error:', error);
+            // Check if user closed the popup
+            if (error.code !== 'auth/popup-closed-by-user') {
+              alert('Google Sign-in failed: ' + error.message);
+            }
+            googleBtn.disabled = false;
+            googleBtn.querySelector('span').textContent = origText;
+          });
+      });
     }
 
   </script>

@@ -1,12 +1,9 @@
-const CACHE_NAME = 'calseva-pwa-cache-v3';
+const CACHE_NAME = 'calseva-pwa-cache-v4';
 const ASSETS_TO_CACHE = [
   '/theme-loader.js',
   '/waking-monitor.js',
   '/button-loaders.js',
   '/calsevaweb.html',
-  '/cal-login/cal-login.html',
-  '/cal-signup/cal-signup.html',
-  '/caliverify/caliverify.html',
   '/home/home.html',
   '/cali-report/cali-report.html',
   '/cali-reports-data/cali-reports-data.html',
@@ -63,12 +60,13 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // Skip API routes / database operations (always go to network)
+  // Skip API routes / database operations / dynamic login templates (always go to network)
   if (url.pathname.startsWith('/api') || 
       url.pathname === '/ping' ||
       url.pathname === '/get-notifications' ||
-      url.pathname.startsWith('/cal-login/auth') || 
-      url.pathname.startsWith('/cal-signup/register') ||
+      url.pathname.includes('/cal-login') || 
+      url.pathname.includes('/cal-signup') ||
+      url.pathname.includes('/caliverify') ||
       url.pathname.startsWith('/verify-otp') ||
       url.pathname.startsWith('/resend-otp') ||
       url.pathname.startsWith('/get-reports') ||

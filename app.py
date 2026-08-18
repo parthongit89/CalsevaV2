@@ -44,7 +44,35 @@ def inject_firebase_config():
 # Auto-initialize database tables on startup
 try:
     with app.app_context():
+        # Check if users table exists and has employee_id column
+        users_need_recreate = False
+        try:
+            db.session.execute(text("SELECT employee_id FROM users LIMIT 1"))
+        except Exception as check_err:
+            db.session.rollback()
+            print(f"[DB Schema Check] 'users' table missing 'employee_id' column or incompatible: {check_err}")
+            users_need_recreate = True
+
+        if users_need_recreate:
+            print("[DB Schema Migration] Recreating 'notifications' and 'users' tables to match updated schema...")
+            try:
+                db.session.execute(text("DROP TABLE IF EXISTS notifications CASCADE;"))
+                db.session.execute(text("DROP TABLE IF EXISTS users CASCADE;"))
+                db.session.commit()
+            except Exception as drop_err:
+                print(f"[DB Schema Migration Error] {drop_err}")
+                db.session.rollback()
+
+        # Create all tables defined in models
         db.create_all()
+
+        # Ensure profile_image column exists on users table
+        try:
+            db.session.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image BYTEA;"))
+            db.session.commit()
+        except Exception as alter_err:
+            db.session.rollback()
+
     print("Database tables initialized/verified successfully.")
 except Exception as db_err:
     print(f"Warning: Dynamic database table creation failed: {db_err}")
@@ -236,6 +264,7 @@ def get_notifications():
         return jsonify(result)
     except Exception as e:
         print(f"Error fetching notifications: {e}")
+        db.session.rollback()
         return jsonify([])
 
 # Root route - Redirect to Login
@@ -288,7 +317,13 @@ def firebase_login():
                 return jsonify({'success': False, 'error': 'Email not found in token'}), 400
                 
             # Look up email in database
-            user = User.query.filter_by(email=email).first()
+            try:
+                user = User.query.filter_by(email=email).first()
+            except Exception as user_db_err:
+                print(f"Database error looking up user by email: {user_db_err}")
+                db.session.rollback()
+                user = None
+
             if user:
                 # User exists -> Log them in!
                 session['user_id'] = user.employee_id
@@ -305,6 +340,7 @@ def firebase_login():
                     db.session.commit()
                 except Exception as notif_err:
                     print(f"Error logging notification: {notif_err}")
+                    db.session.rollback()
                     
                 return jsonify({'success': True, 'action': 'login'})
             else:
@@ -970,22 +1006,33 @@ def profile_route():
         return redirect(url_for('login_route'))
         
     user_id = session['user_id']
-    user = User.query.filter_by(employee_id=user_id).first()
-    if not user:
+    try:
+        user = User.query.filter_by(employee_id=user_id).first()
+        if not user:
+            flash("Invalid Credentials")
+            return redirect(url_for('login_route'))
+            
+        return render_template('caliprofile/caliprofile.html', user=user)
+    except Exception as e:
+        print(f"Error loading user profile: {e}")
+        db.session.rollback()
         flash("Invalid Credentials")
         return redirect(url_for('login_route'))
-        
-    return render_template('caliprofile/caliprofile.html', user=user)
 
 # Serve user avatar binary from database
 @app.route('/user/avatar/<employee_id>')
 def serve_avatar(employee_id):
-    user = User.query.filter_by(employee_id=employee_id).first()
-    if not user or not user.profile_image:
+    try:
+        user = User.query.filter_by(employee_id=employee_id).first()
+        if not user or not user.profile_image:
+            return "", 404
+            
+        from flask import Response
+        return Response(user.profile_image, mimetype='image/jpeg')
+    except Exception as e:
+        print(f"Error serving avatar: {e}")
+        db.session.rollback()
         return "", 404
-        
-    from flask import Response
-    return Response(user.profile_image, mimetype='image/jpeg')
 
 # Upload avatar POST handler
 @app.route('/user/upload-avatar', methods=['POST'])

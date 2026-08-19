@@ -570,5 +570,13 @@
     loadStats();
     loadHistory();
   </script>
+
+  <!-- Firebase Compat App & Messaging SDKs for FCM Push Notifications -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+  <script>
+    window.calsevaFirebaseConfig = {{ firebase_config|tojson if firebase_config is defined else {} }};
+  </script>
+  <script src="/fcm-notifications.js"></script>
 </body>
 </html>

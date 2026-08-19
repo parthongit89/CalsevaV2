@@ -97,11 +97,33 @@ try:
         # Create all tables defined in models
         db.create_all()
 
-        # Ensure profile_image column exists on users table
+        # Ensure profile_image and is_admin columns exist on users table
         try:
             db.session.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image BYTEA;"))
+            db.session.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;"))
             db.session.commit()
         except Exception as alter_err:
+            db.session.rollback()
+
+        # Auto-seed admin user 12345 if missing
+        try:
+            test_user = User.query.filter_by(employee_id='12345').first()
+            if not test_user:
+                user = User(
+                    employee_id='12345',
+                    email='parthongit89@gmail.com',
+                    phone='1234567890',
+                    is_admin=True
+                )
+                user.set_password('Password123!')
+                db.session.add(user)
+                db.session.commit()
+                print("[DB Seed] Seeded admin user '12345' with password 'Password123!' successfully.")
+            elif not test_user.is_admin:
+                test_user.is_admin = True
+                db.session.commit()
+        except Exception as seed_err:
+            print(f"[DB Seed Error] {seed_err}")
             db.session.rollback()
 
     print("Database tables initialized/verified successfully.")

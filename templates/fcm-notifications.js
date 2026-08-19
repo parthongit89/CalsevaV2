@@ -13,7 +13,7 @@
   }
 
   async function sendTokenToBackend(token) {
-    if (!token) return;
+    if (!token) return null;
     try {
       const response = await fetch('/api/register-fcm-token', {
         method: 'POST',
@@ -29,13 +29,18 @@
       } else {
         console.warn('[CalSEVA FCM] Backend token note:', data.error);
       }
+      return data;
     } catch (err) {
       console.error('[CalSEVA FCM] Failed to send token to backend:', err);
+      return null;
     }
   }
 
-  function obtainAndSendToken(messaging) {
-    if (!('serviceWorker' in navigator)) return;
+  function obtainAndSendToken(messaging, isManual = false) {
+    if (!('serviceWorker' in navigator)) {
+      if (isManual) alert('Service Workers are not supported on this browser.');
+      return;
+    }
 
     navigator.serviceWorker.register('/firebase-messaging-sw.js')
       .then((registration) => {
@@ -47,10 +52,19 @@
       .then((token) => {
         if (token) {
           console.log('[CalSEVA FCM] Obtained FCM Token:', token);
-          sendTokenToBackend(token);
+          sendTokenToBackend(token).then(() => {
+            if (isManual) alert('✅ Phone device successfully registered for push notifications!');
+          });
+        } else {
+          if (isManual) alert('⚠️ Could not retrieve push token. Please check FIREBASE_API_KEY in Render.');
         }
       })
-      .catch((err) => console.error('[CalSEVA FCM] Token error:', err));
+      .catch((err) => {
+        console.error('[CalSEVA FCM] Token error:', err);
+        if (isManual) {
+          alert('❌ Push Token Error: ' + (err.message || err) + '\n\nPlease ensure FIREBASE_API_KEY is configured in Render Environment Variables.');
+        }
+      });
   }
 
   function initFCM() {
@@ -74,13 +88,12 @@
       const messaging = firebase.messaging();
       window.calsevaMessaging = messaging;
 
-      // Check permission state directly
       if (Notification.permission === 'granted') {
-        obtainAndSendToken(messaging);
+        obtainAndSendToken(messaging, false);
       } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then((permission) => {
           if (permission === 'granted') {
-            obtainAndSendToken(messaging);
+            obtainAndSendToken(messaging, false);
           }
         });
       }
@@ -115,17 +128,19 @@
     }
   }
 
-  // Global manual trigger to force-sync FCM Token
+  // Global manual trigger to force-sync FCM Token with alert feedback
   window.syncFcmDeviceToken = function() {
     if (typeof firebase !== 'undefined' && firebase.messaging) {
       const messaging = firebase.messaging();
       Notification.requestPermission().then((perm) => {
         if (perm === 'granted') {
-          obtainAndSendToken(messaging);
+          obtainAndSendToken(messaging, true);
         } else {
           alert('Notification permission was blocked in browser settings. Please enable notifications for this site in Chrome site settings.');
         }
       });
+    } else {
+      alert('Firebase Messaging SDK is initializing. Please try again in 2 seconds.');
     }
   };
 

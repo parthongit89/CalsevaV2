@@ -1013,6 +1013,11 @@ def serve_firebase_sw():
 def serve_fcm_js():
     return send_from_directory('templates', 'fcm-notifications.js', mimetype='application/javascript')
 
+# Route to handle Google Digital Asset Links crawler
+@app.route('/.well-known/assetlinks.json')
+def serve_assetlinks():
+    return jsonify([]), 200
+
 # Register or update FCM Token endpoint
 @app.route('/api/register-fcm-token', methods=['POST'])
 def register_fcm_token():

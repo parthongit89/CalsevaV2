@@ -26,10 +26,31 @@
       const data = await response.json();
       if (data.success) {
         console.log('[CalSEVA FCM] Token registered with backend successfully.');
+      } else {
+        console.warn('[CalSEVA FCM] Backend token note:', data.error);
       }
     } catch (err) {
       console.error('[CalSEVA FCM] Failed to send token to backend:', err);
     }
+  }
+
+  function obtainAndSendToken(messaging) {
+    if (!('serviceWorker' in navigator)) return;
+
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+      .then((registration) => {
+        return messaging.getToken({
+          vapidKey: vapidKey,
+          serviceWorkerRegistration: registration
+        });
+      })
+      .then((token) => {
+        if (token) {
+          console.log('[CalSEVA FCM] Obtained FCM Token:', token);
+          sendTokenToBackend(token);
+        }
+      })
+      .catch((err) => console.error('[CalSEVA FCM] Token error:', err));
   }
 
   function initFCM() {
@@ -51,22 +72,18 @@
 
     try {
       const messaging = firebase.messaging();
+      window.calsevaMessaging = messaging;
 
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          navigator.serviceWorker.register('/firebase-messaging-sw.js')
-            .then((registration) => {
-              return messaging.getToken({
-                vapidKey: vapidKey,
-                serviceWorkerRegistration: registration
-              });
-            })
-            .then((token) => {
-              if (token) sendTokenToBackend(token);
-            })
-            .catch((err) => console.error('[CalSEVA FCM] Token error:', err));
-        }
-      });
+      // Check permission state directly
+      if (Notification.permission === 'granted') {
+        obtainAndSendToken(messaging);
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then((permission) => {
+          if (permission === 'granted') {
+            obtainAndSendToken(messaging);
+          }
+        });
+      }
 
       messaging.onMessage((payload) => {
         console.log('[CalSEVA FCM] Foreground Message received:', payload);
@@ -77,7 +94,6 @@
         const image = notification.image || null;
         const clickUrl = (payload.data && payload.data.url) || '/home/home.html';
 
-        // Explicitly trigger native system notification banner
         if (navigator.serviceWorker && navigator.serviceWorker.ready) {
           navigator.serviceWorker.ready.then((registration) => {
             registration.showNotification(title, {
@@ -98,6 +114,20 @@
       console.error('[CalSEVA FCM] Initialization error:', fcmErr);
     }
   }
+
+  // Global manual trigger to force-sync FCM Token
+  window.syncFcmDeviceToken = function() {
+    if (typeof firebase !== 'undefined' && firebase.messaging) {
+      const messaging = firebase.messaging();
+      Notification.requestPermission().then((perm) => {
+        if (perm === 'granted') {
+          obtainAndSendToken(messaging);
+        } else {
+          alert('Notification permission was blocked in browser settings. Please enable notifications for this site in Chrome site settings.');
+        }
+      });
+    }
+  };
 
   // Display Android Native System Card (SMS / Play Store / Samsung Style)
   function showRichSystemToast(title, body, icon, image, url) {

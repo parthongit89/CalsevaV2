@@ -296,9 +296,10 @@
         <span id="sdkDot" style="width: 10px; height: 10px; border-radius: 50%; background: #FF9800; display: inline-block;"></span>
         <span>Firebase Admin SDK: <strong id="sdkStatus">Checking...</strong></span>
       </div>
-      <div style="display: flex; align-items: center; gap: 6px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
         <span class="material-symbols-outlined" style="font-size: 18px; color: var(--color-primary);">phonelink</span>
         <span>Active Devices: <strong id="deviceCount" style="color: var(--color-primary);">0 Phone(s)</strong></span>
+        <button onclick="if(window.syncFcmDeviceToken){window.syncFcmDeviceToken(); setTimeout(loadStats, 1500);}" style="background: var(--color-primary); color: #FFF; border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; margin-left: 6px;" title="Register this phone's browser token for push notifications">📱 Sync This Phone</button>
       </div>
     </div>
 

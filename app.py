@@ -29,34 +29,46 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
-# Initialize Firebase Admin SDK for FCM HTTP v1 push notifications
+# Dynamic Firebase Admin SDK accessor
 firebase_admin_app = None
-try:
-    import firebase_admin
-    from firebase_admin import credentials, messaging
-    
-    svc_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
-    svc_path = os.environ.get('FIREBASE_SERVICE_ACCOUNT_PATH')
-    
-    if svc_json:
-        import json
-        import base64
+def get_firebase_admin_app():
+    global firebase_admin_app
+    if firebase_admin_app:
+        return firebase_admin_app
+        
+    try:
+        import firebase_admin
+        from firebase_admin import credentials
         try:
-            decoded = base64.b64decode(svc_json).decode('utf-8')
-            cred_dict = json.loads(decoded)
-        except Exception:
-            cred_dict = json.loads(svc_json)
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin_app = firebase_admin.initialize_app(cred)
-        print("[Firebase Admin SDK] Initialized successfully from JSON environment secret.")
-    elif svc_path and os.path.exists(svc_path):
-        cred = credentials.Certificate(svc_path)
-        firebase_admin_app = firebase_admin.initialize_app(cred)
-        print(f"[Firebase Admin SDK] Initialized successfully from file: {svc_path}")
-    else:
-        print("[Firebase Admin SDK] Credentials not provided in env. Set FIREBASE_SERVICE_ACCOUNT_JSON to enable live FCM push delivery.")
-except Exception as fcm_init_err:
-    print(f"[Firebase Admin SDK] Initialization notice: {fcm_init_err}")
+            firebase_admin_app = firebase_admin.get_app()
+            return firebase_admin_app
+        except ValueError:
+            svc_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
+            svc_path = os.environ.get('FIREBASE_SERVICE_ACCOUNT_PATH')
+            
+            if svc_json:
+                import json
+                import base64
+                svc_str = svc_json.strip()
+                try:
+                    decoded = base64.b64decode(svc_str).decode('utf-8')
+                    cred_dict = json.loads(decoded)
+                except Exception:
+                    cred_dict = json.loads(svc_str)
+                cred = credentials.Certificate(cred_dict)
+                firebase_admin_app = firebase_admin.initialize_app(cred)
+                print("[Firebase Admin SDK] Initialized dynamically from JSON environment secret.")
+                return firebase_admin_app
+            elif svc_path and os.path.exists(svc_path):
+                cred = credentials.Certificate(svc_path)
+                firebase_admin_app = firebase_admin.initialize_app(cred)
+                print(f"[Firebase Admin SDK] Initialized dynamically from file: {svc_path}")
+                return firebase_admin_app
+            else:
+                print("[Firebase Admin SDK] FIREBASE_SERVICE_ACCOUNT_JSON not found in environment.")
+    except Exception as err:
+        print(f"[Firebase Admin SDK Dynamic Init Error] {err}")
+    return None
 
 # Context processor to inject Firebase configuration parameters into all templates
 @app.context_processor
@@ -1112,7 +1124,8 @@ def admin_send_notification():
     failure_count = 0
     status_text = 'sent'
     
-    if firebase_admin_app and len(active_tokens) > 0:
+    admin_app = get_firebase_admin_app()
+    if admin_app and len(active_tokens) > 0:
         try:
             from firebase_admin import messaging
             token_strings = [t.fcm_token for t in active_tokens]
@@ -1146,12 +1159,15 @@ def admin_send_notification():
                 
         except Exception as fcm_send_err:
             print(f"[FCM Send Error] {fcm_send_err}")
-            status_text = 'failed'
+            status_text = f'failed ({fcm_send_err})'
             failure_count = len(active_tokens)
     else:
-        # Fallback simulation when Firebase Admin SDK credentials not yet set up
-        success_count = len(target_users)
-        status_text = 'sent (in-app only)'
+        if not admin_app:
+            status_text = 'failed (Firebase Admin SDK not initialized - check FIREBASE_SERVICE_ACCOUNT_JSON secret)'
+            failure_count = len(target_users)
+        elif len(active_tokens) == 0:
+            status_text = 'failed (0 phone/browser device tokens registered in database)'
+            failure_count = len(target_users)
         
     try:
         history = NotificationHistory(
@@ -1177,6 +1193,25 @@ def admin_send_notification():
         'send_status': status_text,
         'success_count': success_count,
         'failure_count': failure_count
+    })
+
+# Admin FCM Diagnostic Stats API endpoint
+@app.route('/api/admin/fcm-stats', methods=['GET'])
+def admin_fcm_stats():
+    admin_app = get_firebase_admin_app()
+    try:
+        active_tokens = FCMToken.query.filter_by(is_active=True).count()
+    except Exception:
+        active_tokens = 0
+    try:
+        total_users = User.query.count()
+    except Exception:
+        total_users = 0
+    return jsonify({
+        'success': True,
+        'admin_sdk_active': bool(admin_app),
+        'active_tokens': active_tokens,
+        'total_users': total_users
     })
 
 # Admin Notification History API endpoint

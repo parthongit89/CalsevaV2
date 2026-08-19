@@ -1,12 +1,11 @@
 /**
  * CALSEVA Firebase Messaging Service Worker
- * Handles background push notifications when CALSEVA tab is closed or in background.
+ * Rich Native Push Notification System (SMS / Play Store / WhatsApp Style)
  */
 
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
-// Initialize Firebase App in Service Worker
 firebase.initializeApp({
   apiKey: "AIzaSy_placeholder_key",
   authDomain: "calseva-2026.firebaseapp.com",
@@ -17,9 +16,9 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Handle Background Push Messages
+// Handle Rich Background Push Messages
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background push message:', payload);
+  console.log('[firebase-messaging-sw.js] Received rich background push message:', payload);
   
   const notificationTitle = (payload.notification && payload.notification.title) || 'CalSEVA Alert';
   const notificationOptions = {
@@ -27,6 +26,14 @@ messaging.onBackgroundMessage((payload) => {
     icon: (payload.notification && payload.notification.icon) || '/caliprofile-pages/Calsevalogo.png',
     badge: '/caliprofile-pages/Calsevalogo.png',
     image: (payload.notification && payload.notification.image) || null,
+    vibrate: [200, 100, 200, 100, 200],
+    tag: 'calseva-rich-alert',
+    renotify: true,
+    requireInteraction: true, // Native SMS / Play Store persistence style
+    actions: [
+      { action: 'open_app', title: '📲 Open App' },
+      { action: 'dismiss_alert', title: '✖ Dismiss' }
+    ],
     data: {
       url: (payload.data && payload.data.url) || '/home/home.html'
     }
@@ -35,9 +42,14 @@ messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// Handle Notification Clicks
+// Handle Native Notification Click & Action Buttons
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+
+  if (event.action === 'dismiss_alert') {
+    return;
+  }
+
   const targetUrl = (event.notification.data && event.notification.data.url) || '/home/home.html';
 
   event.waitUntil(

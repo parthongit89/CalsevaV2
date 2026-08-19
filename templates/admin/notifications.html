@@ -50,7 +50,7 @@
 
     .container {
       width: 100%;
-      max-width: 800px;
+      max-width: 840px;
       background: #FFFFFF;
       border-radius: 24px;
       box-shadow: 0 12px 40px rgba(0,0,0,0.3);
@@ -96,6 +96,34 @@
 
     .back-btn:hover { background: #E2E9EC; }
 
+    .preset-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .preset-chip {
+      background: #F0F4F5;
+      color: var(--color-primary);
+      border: 1px solid #D0DCDD;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .preset-chip:hover {
+      background: var(--color-primary);
+      color: #FFFFFF;
+      border-color: var(--color-primary);
+    }
+
     .grid-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -135,7 +163,7 @@
 
     textarea.form-control {
       resize: vertical;
-      min-height: 80px;
+      min-height: 85px;
     }
 
     .radio-group {
@@ -152,45 +180,43 @@
       cursor: pointer;
     }
 
-    /* Preview Card */
+    /* System Android / Play Store Style Live Preview */
     .preview-card {
-      background: #F8FAF9;
-      border: 1px dashed #B0C4DE;
-      border-radius: 16px;
+      background: #121C21;
+      border-radius: 20px;
       padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      color: #FFFFFF;
     }
 
     .preview-card h3 {
-      font-size: 15px;
-      color: var(--color-primary);
-      margin-bottom: 12px;
+      font-size: 14px;
+      color: #5BC0BE;
+      margin-bottom: 15px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
     .device-preview {
-      background: #1E2E35;
-      color: #FFFFFF;
-      border-radius: 12px;
-      padding: 14px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.12);
     }
 
     .device-preview-header {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .device-preview-icon {
-      width: 36px;
-      height: 36px;
-      background: var(--color-primary);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      object-fit: cover;
     }
 
     .send-btn {
@@ -225,7 +251,6 @@
     .alert-success { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
     .alert-danger { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
 
-    /* History Table */
     .history-section {
       margin-top: 35px;
       border-top: 1.5px solid #EEEEEE;
@@ -265,6 +290,22 @@
       <span class="material-symbols-outlined" style="font-size: 32px; color: var(--color-primary);">send_to_mobile</span>
     </div>
 
+    <!-- Quick Presets Bar -->
+    <div class="preset-bar">
+      <button class="preset-chip" onclick="applyPreset('services')">
+        <span class="material-symbols-outlined" style="font-size: 16px;">stars</span> Try Services
+      </button>
+      <button class="preset-chip" onclick="applyPreset('report')">
+        <span class="material-symbols-outlined" style="font-size: 16px;">description</span> Report Ready
+      </button>
+      <button class="preset-chip" onclick="applyPreset('reminder')">
+        <span class="material-symbols-outlined" style="font-size: 16px;">alarm</span> Equipment Reminder
+      </button>
+      <button class="preset-chip" onclick="applyPreset('update')">
+        <span class="material-symbols-outlined" style="font-size: 16px;">system_update</span> New Feature
+      </button>
+    </div>
+
     <div id="statusAlert" class="alert"></div>
 
     <div class="grid-layout">
@@ -272,16 +313,16 @@
       <form id="notifyForm">
         <div class="form-group">
           <label for="title">Notification Title *</label>
-          <input type="text" id="title" class="form-control" placeholder="e.g. CALSEVA Calibration Reminder" required>
+          <input type="text" id="title" class="form-control" placeholder="e.g. CalSEVA Services" required>
         </div>
 
         <div class="form-group">
           <label for="body">Message Body *</label>
-          <textarea id="body" class="form-control" placeholder="Your calibration certificate is due for renewal." required></textarea>
+          <textarea id="body" class="form-control" placeholder="Please try out our best services for reports, reminders, and many more." required></textarea>
         </div>
 
         <div class="form-group">
-          <label for="imageUrl">Optional Image URL</label>
+          <label for="imageUrl">Optional Image URL (Banner)</label>
           <input type="url" id="imageUrl" class="form-control" placeholder="https://example.com/banner.png">
         </div>
 
@@ -316,28 +357,29 @@
         </button>
       </form>
 
-      <!-- Live Preview -->
+      <!-- Live Android / Play Store Style System Preview -->
       <div>
         <div class="preview-card">
           <h3>
-            <span class="material-symbols-outlined">preview</span>
-            Live Notification Preview
+            <span class="material-symbols-outlined" style="font-size: 18px;">phone_android</span>
+            Play Store / System Alert Preview
           </h3>
 
           <div class="device-preview">
             <div class="device-preview-header">
-              <div class="device-preview-icon">
-                <span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
-              </div>
-              <div style="flex: 1;">
-                <h4 id="previewTitle" style="font-size: 14px; font-weight: 600;">CALSEVA Calibration Reminder</h4>
-                <p id="previewBody" style="font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 2px;">
-                  Your calibration certificate is due for renewal.
+              <img src="/caliprofile-pages/Calsevalogo.png" class="device-preview-icon" alt="Logo">
+              <div style="flex: 1; overflow: hidden;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <h4 id="previewTitle" style="font-size: 14px; font-weight: 700; color: #FFFFFF;">CalSEVA Services</h4>
+                  <span style="font-size: 11px; color: rgba(255,255,255,0.6);">12:18 am</span>
+                </div>
+                <p id="previewBody" style="font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 3px; line-height: 1.35;">
+                  Please try out our best services for reports, reminders, and many more.
                 </p>
               </div>
             </div>
             <div id="previewImageContainer" style="margin-top: 10px; display: none;">
-              <img id="previewImg" src="" style="width: 100%; max-height: 120px; border-radius: 8px; object-fit: cover;">
+              <img id="previewImg" src="" style="width: 100%; max-height: 120px; border-radius: 10px; object-fit: cover;">
             </div>
           </div>
         </div>
@@ -370,20 +412,35 @@
   </div>
 
   <script>
-    // Real-time preview updates
     const titleInput = document.getElementById('title');
     const bodyInput = document.getElementById('body');
     const imageInput = document.getElementById('imageUrl');
+    const actionInput = document.getElementById('actionUrl');
 
-    titleInput.addEventListener('input', () => {
-      document.getElementById('previewTitle').innerText = titleInput.value || 'CALSEVA Calibration Reminder';
-    });
+    function applyPreset(type) {
+      if (type === 'services') {
+        titleInput.value = "CalSEVA Services 🌟";
+        bodyInput.value = "Please try out our best services for reports, reminders, and many more.";
+        actionInput.value = "/home/home.html";
+      } else if (type === 'report') {
+        titleInput.value = "Calibration Report Ready 📊";
+        bodyInput.value = "Your calibration certificate CALS/2026/001 is now generated and ready to view.";
+        actionInput.value = "/cali-report/cali-report.html";
+      } else if (type === 'reminder') {
+        titleInput.value = "Equipment Due Reminder ⏰";
+        bodyInput.value = "Calibration is due in 3 days for Pressure Gauge PG-402. Tap to review schedule.";
+        actionInput.value = "/schedule-work/schedule-work.html";
+      } else if (type === 'update') {
+        titleInput.value = "New Tools Available 🚀";
+        bodyInput.value = "Check out the new RTD & Thermocouple conversion calculators on CalSEVA.";
+        actionInput.value = "/cali-unit-convert/cali-unit-convert.html";
+      }
+      updatePreview();
+    }
 
-    bodyInput.addEventListener('input', () => {
-      document.getElementById('previewBody').innerText = bodyInput.value || 'Your calibration certificate is due for renewal.';
-    });
-
-    imageInput.addEventListener('input', () => {
+    function updatePreview() {
+      document.getElementById('previewTitle').innerText = titleInput.value || 'CalSEVA Services';
+      document.getElementById('previewBody').innerText = bodyInput.value || 'Please try out our best services for reports, reminders, and many more.';
       const container = document.getElementById('previewImageContainer');
       const img = document.getElementById('previewImg');
       if (imageInput.value.trim()) {
@@ -392,19 +449,18 @@
       } else {
         container.style.display = 'none';
       }
-    });
+    }
+
+    titleInput.addEventListener('input', updatePreview);
+    bodyInput.addEventListener('input', updatePreview);
+    imageInput.addEventListener('input', updatePreview);
 
     function toggleTargetInput() {
       const selected = document.querySelector('input[name="targetType"]:checked').value;
       const targetGroup = document.getElementById('targetRefGroup');
-      if (selected === 'single' || selected === 'multiple') {
-        targetGroup.style.display = 'block';
-      } else {
-        targetGroup.style.display = 'none';
-      }
+      targetGroup.style.display = (selected === 'single' || selected === 'multiple') ? 'block' : 'none';
     }
 
-    // Submit Handler
     document.getElementById('notifyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const sendBtn = document.getElementById('sendBtn');
@@ -414,7 +470,7 @@
         title: titleInput.value.trim(),
         body: bodyInput.value.trim(),
         image_url: imageInput.value.trim() || null,
-        action_url: document.getElementById('actionUrl').value.trim() || '/home/home.html',
+        action_url: actionInput.value.trim() || '/home/home.html',
         target_type: document.querySelector('input[name="targetType"]:checked').value,
         target_reference: document.getElementById('targetRef').value.trim() || null
       };
@@ -451,7 +507,6 @@
       }
     });
 
-    // Load History
     async function loadHistory() {
       const tbody = document.getElementById('historyBody');
       try {

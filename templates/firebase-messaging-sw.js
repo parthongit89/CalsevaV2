@@ -24,8 +24,8 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = (payload.notification && payload.notification.title) || 'CalSEVA Alert';
   const notificationOptions = {
     body: (payload.notification && payload.notification.body) || '',
-    icon: (payload.notification && payload.notification.icon) || '/caliprofile-pages/icon-192.png',
-    badge: '/caliprofile-pages/icon-192.png',
+    icon: (payload.notification && payload.notification.icon) || '/caliprofile-pages/Calsevalogo.png',
+    badge: '/caliprofile-pages/Calsevalogo.png',
     image: (payload.notification && payload.notification.image) || null,
     data: {
       url: (payload.data && payload.data.url) || '/home/home.html'

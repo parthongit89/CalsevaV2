@@ -95,7 +95,7 @@
         const notification = payload.notification || {};
         const title = notification.title || 'CalSEVA Alert';
         const body = notification.body || '';
-        const icon = notification.icon || '/caliprofile-pages/icon-192.png';
+        const icon = notification.icon || '/caliprofile-pages/Calsevalogo.png';
         const clickUrl = (payload.data && payload.data.url) || '/home/home.html';
 
         showForegroundToast(title, body, icon, clickUrl);

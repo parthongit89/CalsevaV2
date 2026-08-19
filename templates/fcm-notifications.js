@@ -38,12 +38,13 @@
 
   function obtainAndSendToken(messaging, isManual = false) {
     if (!('serviceWorker' in navigator)) {
-      if (isManual) alert('Service Workers are not supported on this browser.');
+      if (isManual) alert('❌ Service Workers are not supported on this browser.');
       return;
     }
 
     navigator.serviceWorker.register('/firebase-messaging-sw.js')
       .then((registration) => {
+        if (isManual) console.log('[CalSEVA FCM] Service Worker registered:', registration);
         return messaging.getToken({
           vapidKey: vapidKey,
           serviceWorkerRegistration: registration
@@ -52,17 +53,24 @@
       .then((token) => {
         if (token) {
           console.log('[CalSEVA FCM] Obtained FCM Token:', token);
-          sendTokenToBackend(token).then(() => {
-            if (isManual) alert('✅ Phone device successfully registered for push notifications!');
+          sendTokenToBackend(token).then((res) => {
+            if (isManual) {
+              if (res && res.success) {
+                alert('🎉 SUCCESS! Phone device registered in database. You can now send push notifications!');
+                if (typeof loadStats === 'function') loadStats();
+              } else {
+                alert('⚠️ Token saved locally but backend response: ' + (res ? res.error : 'Unknown'));
+              }
+            }
           });
         } else {
-          if (isManual) alert('⚠️ Could not retrieve push token. Please check FIREBASE_API_KEY in Render.');
+          if (isManual) alert('⚠️ Google returned empty FCM token. Please check FIREBASE_API_KEY in Render.');
         }
       })
       .catch((err) => {
         console.error('[CalSEVA FCM] Token error:', err);
         if (isManual) {
-          alert('❌ Push Token Error: ' + (err.message || err) + '\n\nPlease ensure FIREBASE_API_KEY is configured in Render Environment Variables.');
+          alert('❌ Google FCM Token Error:\n' + (err.message || err) + '\n\nPlease check VAPID Key or FIREBASE_API_KEY!');
         }
       });
   }
@@ -128,20 +136,22 @@
     }
   }
 
-  // Global manual trigger to force-sync FCM Token with alert feedback
+  // Global manual trigger to force-sync FCM Token with full visual step alerts
   window.syncFcmDeviceToken = function() {
-    if (typeof firebase !== 'undefined' && firebase.messaging) {
-      const messaging = firebase.messaging();
-      Notification.requestPermission().then((perm) => {
-        if (perm === 'granted') {
-          obtainAndSendToken(messaging, true);
-        } else {
-          alert('Notification permission was blocked in browser settings. Please enable notifications for this site in Chrome site settings.');
-        }
-      });
-    } else {
-      alert('Firebase Messaging SDK is initializing. Please try again in 2 seconds.');
+    if (typeof firebase === 'undefined' || !firebase.messaging) {
+      alert('⚙️ Initializing Firebase Messaging SDK... Please tap again in 2 seconds.');
+      initFCM();
+      return;
     }
+
+    const messaging = firebase.messaging();
+    Notification.requestPermission().then((perm) => {
+      if (perm === 'granted') {
+        obtainAndSendToken(messaging, true);
+      } else {
+        alert('❌ Notification permission is DENIED or BLOCKED in Chrome settings.\n\nPlease tap Lock Icon (🔒) in Chrome address bar -> Site settings -> Notifications -> Allow.');
+      }
+    });
   };
 
   // Display Android Native System Card (SMS / Play Store / Samsung Style)

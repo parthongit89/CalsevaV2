@@ -11,17 +11,17 @@ from sqlalchemy import text
 from dotenv import load_dotenv
 
 from database import db
-from models import User, Notification
+from models import User, Notification, Schedule, Report
 
 # Load environment variables from .env if present
 load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='templates')
-app.secret_key = os.environ.get('SECRET_KEY', 'calseva_super_secret_session_encryption_key')
+app.secret_key = os.environ.get('SECRET_KEY', 'calseva_default_secret_key_change_in_production')
 app.permanent_session_lifetime = datetime.timedelta(days=30)
 
 # Configure PostgreSQL Database
-db_url = os.environ.get('DATABASE_URL', 'postgresql://postgres:parthpostgress89##@localhost:5432/calsevav2')
+db_url = os.environ.get('DATABASE_URL', 'postgresql://postgres@localhost:5432/calsevav2')
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
@@ -178,7 +178,7 @@ def send_otp_email(to_email, otp_code):
 
     else:
         # SMTP Fallback (default for local development)
-        app_password = os.environ.get('GMAIL_APP_PASSWORD', 'wvib cbaq dsza sexe')
+        app_password = os.environ.get('GMAIL_APP_PASSWORD', '')
         msg = MIMEMultipart()
         msg['From'] = f"Calseva Support <{sender}>"
         msg['To'] = to_email
@@ -221,7 +221,9 @@ def is_valid_password(password):
 # Helper to format notification relative timestamps
 def format_relative_time(dt):
     try:
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if dt and dt.tzinfo is None:
+            dt = dt.replace(tzinfo=datetime.timezone.utc)
         diff = now - dt
         if diff.days > 0:
             if diff.days == 1:
@@ -571,108 +573,48 @@ def home_route():
         return redirect(url_for('login_route'))
         
     user_id = session['user_id']
-    
-    # Check and initialize tables if they don't exist
-    try:
-        # Check if table exists and has old schema
-        reports_need_recreate = False
-        try:
-            db.session.execute(text(f"SELECT cert FROM reports_{user_id} LIMIT 1"))
-        except Exception:
-            db.session.rollback()
-            try:
-                db.session.execute(text(f"SELECT id FROM reports_{user_id} LIMIT 1"))
-                reports_need_recreate = True
-            except Exception:
-                db.session.rollback()
-
-        if reports_need_recreate:
-            db.session.execute(text(f"DROP TABLE IF EXISTS reports_{user_id}"))
-            db.session.commit()
-
-        db.session.execute(text(f"""
-            CREATE TABLE IF NOT EXISTS schedules_{user_id} (
-                id SERIAL PRIMARY KEY,
-                title VARCHAR(200) NOT NULL,
-                due_time TIMESTAMP NOT NULL,
-                is_completed BOOLEAN DEFAULT FALSE
-            )
-        """))
-        db.session.execute(text(f"""
-            CREATE TABLE IF NOT EXISTS reports_{user_id} (
-                id BIGINT PRIMARY KEY,
-                cert VARCHAR(200) NOT NULL,
-                desc_text VARCHAR(200) NOT NULL,
-                date_cal VARCHAR(100) NOT NULL,
-                payload TEXT NOT NULL,
-                status VARCHAR(50) DEFAULT 'completed'
-            )
-        """))
-        db.session.commit()
-    except Exception as init_err:
-        print(f"Error initializing user tables: {init_err}")
-        db.session.rollback()
 
     # Pre-seed test user 12345 tables if they are empty
     if user_id == '12345':
         try:
-            s_count = db.session.execute(text(f"SELECT COUNT(*) FROM schedules_{user_id}")).scalar() or 0
+            s_count = Schedule.query.filter_by(employee_id=user_id).count()
             if s_count == 0:
-                # Seed test schedules
-                now = datetime.datetime.now()
-                db.session.execute(text(f"""
-                    INSERT INTO schedules_{user_id} (title, due_time) VALUES
-                    ('Calibration of Pressure gauge', :overdue_time),
-                    ('Temperature chamber test run', :approaching_time),
-                    ('Multimeter verification check', :future_time)
-                """), {
-                    'overdue_time': now - datetime.timedelta(hours=1, minutes=30),
-                    'approaching_time': now + datetime.timedelta(minutes=30),
-                    'future_time': now + datetime.timedelta(days=2)
-                })
+                now = datetime.datetime.now(datetime.timezone.utc)
+                s1 = Schedule(employee_id=user_id, title='Calibration of Pressure gauge', due_time=now - datetime.timedelta(hours=1, minutes=30))
+                s2 = Schedule(employee_id=user_id, title='Temperature chamber test run', due_time=now + datetime.timedelta(minutes=30))
+                s3 = Schedule(employee_id=user_id, title='Multimeter verification check', due_time=now + datetime.timedelta(days=2))
+                db.session.add_all([s1, s2, s3])
                 
-                # Seed mock reports matching the new columns
-                db.session.execute(text(f"""
-                    INSERT INTO reports_{user_id} (id, cert, desc_text, date_cal, payload, status) VALUES
-                    (1, 'CALS/2026/001', 'Pressure Gauge', '2026-06-29', :payload1, 'pending'),
-                    (2, 'CALS/2026/002', 'Pressure Gauge', '2026-06-29', :payload2, 'completed')
-                """), {
-                    'payload1': '{"inwardNumber":"INW/2026/102","descriptionSelect":"Pressure Gauge"}',
-                    'payload2': '{"inwardNumber":"INW/2026/103","descriptionSelect":"Pressure Gauge"}'
-                })
+                r1 = Report(id=1, employee_id=user_id, cert='CALS/2026/001', desc_text='Pressure Gauge', date_cal='2026-06-29', payload='{"inwardNumber":"INW/2026/102","descriptionSelect":"Pressure Gauge"}', status='pending')
+                r2 = Report(id=2, employee_id=user_id, cert='CALS/2026/002', desc_text='Pressure Gauge', date_cal='2026-06-29', payload='{"inwardNumber":"INW/2026/103","descriptionSelect":"Pressure Gauge"}', status='completed')
+                db.session.add_all([r1, r2])
                 db.session.commit()
         except Exception as seed_err:
             print(f"Error seeding user 12345: {seed_err}")
             db.session.rollback()
 
-    # Fetch stats and schedules from unique tables
     try:
-        schedules_count = db.session.execute(text(f"SELECT COUNT(*) FROM schedules_{user_id}")).scalar() or 0
-        reports_count = db.session.execute(text(f"SELECT COUNT(*) FROM reports_{user_id}")).scalar() or 0
-        
-        # Get all active schedules ordered by due_time
-        schedules_rows = db.session.execute(text(f"SELECT id, title, due_time FROM schedules_{user_id} ORDER BY due_time ASC")).fetchall()
-        
-        # Check if there are any reports with a status of 'pending'
-        pending_count = db.session.execute(text(f"SELECT COUNT(*) FROM reports_{user_id} WHERE status = 'pending'")).scalar() or 0
+        schedules_rows = Schedule.query.filter_by(employee_id=user_id).order_by(Schedule.due_time.asc()).all()
+        schedules_count = len(schedules_rows)
+        reports_count = Report.query.filter_by(employee_id=user_id).count()
+        pending_count = Report.query.filter_by(employee_id=user_id, status='pending').count()
         has_pending_reports = pending_count > 0
     except Exception as query_err:
         print(f"Error querying statistics: {query_err}")
+        db.session.rollback()
         schedules_count = 0
         reports_count = 0
         schedules_rows = []
         has_pending_reports = False
 
     schedules = []
-    now = datetime.datetime.now()
-    for row in schedules_rows:
-        due_time = row[2]
+    now = datetime.datetime.now(datetime.timezone.utc)
+    for s_item in schedules_rows:
+        due_time = s_item.due_time
+        if due_time.tzinfo is None:
+            due_time = due_time.replace(tzinfo=datetime.timezone.utc)
         time_diff = due_time - now
         
-        # Color coding:
-        # - Overdue (due_time has passed) -> overdue-red
-        # - Approaching (due_time in <= 1 hour) -> approaching-yellow
-        # - Normal -> normal-green
         if time_diff.total_seconds() < 0:
             color_class = "overdue-red"
         elif time_diff.total_seconds() <= 3600:
@@ -681,8 +623,8 @@ def home_route():
             color_class = "normal-green"
             
         schedules.append({
-            'id': row[0],
-            'title': row[1],
+            'id': s_item.id,
+            'title': s_item.title,
             'due_time': due_time.strftime('%Y-%m-%d %H:%M:%S'),
             'color_class': color_class
         })
@@ -702,18 +644,14 @@ def delete_schedule(schedule_id):
         
     user_id = session['user_id']
     try:
-        title = "Unknown"
-        try:
-            row = db.session.execute(text(f"SELECT title FROM schedules_{user_id} WHERE id = :id"), {'id': schedule_id}).fetchone()
-            if row:
-                title = row[0]
-        except Exception:
-            pass
-
-        db.session.execute(text(f"DELETE FROM schedules_{user_id} WHERE id = :id"), {'id': schedule_id})
+        item = Schedule.query.filter_by(id=schedule_id, employee_id=user_id).first()
+        if not item:
+            return jsonify({'success': False, 'error': 'Schedule not found'}), 404
+            
+        title = item.title
+        db.session.delete(item)
         db.session.commit()
 
-        # Add schedule deletion notification
         try:
             notif = Notification(
                 employee_id=user_id,
@@ -724,9 +662,9 @@ def delete_schedule(schedule_id):
             db.session.commit()
         except Exception as notif_err:
             print(f"Error logging schedule deletion notification: {notif_err}")
+            db.session.rollback()
         
-        # Fetch new schedules count
-        new_count = db.session.execute(text(f"SELECT COUNT(*) FROM schedules_{user_id}")).scalar() or 0
+        new_count = Schedule.query.filter_by(employee_id=user_id).count()
         return jsonify({'success': True, 'new_count': new_count})
     except Exception as delete_err:
         print(f"Error deleting schedule: {delete_err}")
@@ -740,23 +678,13 @@ def get_schedules():
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
     user_id = session['user_id']
     try:
-        # Check and initialize tables if they don't exist
-        db.session.execute(text(f"""
-            CREATE TABLE IF NOT EXISTS schedules_{user_id} (
-                id SERIAL PRIMARY KEY,
-                title VARCHAR(200) NOT NULL,
-                due_time TIMESTAMP NOT NULL,
-                is_completed BOOLEAN DEFAULT FALSE
-            )
-        """))
-        db.session.commit()
-        
-        rows = db.session.execute(text(f"SELECT id, title, due_time FROM schedules_{user_id} ORDER BY due_time ASC")).fetchall()
-        
+        rows = Schedule.query.filter_by(employee_id=user_id).order_by(Schedule.due_time.asc()).all()
         schedules = []
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(datetime.timezone.utc)
         for r in rows:
-            due_time = r[2]
+            due_time = r.due_time
+            if due_time.tzinfo is None:
+                due_time = due_time.replace(tzinfo=datetime.timezone.utc)
             time_diff = due_time - now
             if time_diff.total_seconds() < 0:
                 color_class = "overdue-red"
@@ -766,13 +694,14 @@ def get_schedules():
                 color_class = "normal-green"
                 
             schedules.append({
-                'id': r[0],
-                'title': r[1],
+                'id': r.id,
+                'title': r.title,
                 'date': due_time.strftime('%Y-%m-%d'),
                 'color_class': color_class
             })
         return jsonify({'success': True, 'schedules': schedules})
     except Exception as e:
+        db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # Create schedule route (POST only)
@@ -787,33 +716,23 @@ def create_schedule():
         
     title = data['title'].strip()
     date_str = data['date'].strip()
-    time_str = data['time'].strip() # e.g. "08:30 PM" or "10:00 AM"
+    time_str = data['time'].strip()
     
     if not title or not date_str or not time_str:
         return jsonify({'success': False, 'error': 'Empty fields'}), 400
         
     try:
-        # Parse date and 12-hour AM/PM time
         due_time_str = f"{date_str} {time_str}"
-        due_time = datetime.datetime.strptime(due_time_str, '%Y-%m-%d %I:%M %p')
+        due_time = datetime.datetime.strptime(due_time_str, '%Y-%m-%d %I:%M %p').replace(tzinfo=datetime.timezone.utc)
         
-        # Ensure table exists
-        db.session.execute(text(f"""
-            CREATE TABLE IF NOT EXISTS schedules_{user_id} (
-                id SERIAL PRIMARY KEY,
-                title VARCHAR(200) NOT NULL,
-                due_time TIMESTAMP NOT NULL,
-                is_completed BOOLEAN DEFAULT FALSE
-            )
-        """))
-        
-        db.session.execute(text(f"""
-            INSERT INTO schedules_{user_id} (title, due_time) 
-            VALUES (:title, :due_time)
-        """), {'title': title, 'due_time': due_time})
+        new_schedule = Schedule(
+            employee_id=user_id,
+            title=title,
+            due_time=due_time
+        )
+        db.session.add(new_schedule)
         db.session.commit()
 
-        # Add schedule creation notification
         try:
             notif = Notification(
                 employee_id=user_id,
@@ -824,11 +743,13 @@ def create_schedule():
             db.session.commit()
         except Exception as notif_err:
             print(f"Error logging schedule notification: {notif_err}")
+            db.session.rollback()
         
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
 # Get reports route (GET)
 @app.route('/get-reports', methods=['GET'])
 def get_reports():
@@ -836,45 +757,16 @@ def get_reports():
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
     user_id = session['user_id']
     try:
-        # Check if table exists and has old schema
-        reports_need_recreate = False
-        try:
-            db.session.execute(text(f"SELECT cert FROM reports_{user_id} LIMIT 1"))
-        except Exception:
-            db.session.rollback()
-            try:
-                db.session.execute(text(f"SELECT id FROM reports_{user_id} LIMIT 1"))
-                reports_need_recreate = True
-            except Exception:
-                db.session.rollback()
-
-        if reports_need_recreate:
-            db.session.execute(text(f"DROP TABLE IF EXISTS reports_{user_id}"))
-            db.session.commit()
-
-        # Ensure table exists
-        db.session.execute(text(f"""
-            CREATE TABLE IF NOT EXISTS reports_{user_id} (
-                id BIGINT PRIMARY KEY,
-                cert VARCHAR(200) NOT NULL,
-                desc_text VARCHAR(200) NOT NULL,
-                date_cal VARCHAR(100) NOT NULL,
-                payload TEXT NOT NULL,
-                status VARCHAR(50) DEFAULT 'completed'
-            )
-        """))
-        db.session.commit()
-        
-        rows = db.session.execute(text(f"SELECT id, cert, desc_text, date_cal, payload, status FROM reports_{user_id} ORDER BY id DESC")).fetchall()
+        rows = Report.query.filter_by(employee_id=user_id).order_by(Report.id.desc()).all()
         reports = []
         for r in rows:
             reports.append({
-                'id': int(r[0]),
-                'cert': r[1],
-                'desc': r[2],
-                'date': r[3],
-                'payload': r[4],
-                'status': r[5]
+                'id': int(r.id),
+                'cert': r.cert,
+                'desc': r.desc_text,
+                'date': r.date_cal,
+                'payload': r.payload,
+                'status': r.status
             })
         return jsonify({'success': True, 'reports': reports})
     except Exception as e:
@@ -899,55 +791,27 @@ def create_report():
     status = data.get('status', 'completed').strip()
     
     try:
-        # Check if table exists and has old schema
-        reports_need_recreate = False
-        try:
-            db.session.execute(text(f"SELECT cert FROM reports_{user_id} LIMIT 1"))
-        except Exception:
-            db.session.rollback()
-            try:
-                db.session.execute(text(f"SELECT id FROM reports_{user_id} LIMIT 1"))
-                reports_need_recreate = True
-            except Exception:
-                db.session.rollback()
-
-        if reports_need_recreate:
-            db.session.execute(text(f"DROP TABLE IF EXISTS reports_{user_id}"))
-            db.session.commit()
-
-        # Ensure table exists
-        db.session.execute(text(f"""
-            CREATE TABLE IF NOT EXISTS reports_{user_id} (
-                id BIGINT PRIMARY KEY,
-                cert VARCHAR(200) NOT NULL,
-                desc_text VARCHAR(200) NOT NULL,
-                date_cal VARCHAR(100) NOT NULL,
-                payload TEXT NOT NULL,
-                status VARCHAR(50) DEFAULT 'completed'
+        existing_report = Report.query.filter_by(id=report_id, employee_id=user_id).first()
+        if existing_report:
+            existing_report.cert = cert
+            existing_report.desc_text = desc
+            existing_report.date_cal = date
+            existing_report.payload = payload
+            existing_report.status = status
+        else:
+            new_report = Report(
+                id=report_id,
+                employee_id=user_id,
+                cert=cert,
+                desc_text=desc,
+                date_cal=date,
+                payload=payload,
+                status=status
             )
-        """))
-        
-        # Insert or update
-        db.session.execute(text(f"""
-            INSERT INTO reports_{user_id} (id, cert, desc_text, date_cal, payload, status)
-            VALUES (:id, :cert, :desc_text, :date, :payload, :status)
-            ON CONFLICT (id) DO UPDATE SET
-                cert = EXCLUDED.cert,
-                desc_text = EXCLUDED.desc_text,
-                date_cal = EXCLUDED.date_cal,
-                payload = EXCLUDED.payload,
-                status = EXCLUDED.status
-        """), {
-            'id': report_id,
-            'cert': cert,
-            'desc_text': desc,
-            'date': date,
-            'payload': payload,
-            'status': status
-        })
+            db.session.add(new_report)
+            
         db.session.commit()
 
-        # Add report creation notification
         try:
             notif = Notification(
                 employee_id=user_id,
@@ -958,6 +822,7 @@ def create_report():
             db.session.commit()
         except Exception as notif_err:
             print(f"Error logging report creation notification: {notif_err}")
+            db.session.rollback()
             
         return jsonify({'success': True})
     except Exception as e:
@@ -971,18 +836,14 @@ def delete_report(report_id):
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
     user_id = session['user_id']
     try:
-        cert = "Unknown"
-        try:
-            row = db.session.execute(text(f"SELECT cert FROM reports_{user_id} WHERE id = :id"), {'id': report_id}).fetchone()
-            if row:
-                cert = row[0]
-        except Exception:
-            pass
-
-        db.session.execute(text(f"DELETE FROM reports_{user_id} WHERE id = :id"), {'id': report_id})
+        item = Report.query.filter_by(id=report_id, employee_id=user_id).first()
+        if not item:
+            return jsonify({'success': False, 'error': 'Report not found'}), 404
+            
+        cert = item.cert
+        db.session.delete(item)
         db.session.commit()
 
-        # Add report deletion notification
         try:
             notif = Notification(
                 employee_id=user_id,
@@ -993,11 +854,13 @@ def delete_report(report_id):
             db.session.commit()
         except Exception as notif_err:
             print(f"Error logging report deletion notification: {notif_err}")
+            db.session.rollback()
 
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
 # Profile Page dynamic route
 @app.route('/caliprofile/caliprofile.html', methods=['GET'])
 def profile_route():
@@ -1027,8 +890,17 @@ def serve_avatar(employee_id):
         if not user or not user.profile_image:
             return "", 404
             
+        image_data = user.profile_image
+        mimetype = 'image/jpeg'
+        if image_data.startswith(b'\x89PNG'):
+            mimetype = 'image/png'
+        elif image_data.startswith(b'GIF8'):
+            mimetype = 'image/gif'
+        elif image_data.startswith(b'RIFF') and image_data[8:12] == b'WEBP':
+            mimetype = 'image/webp'
+
         from flask import Response
-        return Response(user.profile_image, mimetype='image/jpeg')
+        return Response(image_data, mimetype=mimetype)
     except Exception as e:
         print(f"Error serving avatar: {e}")
         db.session.rollback()

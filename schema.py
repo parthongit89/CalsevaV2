@@ -5,18 +5,18 @@ import os
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from database import db
-from models import User
+from models import User, Notification, Schedule, Report
 
 load_dotenv()
 
 def create_database_if_not_exists():
-    db_url = os.environ.get('DATABASE_URL', 'postgresql://postgres:parthpostgress89##@localhost:5432/calsevav2')
+    db_url = os.environ.get('DATABASE_URL', 'postgresql://postgres@localhost:5432/calsevav2')
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
         
     result = urlparse(db_url)
     username = result.username or 'postgres'
-    password = result.password or 'parthpostgress89##'
+    password = result.password or ''
     host = result.hostname or 'localhost'
     port = result.port or 5432
     database = result.path.lstrip('/') or 'calsevav2'
@@ -34,10 +34,10 @@ def create_database_if_not_exists():
         cursor = conn.cursor()
         
         # Check if target db exists
-        cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{database}'")
+        cursor.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s", (database,))
         exists = cursor.fetchone()
         if not exists:
-            cursor.execute(f"CREATE DATABASE {database}")
+            cursor.execute(f'CREATE DATABASE "{database}"')
             print(f"Database '{database}' created successfully.")
         else:
             print(f"Database '{database}' already exists.")
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     # 2. Setup Flask app context to drop/create tables
     app = Flask(__name__)
-    db_url = os.environ.get('DATABASE_URL', 'postgresql://postgres:parthpostgress89##@localhost:5432/calsevav2')
+    db_url = os.environ.get('DATABASE_URL', 'postgresql://postgres@localhost:5432/calsevav2')
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
         

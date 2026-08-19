@@ -60,9 +60,11 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // Skip API routes / database operations / dynamic login templates (always go to network)
+  // Skip API routes / database operations / dynamic login templates / FCM scripts (always go to network)
   if (url.pathname.startsWith('/api') || 
       url.pathname === '/ping' ||
+      url.pathname === '/firebase-messaging-sw.js' ||
+      url.pathname === '/fcm-notifications.js' ||
       url.pathname === '/get-notifications' ||
       url.pathname.includes('/cal-login') || 
       url.pathname.includes('/cal-signup') ||

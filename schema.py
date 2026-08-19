@@ -5,7 +5,7 @@ import os
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from database import db
-from models import User, Notification, Schedule, Report
+from models import User, Notification, Schedule, Report, FCMToken, NotificationHistory
 
 load_dotenv()
 
@@ -72,11 +72,14 @@ if __name__ == "__main__":
             user = User(
                 employee_id='12345',
                 email='parthongit89@gmail.com',
-                phone='1234567890'
+                phone='1234567890',
+                is_admin=True
             )
             user.set_password('Password123!')
             db.session.add(user)
             db.session.commit()
-            print("Seeded test user '12345' with password 'Password123!' successfully.")
+            print("Seeded test admin user '12345' with password 'Password123!' successfully.")
         else:
-            print("Test user '12345' already exists in database.")
+            test_user.is_admin = True
+            db.session.commit()
+            print("Test user '12345' verified as admin in database.")

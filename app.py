@@ -11,7 +11,7 @@ from sqlalchemy import text
 from dotenv import load_dotenv
 
 from database import db
-from models import User, Notification, Schedule, Report
+from models import User, Notification, Schedule, Report, FCMToken, NotificationHistory
 
 # Load environment variables from .env if present
 load_dotenv()
@@ -29,6 +29,35 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
+# Initialize Firebase Admin SDK for FCM HTTP v1 push notifications
+firebase_admin_app = None
+try:
+    import firebase_admin
+    from firebase_admin import credentials, messaging
+    
+    svc_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
+    svc_path = os.environ.get('FIREBASE_SERVICE_ACCOUNT_PATH')
+    
+    if svc_json:
+        import json
+        import base64
+        try:
+            decoded = base64.b64decode(svc_json).decode('utf-8')
+            cred_dict = json.loads(decoded)
+        except Exception:
+            cred_dict = json.loads(svc_json)
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin_app = firebase_admin.initialize_app(cred)
+        print("[Firebase Admin SDK] Initialized successfully from JSON environment secret.")
+    elif svc_path and os.path.exists(svc_path):
+        cred = credentials.Certificate(svc_path)
+        firebase_admin_app = firebase_admin.initialize_app(cred)
+        print(f"[Firebase Admin SDK] Initialized successfully from file: {svc_path}")
+    else:
+        print("[Firebase Admin SDK] Credentials not provided in env. Set FIREBASE_SERVICE_ACCOUNT_JSON to enable live FCM push delivery.")
+except Exception as fcm_init_err:
+    print(f"[Firebase Admin SDK] Initialization notice: {fcm_init_err}")
+
 # Context processor to inject Firebase configuration parameters into all templates
 @app.context_processor
 def inject_firebase_config():
@@ -36,8 +65,10 @@ def inject_firebase_config():
         'firebase_config': {
             'apiKey': os.environ.get('FIREBASE_API_KEY', ''),
             'authDomain': os.environ.get('FIREBASE_AUTH_DOMAIN', ''),
-            'projectId': os.environ.get('FIREBASE_PROJECT_ID', ''),
-            'appId': os.environ.get('FIREBASE_APP_ID', '')
+            'projectId': os.environ.get('FIREBASE_PROJECT_ID', 'calseva-2026'),
+            'messagingSenderId': os.environ.get('FIREBASE_MESSAGING_SENDER_ID', '104417696551'),
+            'appId': os.environ.get('FIREBASE_APP_ID', ''),
+            'vapidKey': os.environ.get('FIREBASE_VAPID_KEY', 'BG9hLohg7jKRV_NC6NxVLCYr2J136Qldq8PQFMJ1ogwBuQBEs70EwJzINX3hrInBXtK_K_jcLEAj05mwKCLzRC4')
         }
     }
 
@@ -947,6 +978,228 @@ def notifications_route():
         flash("Invalid Credentials")
         return redirect(url_for('login_route'))
     return render_template('notifications/notifications.html')
+
+# Firebase Messaging Service Worker route (served at root domain)
+@app.route('/firebase-messaging-sw.js')
+def serve_firebase_sw():
+    return send_from_directory('templates', 'firebase-messaging-sw.js', mimetype='application/javascript')
+
+# FCM Client Notification helper script route
+@app.route('/fcm-notifications.js')
+def serve_fcm_js():
+    return send_from_directory('templates', 'fcm-notifications.js', mimetype='application/javascript')
+
+# Register or update FCM Token endpoint
+@app.route('/api/register-fcm-token', methods=['POST'])
+def register_fcm_token():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        
+    data = request.get_json()
+    if not data or 'fcm_token' not in data:
+        return jsonify({'success': False, 'error': 'Missing FCM token'}), 400
+        
+    user_id = session['user_id']
+    token_str = data['fcm_token'].strip()
+    device_info = data.get('device_info', '')
+    
+    try:
+        existing_token = FCMToken.query.filter_by(fcm_token=token_str).first()
+        if existing_token:
+            existing_token.employee_id = user_id
+            existing_token.device_info = device_info
+            existing_token.is_active = True
+            existing_token.updated_at = datetime.datetime.now(datetime.timezone.utc)
+        else:
+            new_token_record = FCMToken(
+                employee_id=user_id,
+                fcm_token=token_str,
+                device_info=device_info,
+                is_active=True
+            )
+            db.session.add(new_token_record)
+            
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Admin Send Notification API endpoint
+@app.route('/api/admin/send-notification', methods=['POST'])
+def admin_send_notification():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        
+    current_user_id = session['user_id']
+    user = User.query.filter_by(employee_id=current_user_id).first()
+    
+    admin_ids = [emp.strip() for emp in os.environ.get('ADMIN_EMPLOYEE_IDS', '12345').split(',') if emp.strip()]
+    is_admin_user = (user and user.is_admin) or (current_user_id in admin_ids)
+    
+    if not is_admin_user:
+        return jsonify({'success': False, 'error': 'Forbidden: Admin access required'}), 403
+        
+    data = request.get_json()
+    if not data or 'title' not in data or 'body' not in data:
+        return jsonify({'success': False, 'error': 'Missing title or body'}), 400
+        
+    title = data['title'].strip()
+    body = data['body'].strip()
+    image_url = data.get('image_url')
+    action_url = data.get('action_url', '/home/home.html')
+    target_type = data.get('target_type', 'all')
+    target_ref = data.get('target_reference')
+    
+    tokens_query = FCMToken.query.filter_by(is_active=True)
+    target_users = []
+    
+    if target_type == 'single' and target_ref:
+        target_emp = target_ref.strip()
+        tokens_query = tokens_query.filter_by(employee_id=target_emp)
+        target_users = [target_emp]
+    elif target_type == 'multiple' and target_ref:
+        emp_list = [e.strip() for e in target_ref.split(',') if e.strip()]
+        tokens_query = tokens_query.filter(FCMToken.employee_id.in_(emp_list))
+        target_users = emp_list
+    else:
+        all_users = User.query.all()
+        target_users = [u.employee_id for u in all_users]
+        
+    active_tokens = tokens_query.all()
+    
+    # Create internal app Notifications for target users
+    try:
+        for emp in target_users:
+            notif = Notification(
+                employee_id=emp,
+                icon='notifications_active',
+                message=f"{title}: {body}"
+            )
+            db.session.add(notif)
+        db.session.commit()
+    except Exception as notif_err:
+        print(f"Error creating internal notifications: {notif_err}")
+        db.session.rollback()
+        
+    success_count = 0
+    failure_count = 0
+    status_text = 'sent'
+    
+    if firebase_admin_app and len(active_tokens) > 0:
+        try:
+            from firebase_admin import messaging
+            token_strings = [t.fcm_token for t in active_tokens]
+            
+            multicast_msg = messaging.MulticastMessage(
+                notification=messaging.Notification(
+                    title=title,
+                    body=body,
+                    image=image_url if image_url else None
+                ),
+                data={
+                    'url': action_url or '/home/home.html'
+                },
+                tokens=token_strings
+            )
+            
+            batch_res = messaging.send_each_multicast(multicast_msg)
+            success_count = batch_res.success_count
+            failure_count = batch_res.failure_count
+            
+            # Deactivate invalid/expired tokens
+            for idx, resp in enumerate(batch_res.responses):
+                if not resp.success:
+                    err_str = str(resp.exception)
+                    if 'invalid' in err_str.lower() or 'not-registered' in err_str.lower():
+                        active_tokens[idx].is_active = False
+            db.session.commit()
+            
+            if failure_count > 0:
+                status_text = 'partial_failure' if success_count > 0 else 'failed'
+                
+        except Exception as fcm_send_err:
+            print(f"[FCM Send Error] {fcm_send_err}")
+            status_text = 'failed'
+            failure_count = len(active_tokens)
+    else:
+        # Fallback simulation when Firebase Admin SDK credentials not yet set up
+        success_count = len(target_users)
+        status_text = 'sent (in-app only)'
+        
+    try:
+        history = NotificationHistory(
+            title=title,
+            body=body,
+            image_url=image_url,
+            action_url=action_url,
+            target_type=target_type,
+            target_reference=target_ref or 'All Users',
+            sender_admin_id=current_user_id,
+            send_status=status_text,
+            success_count=success_count,
+            failure_count=failure_count
+        )
+        db.session.add(history)
+        db.session.commit()
+    except Exception as hist_err:
+        print(f"Error saving notification history: {hist_err}")
+        db.session.rollback()
+        
+    return jsonify({
+        'success': True,
+        'send_status': status_text,
+        'success_count': success_count,
+        'failure_count': failure_count
+    })
+
+# Admin Notification History API endpoint
+@app.route('/api/admin/notification-history', methods=['GET'])
+def admin_notification_history():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        
+    current_user_id = session['user_id']
+    admin_ids = [emp.strip() for emp in os.environ.get('ADMIN_EMPLOYEE_IDS', '12345').split(',') if emp.strip()]
+    user = User.query.filter_by(employee_id=current_user_id).first()
+    if not ((user and user.is_admin) or (current_user_id in admin_ids)):
+        return jsonify({'success': False, 'error': 'Forbidden'}), 403
+        
+    try:
+        records = NotificationHistory.query.order_by(NotificationHistory.id.desc()).limit(20).all()
+        history = []
+        for r in records:
+            history.append({
+                'id': r.id,
+                'title': r.title,
+                'body': r.body,
+                'target_type': r.target_type,
+                'target_reference': r.target_reference,
+                'send_status': r.send_status,
+                'success_count': r.success_count,
+                'failure_count': r.failure_count,
+                'created_at': format_relative_time(r.created_at)
+            })
+        return jsonify({'success': True, 'history': history})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Admin Notification Panel Page route
+@app.route('/admin/notifications.html', methods=['GET'])
+def admin_notifications_route():
+    if 'user_id' not in session:
+        flash("Invalid Credentials")
+        return redirect(url_for('login_route'))
+        
+    current_user_id = session['user_id']
+    admin_ids = [emp.strip() for emp in os.environ.get('ADMIN_EMPLOYEE_IDS', '12345').split(',') if emp.strip()]
+    user = User.query.filter_by(employee_id=current_user_id).first()
+    if not ((user and user.is_admin) or (current_user_id in admin_ids)):
+        flash("Admin access required")
+        return redirect(url_for('home_route'))
+        
+    return render_template('admin/notifications.html')
 
 # Route to serve the Material Symbols Outlined font file with correct MIME type
 @app.route('/material-symbols-outlined.woff2')

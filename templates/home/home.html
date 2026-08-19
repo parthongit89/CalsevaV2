@@ -1520,14 +1520,12 @@
     }
 
   </script>
+  <!-- Firebase Compat App & Messaging SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('Service Worker registered successfully:', reg.scope))
-          .catch(err => console.log('Service Worker registration failed:', err));
-      });
-    }
+    window.calsevaFirebaseConfig = {{ firebase_config|tojson }};
   </script>
+  <script src="/fcm-notifications.js"></script>
 </body>
 </html>

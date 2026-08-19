@@ -10,6 +10,7 @@ class User(db.Model):
     phone = db.Column(db.String(20), nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     profile_image = db.Column(db.LargeBinary, nullable=True)
+    is_admin = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -58,3 +59,36 @@ class Report(db.Model):
 
     def __repr__(self):
         return f"<Report {self.id} cert={self.cert} for {self.employee_id}>"
+
+class FCMToken(db.Model):
+    __tablename__ = 'fcm_tokens'
+
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.String(5), db.ForeignKey('users.employee_id', ondelete='CASCADE'), nullable=False, index=True)
+    fcm_token = db.Column(db.String(500), unique=True, nullable=False)
+    device_info = db.Column(db.String(200), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    def __repr__(self):
+        return f"<FCMToken {self.id} user={self.employee_id}>"
+
+class NotificationHistory(db.Model):
+    __tablename__ = 'notification_history'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.String(500), nullable=True)
+    action_url = db.Column(db.String(500), nullable=True)
+    target_type = db.Column(db.String(50), nullable=False)  # 'all', 'single', 'multiple'
+    target_reference = db.Column(db.Text, nullable=True)     # Target employee IDs or description
+    sender_admin_id = db.Column(db.String(5), db.ForeignKey('users.employee_id'), nullable=False)
+    send_status = db.Column(db.String(50), default='sent')   # 'sent', 'partial_failure', 'failed'
+    success_count = db.Column(db.Integer, default=0)
+    failure_count = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    def __repr__(self):
+        return f"<NotificationHistory {self.id} title='{self.title}'>"

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/theme-loader.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Notification Panel - CalSEVA</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&family=Commissioner:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    @font-face {
+      font-family: 'Material Symbols Outlined';
+      font-style: normal;
+      src: url('/material-symbols-outlined.woff2') format('woff2');
+      font-display: block;
+    }
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-style: normal;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    :root {
+      --color-primary: #3A606E;
+      --color-secondary: #607B7D;
+      --color-bg-card: #E0E0E0;
+      --color-bg-body: #1E2E35;
+      --font-main: 'Outfit', 'Commissioner', 'Elms Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--color-bg-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      font-family: var(--font-main);
+      color: #333;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: #FFFFFF;
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      padding: 30px;
+      margin-top: 20px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px solid #EEEEEE;
+      padding-bottom: 20px;
+      margin-bottom: 25px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header h2 {
+      font-size: 22px;
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+
+    .back-btn {
+      background: #F0F4F5;
+      color: var(--color-primary);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover { background: #E2E9EC; }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+
+    @media (max-width: 768px) {
+      .grid-layout { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #CCCCCC;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--color-primary);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 6px;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* Preview Card */
+    .preview-card {
+      background: #F8FAF9;
+      border: 1px dashed #B0C4DE;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .preview-card h3 {
+      font-size: 15px;
+      color: var(--color-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .device-preview {
+      background: #1E2E35;
+      color: #FFFFFF;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .device-preview-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .device-preview-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--color-primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .send-btn {
+      background: var(--color-primary);
+      color: #FFFFFF;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(58,96,110,0.3);
+      transition: all 0.2s;
+    }
+
+    .send-btn:hover { background: #2F4F5B; transform: translateY(-1px); }
+    .send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 18px;
+      display: none;
+    }
+
+    .alert-success { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+    .alert-danger { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+
+    /* History Table */
+    .history-section {
+      margin-top: 35px;
+      border-top: 1.5px solid #EEEEEE;
+      padding-top: 25px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .history-table th, .history-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #EEEEEE;
+    }
+
+    .history-table th {
+      background: #F4F6F7;
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <a href="/home/home.html" class="back-btn" title="Go to Dashboard">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <h2>Admin Notification Panel</h2>
+      </div>
+      <span class="material-symbols-outlined" style="font-size: 32px; color: var(--color-primary);">send_to_mobile</span>
+    </div>
+
+    <div id="statusAlert" class="alert"></div>
+
+    <div class="grid-layout">
+      <!-- Compose Form -->
+      <form id="notifyForm">
+        <div class="form-group">
+          <label for="title">Notification Title *</label>
+          <input type="text" id="title" class="form-control" placeholder="e.g. CALSEVA Calibration Reminder" required>
+        </div>
+
+        <div class="form-group">
+          <label for="body">Message Body *</label>
+          <textarea id="body" class="form-control" placeholder="Your calibration certificate is due for renewal." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="imageUrl">Optional Image URL</label>
+          <input type="url" id="imageUrl" class="form-control" placeholder="https://example.com/banner.png">
+        </div>
+
+        <div class="form-group">
+          <label for="actionUrl">Action Target URL</label>
+          <input type="text" id="actionUrl" class="form-control" value="/home/home.html" placeholder="/home/home.html">
+        </div>
+
+        <div class="form-group">
+          <label>Target Audience *</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="targetType" value="all" checked onchange="toggleTargetInput()"> All Users
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="targetType" value="single" onchange="toggleTargetInput()"> Specific User
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="targetType" value="multiple" onchange="toggleTargetInput()"> Multiple
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" id="targetRefGroup" style="display: none;">
+          <label for="targetRef">Employee ID(s)</label>
+          <input type="text" id="targetRef" class="form-control" placeholder="e.g. 12345 or 12345, 67890">
+        </div>
+
+        <button type="submit" id="sendBtn" class="send-btn">
+          <span class="material-symbols-outlined">notifications_active</span>
+          <span>Send Push Notification</span>
+        </button>
+      </form>
+
+      <!-- Live Preview -->
+      <div>
+        <div class="preview-card">
+          <h3>
+            <span class="material-symbols-outlined">preview</span>
+            Live Notification Preview
+          </h3>
+
+          <div class="device-preview">
+            <div class="device-preview-header">
+              <div class="device-preview-icon">
+                <span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+              </div>
+              <div style="flex: 1;">
+                <h4 id="previewTitle" style="font-size: 14px; font-weight: 600;">CALSEVA Calibration Reminder</h4>
+                <p id="previewBody" style="font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 2px;">
+                  Your calibration certificate is due for renewal.
+                </p>
+              </div>
+            </div>
+            <div id="previewImageContainer" style="margin-top: 10px; display: none;">
+              <img id="previewImg" src="" style="width: 100%; max-height: 120px; border-radius: 8px; object-fit: cover;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Section -->
+    <div class="history-section">
+      <h3 style="font-size: 16px; color: var(--color-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+        <span class="material-symbols-outlined">history</span>
+        Recent Dispatch History
+      </h3>
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Date / Time</th>
+            <th>Title</th>
+            <th>Target</th>
+            <th>Success / Fail</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr>
+            <td colspan="5" style="text-align: center; color: #888;">Loading history...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Real-time preview updates
+    const titleInput = document.getElementById('title');
+    const bodyInput = document.getElementById('body');
+    const imageInput = document.getElementById('imageUrl');
+
+    titleInput.addEventListener('input', () => {
+      document.getElementById('previewTitle').innerText = titleInput.value || 'CALSEVA Calibration Reminder';
+    });
+
+    bodyInput.addEventListener('input', () => {
+      document.getElementById('previewBody').innerText = bodyInput.value || 'Your calibration certificate is due for renewal.';
+    });
+
+    imageInput.addEventListener('input', () => {
+      const container = document.getElementById('previewImageContainer');
+      const img = document.getElementById('previewImg');
+      if (imageInput.value.trim()) {
+        img.src = imageInput.value.trim();
+        container.style.display = 'block';
+      } else {
+        container.style.display = 'none';
+      }
+    });
+
+    function toggleTargetInput() {
+      const selected = document.querySelector('input[name="targetType"]:checked').value;
+      const targetGroup = document.getElementById('targetRefGroup');
+      if (selected === 'single' || selected === 'multiple') {
+        targetGroup.style.display = 'block';
+      } else {
+        targetGroup.style.display = 'none';
+      }
+    }
+
+    // Submit Handler
+    document.getElementById('notifyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sendBtn = document.getElementById('sendBtn');
+      const alertBox = document.getElementById('statusAlert');
+      
+      const payload = {
+        title: titleInput.value.trim(),
+        body: bodyInput.value.trim(),
+        image_url: imageInput.value.trim() || null,
+        action_url: document.getElementById('actionUrl').value.trim() || '/home/home.html',
+        target_type: document.querySelector('input[name="targetType"]:checked').value,
+        target_reference: document.getElementById('targetRef').value.trim() || null
+      };
+
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<span class="material-symbols-outlined spin">sync</span> Sending...';
+      alertBox.style.display = 'none';
+
+      try {
+        const response = await fetch('/api/admin/send-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          alertBox.className = 'alert alert-success';
+          alertBox.innerText = `Notification dispatched successfully! (Sent: ${result.success_count || 0}, Failed: ${result.failure_count || 0})`;
+          alertBox.style.display = 'block';
+          loadHistory();
+        } else {
+          alertBox.className = 'alert alert-danger';
+          alertBox.innerText = 'Failed: ' + (result.error || 'Unknown error');
+          alertBox.style.display = 'block';
+        }
+      } catch (err) {
+        alertBox.className = 'alert alert-danger';
+        alertBox.innerText = 'Network/Server Error: ' + err.message;
+        alertBox.style.display = 'block';
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<span class="material-symbols-outlined">notifications_active</span> Send Push Notification';
+      }
+    });
+
+    // Load History
+    async function loadHistory() {
+      const tbody = document.getElementById('historyBody');
+      try {
+        const res = await fetch('/api/admin/notification-history');
+        const data = await res.json();
+        if (data.success && data.history.length > 0) {
+          tbody.innerHTML = data.history.map(item => `
+            <tr>
+              <td>${item.created_at}</td>
+              <td><strong>${item.title}</strong></td>
+              <td><span style="text-transform: capitalize;">${item.target_type}</span> (${item.target_reference || 'All'})</td>
+              <td>${item.success_count} / ${item.failure_count}</td>
+              <td><span style="color: ${item.send_status === 'sent' ? '#2E7D32' : '#C62828'}; font-weight: 600;">${item.send_status}</span></td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888;">No notifications dispatched yet.</td></tr>';
+        }
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #C62828;">Error loading history.</td></tr>';
+      }
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>

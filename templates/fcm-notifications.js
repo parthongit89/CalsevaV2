@@ -38,8 +38,15 @@
       return;
     }
 
-    if (!firebase.apps.length && firebaseConfig.apiKey) {
-      firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      const configToUse = {
+        apiKey: firebaseConfig.apiKey || "AIzaSy_calseva_public_web_key",
+        authDomain: firebaseConfig.authDomain || "calseva-2026.firebaseapp.com",
+        projectId: firebaseConfig.projectId || "calseva-2026",
+        messagingSenderId: firebaseConfig.messagingSenderId || "104417696551",
+        appId: firebaseConfig.appId || "1:104417696551:web:calseva"
+      };
+      firebase.initializeApp(configToUse);
     }
 
     try {

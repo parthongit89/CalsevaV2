@@ -1001,10 +1001,12 @@ def notifications_route():
         return redirect(url_for('login_route'))
     return render_template('notifications/notifications.html')
 
-# Firebase Messaging Service Worker route (served at root domain)
+# Firebase Messaging Service Worker route (served dynamically at root domain)
 @app.route('/firebase-messaging-sw.js')
 def serve_firebase_sw():
-    return send_from_directory('templates', 'firebase-messaging-sw.js', mimetype='application/javascript')
+    from flask import Response
+    rendered_sw = render_template('firebase-messaging-sw.js')
+    return Response(rendered_sw, mimetype='application/javascript')
 
 # FCM Client Notification helper script route
 @app.route('/fcm-notifications.js')

@@ -6,13 +6,8 @@
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
-firebase.initializeApp({
-  apiKey: "AIzaSy_placeholder_key",
-  authDomain: "calseva-2026.firebaseapp.com",
-  projectId: "calseva-2026",
-  messagingSenderId: "104417696551",
-  appId: "1:104417696551:web:placeholder"
-});
+// Dynamically injected Firebase Configuration
+firebase.initializeApp({{ firebase_config|tojson }});
 
 const messaging = firebase.messaging();
 
@@ -29,7 +24,7 @@ messaging.onBackgroundMessage((payload) => {
     vibrate: [200, 100, 200, 100, 200],
     tag: 'calseva-rich-alert',
     renotify: true,
-    requireInteraction: true, // Native SMS / Play Store persistence style
+    requireInteraction: true,
     actions: [
       { action: 'open_app', title: '📲 Open App' },
       { action: 'dismiss_alert', title: '✖ Dismiss' }

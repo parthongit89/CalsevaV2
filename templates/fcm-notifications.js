@@ -70,6 +70,20 @@
         const image = notification.image || null;
         const clickUrl = (payload.data && payload.data.url) || '/home/home.html';
 
+        // Explicitly trigger native system notification banner
+        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+          navigator.serviceWorker.ready.then((registration) => {
+            registration.showNotification(title, {
+              body: body,
+              icon: icon,
+              badge: icon,
+              image: image,
+              vibrate: [200, 100, 200],
+              data: { url: clickUrl }
+            });
+          }).catch(() => {});
+        }
+
         showRichSystemToast(title, body, icon, image, clickUrl);
       });
 

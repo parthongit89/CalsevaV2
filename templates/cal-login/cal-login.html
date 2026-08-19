@@ -1077,12 +1077,13 @@
         googleBtn.querySelector('span').textContent = 'Connecting...';
 
         const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
         firebase.auth().signInWithPopup(provider)
           .then((result) => {
             return result.user.getIdToken();
           })
           .then((idToken) => {
-            // Send verified token to Flask backend
             return fetch('/firebase-login', {
               method: 'POST',
               headers: {
@@ -1107,9 +1108,10 @@
           })
           .catch((error) => {
             console.error('Google Sign-in Error:', error);
-            // Check if user closed the popup
-            if (error.code !== 'auth/popup-closed-by-user') {
-              alert('Google Sign-in failed: ' + error.message);
+            if (error.code === 'auth/unauthorized-domain') {
+              alert('Domain not authorized in Firebase Console! Please add calsevav2.onrender.com to Firebase Console -> Authentication -> Settings -> Authorized Domains.');
+            } else if (error.code !== 'auth/popup-closed-by-user') {
+              alert('Google Sign-in note: ' + (error.message || 'Please try again.'));
             }
             googleBtn.disabled = false;
             googleBtn.querySelector('span').textContent = origText;

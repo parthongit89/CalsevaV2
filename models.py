@@ -85,7 +85,7 @@ class NotificationHistory(db.Model):
     target_type = db.Column(db.String(50), nullable=False)  # 'all', 'single', 'multiple'
     target_reference = db.Column(db.Text, nullable=True)     # Target employee IDs or description
     sender_admin_id = db.Column(db.String(5), db.ForeignKey('users.employee_id'), nullable=False)
-    send_status = db.Column(db.String(50), default='sent')   # 'sent', 'partial_failure', 'failed'
+    send_status = db.Column(db.String(500), default='sent')   # 'sent', 'partial_failure', 'failed'
     success_count = db.Column(db.Integer, default=0)
     failure_count = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))

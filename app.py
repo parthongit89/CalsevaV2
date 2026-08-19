@@ -109,10 +109,11 @@ try:
         # Create all tables defined in models
         db.create_all()
 
-        # Ensure profile_image and is_admin columns exist on users table
+        # Ensure columns and types match updated schema
         try:
             db.session.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image BYTEA;"))
             db.session.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;"))
+            db.session.execute(text("ALTER TABLE notification_history ALTER COLUMN send_status TYPE VARCHAR(500);"))
             db.session.commit()
         except Exception as alter_err:
             db.session.rollback()

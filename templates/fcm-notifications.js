@@ -61,7 +61,7 @@
           sendTokenToBackend(token).then((res) => {
             if (isManual) {
               if (res && res.success) {
-                alert('🎉 SUCCESS! Phone device registered in database.\n\nFCM TOKEN LOGGED IN BROWSER CONSOLE (F12)!');
+                alert('🎉 SUCCESS! Device registered in database.\n\n🔥 YOUR FCM TOKEN:\n' + token);
                 if (typeof loadStats === 'function') loadStats();
               } else {
                 alert('⚠️ Token obtained but backend response: ' + (res ? res.error : 'Unknown'));

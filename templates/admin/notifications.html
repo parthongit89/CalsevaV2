@@ -6,6 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Notification Panel - CalSEVA</title>
 
+  <!-- Firebase Compat App & Messaging SDKs for FCM Push Notifications -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+  <script>
+    window.calsevaFirebaseConfig = {{ firebase_config|tojson if firebase_config is defined else {} }};
+  </script>
+  <script src="/fcm-notifications.js"></script>
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -299,7 +307,7 @@
       <div style="display: flex; align-items: center; gap: 8px;">
         <span class="material-symbols-outlined" style="font-size: 18px; color: var(--color-primary);">phonelink</span>
         <span>Active Devices: <strong id="deviceCount" style="color: var(--color-primary);">0 Phone(s)</strong></span>
-        <button onclick="if(window.syncFcmDeviceToken){window.syncFcmDeviceToken(); setTimeout(loadStats, 1500);}" style="background: var(--color-primary); color: #FFF; border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; margin-left: 6px;" title="Register this phone's browser token for push notifications">📱 Sync This Phone</button>
+        <button onclick="if(typeof window.syncFcmDeviceToken === 'function'){ window.syncFcmDeviceToken(); setTimeout(loadStats, 1500); } else { alert('⚙️ Initializing FCM script... Please tap again in 1 second.'); }" style="background: var(--color-primary); color: #FFF; border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; margin-left: 6px;" title="Register this phone's browser token for push notifications">📱 Sync This Phone</button>
       </div>
     </div>
 

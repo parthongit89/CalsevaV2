@@ -36,48 +36,60 @@
     }
   }
 
-  function obtainAndSendToken(messaging, isManual = false) {
+  async function obtainAndSendToken(messaging, isManual = false) {
     if (!('serviceWorker' in navigator)) {
       if (isManual) alert('❌ Service Workers are not supported on this browser.');
       return;
     }
 
-    navigator.serviceWorker.register('/firebase-messaging-sw.js')
-      .then((registration) => {
-        if (isManual) console.log('[CalSEVA FCM] Service Worker registered:', registration);
-        return messaging.getToken({
+    try {
+      // 1. Register service worker and wait until it is fully active
+      await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      const registration = await navigator.serviceWorker.ready;
+      if (isManual) console.log('[CalSEVA FCM] Service Worker active & ready:', registration);
+
+      // 2. Request FCM Token from Google Cloud Messaging
+      let token = null;
+      try {
+        token = await messaging.getToken({
           vapidKey: vapidKey,
           serviceWorkerRegistration: registration
         });
-      })
-      .then((token) => {
-        if (token) {
-          // Log FCM Token prominently in Browser Console (F12) for "Test on Device"
-          console.log('%c🔥 CALSEVA DEVICE FCM REGISTRATION TOKEN 🔥', 'background: #3A606E; color: #FFFFFF; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 6px;');
-          console.log('%cCopy this token for Firebase Console "Test on device":', 'color: #2E7D32; font-weight: bold;');
-          console.log(token);
-          console.log('========================================================================================');
+      } catch (fcmErr) {
+        console.warn('[CalSEVA FCM] VAPID getToken failed, trying fallback scope:', fcmErr);
+        try {
+          token = await messaging.getToken();
+        } catch (fcmErr2) {
+          console.error('[CalSEVA FCM] Fallback getToken failed:', fcmErr2);
+          throw fcmErr;
+        }
+      }
 
-          sendTokenToBackend(token).then((res) => {
-            if (isManual) {
-              if (res && res.success) {
-                alert('🎉 SUCCESS! Device registered in database.\n\n🔥 YOUR FCM TOKEN:\n' + token);
-                if (typeof loadStats === 'function') loadStats();
-              } else {
-                alert('⚠️ Token obtained but backend response: ' + (res ? res.error : 'Unknown'));
-              }
-            }
-          });
-        } else {
-          if (isManual) alert('⚠️ Google returned empty FCM token. Please check FIREBASE_API_KEY in Render.');
-        }
-      })
-      .catch((err) => {
-        console.error('[CalSEVA FCM] Token error:', err);
+      if (token) {
+        // Log FCM Token prominently in Browser Console (F12) for "Test on Device"
+        console.log('%c🔥 CALSEVA DEVICE FCM REGISTRATION TOKEN 🔥', 'background: #3A606E; color: #FFFFFF; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 6px;');
+        console.log('%cCopy this token for Firebase Console "Test on device":', 'color: #2E7D32; font-weight: bold;');
+        console.log(token);
+        console.log('========================================================================================');
+
+        const res = await sendTokenToBackend(token);
         if (isManual) {
-          alert('❌ Google FCM Token Error:\n' + (err.message || err) + '\n\nPlease check VAPID Key or FIREBASE_API_KEY!');
+          if (res && res.success) {
+            alert('🎉 SUCCESS! Device registered in database.\n\n🔥 YOUR FCM TOKEN:\n' + token);
+            if (typeof loadStats === 'function') loadStats();
+          } else {
+            alert('⚠️ Token obtained but backend response: ' + (res ? res.error : 'Unknown'));
+          }
         }
-      });
+      } else {
+        if (isManual) alert('⚠️ Google returned empty FCM token. Please check FIREBASE_API_KEY in Render.');
+      }
+    } catch (err) {
+      console.error('[CalSEVA FCM] Token error:', err);
+      if (isManual) {
+        alert('❌ Google FCM Token Error:\n' + (err.message || err) + '\n\nPlease check VAPID Key or FIREBASE_API_KEY!');
+      }
+    }
   }
 
   function initFCM() {

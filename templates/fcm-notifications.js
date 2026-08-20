@@ -98,17 +98,23 @@
       return;
     }
 
+    let targetProjectId = firebaseConfig.projectId || "calseva-2026";
+    if (!targetProjectId || targetProjectId.includes("gen-lang-client")) {
+      targetProjectId = "calseva-2026";
+    }
+
     if (!firebase.apps.length) {
       const configToUse = {
         apiKey: firebaseConfig.apiKey || "AIzaSy_calseva_public_web_key",
         authDomain: firebaseConfig.authDomain || "calseva-2026.firebaseapp.com",
-        projectId: firebaseConfig.projectId || "calseva-2026",
+        projectId: targetProjectId,
         messagingSenderId: firebaseConfig.messagingSenderId || "104417696551",
         appId: firebaseConfig.appId || "1:104417696551:web:calseva"
       };
       firebase.initializeApp(configToUse);
     } else {
       const app = firebase.apps[0];
+      app.options.projectId = targetProjectId;
       if (!app.options.messagingSenderId) {
         app.options.messagingSenderId = firebaseConfig.messagingSenderId || "104417696551";
       }

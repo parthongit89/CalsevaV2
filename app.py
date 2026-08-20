@@ -73,11 +73,15 @@ def get_firebase_admin_app():
 # Context processor to inject Firebase configuration parameters into all templates
 @app.context_processor
 def inject_firebase_config():
+    proj_id = os.environ.get('FIREBASE_PROJECT_ID', 'calseva-2026')
+    if not proj_id or 'gen-lang-client' in proj_id:
+        proj_id = 'calseva-2026'
+
     return {
         'firebase_config': {
             'apiKey': os.environ.get('FIREBASE_API_KEY', 'AIzaSy_calseva_public_web_key'),
             'authDomain': os.environ.get('FIREBASE_AUTH_DOMAIN', 'calseva-2026.firebaseapp.com'),
-            'projectId': os.environ.get('FIREBASE_PROJECT_ID', 'calseva-2026'),
+            'projectId': proj_id,
             'messagingSenderId': os.environ.get('FIREBASE_MESSAGING_SENDER_ID', '104417696551'),
             'appId': os.environ.get('FIREBASE_APP_ID', '1:104417696551:web:calseva'),
             'vapidKey': os.environ.get('FIREBASE_VAPID_KEY', 'BG9hLohg7jKRV_NC6NxVLCYr2J136Qldq8PQFMJ1ogwBuQBEs70EwJzINX3hrInBXtK_K_jcLEAj05mwKCLzRC4')

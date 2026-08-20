@@ -12,6 +12,17 @@
     return;
   }
 
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
   async function sendTokenToBackend(token) {
     if (!token) return null;
     try {
@@ -56,11 +67,21 @@
           serviceWorkerRegistration: registration
         });
       } catch (fcmErr) {
-        console.warn('[CalSEVA FCM] VAPID getToken failed, trying fallback scope:', fcmErr);
+        console.warn('[CalSEVA FCM] Firebase messaging.getToken failed, attempting Native W3C Web Push fallback:', fcmErr);
         try {
-          token = await messaging.getToken();
-        } catch (fcmErr2) {
-          console.error('[CalSEVA FCM] Fallback getToken failed:', fcmErr2);
+          const convertedVapidKey = urlBase64ToUint8Array(vapidKey);
+          let sub = await registration.pushManager.getSubscription();
+          if (!sub) {
+            sub = await registration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: convertedVapidKey
+            });
+          }
+          if (sub && sub.endpoint) {
+            token = sub.endpoint.split('/').pop();
+          }
+        } catch (nativeErr) {
+          console.error('[CalSEVA FCM] Native Web Push fallback also failed:', nativeErr);
           throw fcmErr;
         }
       }
@@ -87,7 +108,7 @@
     } catch (err) {
       console.error('[CalSEVA FCM] Token error:', err);
       if (isManual) {
-        alert('❌ Google FCM Token Error:\n' + (err.message || err) + '\n\nPlease check VAPID Key or FIREBASE_API_KEY!');
+        alert('❌ Google FCM Token Error:\n' + (err.message || err) + '\n\nPlease check VAPID Key or FIREBASE_API_KEY in Render!');
       }
     }
   }

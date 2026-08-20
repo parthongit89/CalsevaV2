@@ -52,14 +52,19 @@
       })
       .then((token) => {
         if (token) {
-          console.log('[CalSEVA FCM] Obtained FCM Token:', token);
+          // Log FCM Token prominently in Browser Console (F12) for "Test on Device"
+          console.log('%c🔥 CALSEVA DEVICE FCM REGISTRATION TOKEN 🔥', 'background: #3A606E; color: #FFFFFF; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 6px;');
+          console.log('%cCopy this token for Firebase Console "Test on device":', 'color: #2E7D32; font-weight: bold;');
+          console.log(token);
+          console.log('========================================================================================');
+
           sendTokenToBackend(token).then((res) => {
             if (isManual) {
               if (res && res.success) {
-                alert('🎉 SUCCESS! Phone device registered in database. You can now send push notifications!');
+                alert('🎉 SUCCESS! Phone device registered in database.\n\nFCM TOKEN LOGGED IN BROWSER CONSOLE (F12)!');
                 if (typeof loadStats === 'function') loadStats();
               } else {
-                alert('⚠️ Token saved locally but backend response: ' + (res ? res.error : 'Unknown'));
+                alert('⚠️ Token obtained but backend response: ' + (res ? res.error : 'Unknown'));
               }
             }
           });
@@ -90,6 +95,11 @@
         appId: firebaseConfig.appId || "1:104417696551:web:calseva"
       };
       firebase.initializeApp(configToUse);
+    } else {
+      const app = firebase.apps[0];
+      if (!app.options.messagingSenderId) {
+        app.options.messagingSenderId = firebaseConfig.messagingSenderId || "104417696551";
+      }
     }
 
     try {

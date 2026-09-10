@@ -876,8 +876,9 @@
 
     function handleLogout() {
       if (confirm("Are you sure you want to log out?")) {
-        navigateToPage('/cal-login/cal-logout');
+        window.location.href = "/cal-login/cal-logout";
       }
+    }
     }
 
     // Page load fade-out transition

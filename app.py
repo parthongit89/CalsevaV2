@@ -646,14 +646,18 @@ def verify_route():
             pass
     return render_template('caliverify/caliverify.html', user_email=user_email)
 
-# Log out route
+# Log out route (clears all session & cookies)
 @app.route('/cal-login/cal-logout')
+@app.route('/logout')
+@app.route('/api/logout')
 def logout_route():
     user_id = session.get('user_id')
     if user_id:
         try:
+            user = find_user_by_employee_id(user_id)
+            emp_id = user.employee_id if user else user_id
             logout_notif = Notification(
-                employee_id=user_id,
+                employee_id=emp_id,
                 icon='logout',
                 message="Logged out of your session successfully"
             )
@@ -661,8 +665,16 @@ def logout_route():
             db.session.commit()
         except Exception as e:
             print(f"Error creating logout notification: {e}")
+            db.session.rollback()
+
     session.clear()
-    return redirect(url_for('login_route'))
+    session.modified = True
+    
+    from flask import make_response
+    resp = make_response(redirect(url_for('login_route')))
+    resp.set_cookie('session', '', expires=0)
+    resp.set_cookie('remember_token', '', expires=0)
+    return resp
 
 # Home Page dynamic dashboard route
 @app.route('/home/home.html', methods=['GET'])

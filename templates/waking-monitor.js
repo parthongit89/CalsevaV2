@@ -28,6 +28,18 @@
     window.location.href = url;
   };
 
+  // Global Logout Handler (Clears session backend & redirects to login)
+  window.handleLogout = function() {
+    if (confirm("Are you sure you want to log out of CalSEVA?")) {
+      const loader = document.getElementById('loaderOverlay');
+      if (loader) {
+        loader.style.display = 'flex';
+        loader.style.opacity = '0.4';
+      }
+      window.location.href = '/cal-login/cal-logout';
+    }
+  };
+
   // Create waking overlay element
   const overlay = document.createElement('div');
   overlay.id = 'serverWakingOverlay';

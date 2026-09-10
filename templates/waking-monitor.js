@@ -1,4 +1,33 @@
 (function() {
+  // BFCache (Back-Forward Cache) Back-Button Stuck Loader Fix
+  function hideAllLoaders() {
+    const loader = document.getElementById('loaderOverlay');
+    if (loader) {
+      loader.style.opacity = '0';
+      loader.style.display = 'none';
+    }
+  }
+
+  window.addEventListener('pageshow', hideAllLoaders);
+  window.addEventListener('popstate', hideAllLoaders);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hideAllLoaders);
+  } else {
+    hideAllLoaders();
+  }
+
+  // Global Fast Navigation (Eliminates artificial 300ms delays and video loader lockups)
+  window.navigateToPage = function(url) {
+    if (!url) return;
+    const loader = document.getElementById('loaderOverlay');
+    if (loader) {
+      loader.style.display = 'flex';
+      loader.style.opacity = '0.4';
+    }
+    // Instant navigation without artificial delay
+    window.location.href = url;
+  };
+
   // Create waking overlay element
   const overlay = document.createElement('div');
   overlay.id = 'serverWakingOverlay';

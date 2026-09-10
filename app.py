@@ -177,11 +177,12 @@ def find_user_by_employee_id(emp_id):
         User.employee_id.in_([raw_id, padded_id, stripped_id])
     ).first()
 
-# Helper function to send email via SMTP or HTTP API (Render compliant)
+# Helper function to send email via SMTP, Resend, or SendGrid API with multi-tier fallback
 def send_otp_email(to_email, otp_code):
     resend_key = os.environ.get('RESEND_API_KEY')
     sendgrid_key = os.environ.get('SENDGRID_API_KEY')
     sender = os.environ.get('GMAIL_SENDER', 'supportcalsevatec@gmail.com').strip()
+    app_password = os.environ.get('GMAIL_APP_PASSWORD', '').strip()
     subject = "Your One-Time Password (OTP) - CalSEVA"
     
     body = f"""
@@ -210,6 +211,7 @@ def send_otp_email(to_email, otp_code):
     </html>
     """
 
+    # Tier 1: Try Resend API
     if resend_key:
         try:
             import urllib.request
@@ -219,7 +221,6 @@ def send_otp_email(to_email, otp_code):
                 "Authorization": f"Bearer {resend_key}",
                 "Content-Type": "application/json"
             }
-            # Resend requires a verified domain, defaults to onboarding@resend.dev for sandboxing
             from_email = os.environ.get('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
             data = {
                 "from": f"CalSEVA Support <{from_email}>",
@@ -227,21 +228,15 @@ def send_otp_email(to_email, otp_code):
                 "subject": subject,
                 "html": body
             }
-            req = urllib.request.Request(
-                url, 
-                data=json.dumps(data).encode('utf-8'), 
-                headers=headers, 
-                method='POST'
-            )
+            req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
             with urllib.request.urlopen(req) as response:
-                res_body = response.read().decode('utf-8')
-                print(f"Email sent successfully via Resend API: {res_body}")
+                print("[Email System] Sent successfully via Resend API.")
                 return True
         except Exception as api_err:
-            print(f"Error sending email via Resend API: {api_err}")
-            return False
+            print(f"[Email System] Resend API failed: {api_err}. Falling back to next provider...")
 
-    elif sendgrid_key:
+    # Tier 2: Try SendGrid API
+    if sendgrid_key:
         try:
             import urllib.request
             import json
@@ -257,56 +252,32 @@ def send_otp_email(to_email, otp_code):
                 "subject": subject,
                 "content": [{"type": "text/html", "value": body}]
             }
-            req = urllib.request.Request(
-                url, 
-                data=json.dumps(data).encode('utf-8'), 
-                headers=headers, 
-                method='POST'
-            )
+            req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
             with urllib.request.urlopen(req) as response:
-                print("Email sent successfully via SendGrid API.")
+                print("[Email System] Sent successfully via SendGrid API.")
                 return True
         except Exception as api_err:
-            print(f"Error sending email via SendGrid API: {api_err}")
-            if hasattr(api_err, 'read'):
-                try:
-                    error_body = api_err.read().decode('utf-8')
-                    print(f"SendGrid Error Response Body: {error_body}")
-                except Exception:
-                    pass
-            return False
+            print(f"[Email System] SendGrid API failed (e.g. credit limit exceeded): {api_err}. Falling back to SMTP...")
 
-    else:
-        # SMTP Fallback (default for local development)
-        app_password = os.environ.get('GMAIL_APP_PASSWORD', '')
-        msg = MIMEMultipart()
-        msg['From'] = f"Calseva Support <{sender}>"
-        msg['To'] = to_email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'html'))
-        
-        logo_path = "templates/caliprofile-pages/Calsevalogo.png"
-        if os.path.exists(logo_path):
-            try:
-                with open(logo_path, 'rb') as f:
-                    img_data = f.read()
-                msg_image = MIMEImage(img_data)
-                msg_image.add_header('Content-ID', '<logo>')
-                msg_image.add_header('Content-Disposition', 'inline', filename="Calsevalogo.png")
-                msg.attach(msg_image)
-            except Exception as attach_err:
-                print(f"Error attaching logo: {attach_err}")
-
+    # Tier 3: Try Gmail SMTP Fallback
+    if sender and app_password:
         try:
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.starttls()
-            server.login(sender, app_password)
-            server.sendmail(sender, to_email, msg.as_string())
-            server.quit()
-            return True
-        except Exception as e:
-            print(f"Error sending email via SMTP: {e}")
-            return False
+            msg = MIMEMultipart()
+            msg['From'] = f"Calseva Support <{sender}>"
+            msg['To'] = to_email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(body, 'html'))
+
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+                server.login(sender, app_password)
+                server.send_message(msg)
+                print("[Email System] Sent successfully via Gmail SMTP.")
+                return True
+        except Exception as smtp_err:
+            print(f"[Email System] SMTP failed: {smtp_err}")
+
+    print(f"[Email System] All email sending methods failed/unconfigured. Generated OTP was: {otp_code}")
+    return False
 
 # Validation helper for password complexity (8+ chars, alphanumeric + special character)
 def is_valid_password(password):

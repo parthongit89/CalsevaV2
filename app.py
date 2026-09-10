@@ -143,9 +143,39 @@ try:
             print(f"[DB Seed Error] {seed_err}")
             db.session.rollback()
 
+        # Auto-seed user 09112 if missing
+        try:
+            user_09112 = User.query.filter(User.employee_id.in_(['09112', '9112'])).first()
+            if not user_09112:
+                u09112 = User(
+                    employee_id='09112',
+                    email='user09112@calseva.com',
+                    phone='9876543210',
+                    is_admin=False
+                )
+                u09112.set_password('Password123!')
+                db.session.add(u09112)
+                db.session.commit()
+                print("[DB Seed] Seeded user '09112' with password 'Password123!' successfully.")
+        except Exception as seed_err_09112:
+            print(f"[DB Seed Error 09112] {seed_err_09112}")
+            db.session.rollback()
+
     print("Database tables initialized/verified successfully.")
 except Exception as db_err:
     print(f"Warning: Dynamic database table creation failed: {db_err}")
+
+# Helper to query user by raw, padded (09112), or stripped (9112) employee ID
+def find_user_by_employee_id(emp_id):
+    if not emp_id:
+        return None
+    raw_id = str(emp_id).strip()
+    padded_id = raw_id.zfill(5) if raw_id.isdigit() else raw_id
+    stripped_id = raw_id.lstrip('0') if raw_id.isdigit() else raw_id
+    
+    return User.query.filter(
+        User.employee_id.in_([raw_id, padded_id, stripped_id])
+    ).first()
 
 # Helper function to send email via SMTP or HTTP API (Render compliant)
 def send_otp_email(to_email, otp_code):
@@ -437,6 +467,8 @@ def login_route():
         return redirect(url_for('home_route'))
     if request.method == 'POST':
         employee_id = request.form.get('employeeId', '').strip()
+        if employee_id.isdigit() and len(employee_id) < 5:
+            employee_id = employee_id.zfill(5)
         password = request.form.get('password', '').strip()
 
         # 1. Invalid Credentials check (empty fields)
@@ -456,7 +488,7 @@ def login_route():
 
         # 4. User lookup in database
         try:
-            user = User.query.filter_by(employee_id=employee_id).first()
+            user = find_user_by_employee_id(employee_id)
             if not user:
                 flash("Invalid Username Please Signup")
                 return redirect(url_for('login_route'))
@@ -469,7 +501,7 @@ def login_route():
             # Successful Authentication -> Send OTP via email in a background thread to prevent blocking
             otp_code = str(random.randint(100000, 999999))
             session['otp_code'] = otp_code
-            session['temp_employee_id'] = employee_id
+            session['temp_employee_id'] = user.employee_id
 
             print(f"[OTP System] Generated OTP is: {otp_code} for user: {user.email}")
 
@@ -940,7 +972,7 @@ def profile_route():
         
     user_id = session['user_id']
     try:
-        user = User.query.filter_by(employee_id=user_id).first()
+        user = find_user_by_employee_id(user_id)
         if not user:
             flash("Invalid Credentials")
             return redirect(url_for('login_route'))
@@ -956,9 +988,9 @@ def profile_route():
 @app.route('/user/avatar/<employee_id>')
 def serve_avatar(employee_id):
     try:
-        user = User.query.filter_by(employee_id=employee_id).first()
+        user = find_user_by_employee_id(employee_id)
         if not user or not user.profile_image:
-            return "", 404
+            return send_from_directory('templates/caliprofile-pages', 'Calsevalogo.png')
             
         image_data = user.profile_image
         mimetype = 'image/jpeg'
@@ -974,7 +1006,7 @@ def serve_avatar(employee_id):
     except Exception as e:
         print(f"Error serving avatar: {e}")
         db.session.rollback()
-        return "", 404
+        return send_from_directory('templates/caliprofile-pages', 'Calsevalogo.png')
 
 # Upload avatar POST handler
 @app.route('/user/upload-avatar', methods=['POST'])
@@ -983,7 +1015,7 @@ def upload_avatar():
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
         
     user_id = session['user_id']
-    user = User.query.filter_by(employee_id=user_id).first()
+    user = find_user_by_employee_id(user_id)
     if not user:
         return jsonify({'success': False, 'error': 'User not found'}), 404
         
@@ -995,17 +1027,47 @@ def upload_avatar():
         return jsonify({'success': False, 'error': 'No selected file'}), 400
         
     # Check extension
-    allowed_extensions = {'png', 'jpg', 'jpeg'}
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
     ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
     if ext not in allowed_extensions:
         return jsonify({'success': False, 'error': 'Invalid file type'}), 400
         
     try:
-        # Read the file binary and save directly to database
         img_binary = file.read()
+        if len(img_binary) > 5 * 1024 * 1024:
+            return jsonify({'success': False, 'error': 'File size exceeds 5MB limit'}), 400
+
+        # Validate magic headers
+        if not (img_binary.startswith(b'\x89PNG') or img_binary.startswith(b'\xff\xd8\xff') or img_binary.startswith(b'GIF8') or (img_binary.startswith(b'RIFF') and img_binary[8:12] == b'WEBP')):
+            return jsonify({'success': False, 'error': 'Invalid image file header'}), 400
+
         user.profile_image = img_binary
         db.session.commit()
         return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# API Endpoint to update user profile info (phone, email)
+@app.route('/api/user/update-profile', methods=['POST'])
+def update_user_profile():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        
+    user_id = session['user_id']
+    user = find_user_by_employee_id(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'User not found'}), 404
+        
+    data = request.get_json() or {}
+    try:
+        if 'phone' in data and data['phone']:
+            user.phone = data['phone'].strip()
+        if 'email' in data and data['email'].strip():
+            user.email = data['email'].strip()
+            
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Profile updated successfully!'})
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
